@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bgmasoi"
+    android:orientation="vertical"
+    >
+    <TextView
+        android:id="@+id/txtlogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LOGIN"
+        android:textColor="#FFFFFF"
+        android:textSize="28dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txtuser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="180dp"
+            android:text="User"
+            android:textColor="#FFFFFF"
+            android:textSize="20dp" />
+
+        <EditText
+            android:id="@+id/edtuser"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:background="#5e5959" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txtpass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="130dp"
+            android:text="Password"
+            android:textColor="#FFFFFF"
+            android:textSize="20dp" />
+
+        <EditText
+            android:inputType="textPassword"
+            android:id="@+id/edtpass"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:background="#5e5959" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp">
+        <Button
+            android:id="@+id/btnlogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Login"
+            android:background="#e80715"
+            android:textColor="#FFF"
+            android:textSize="18dp"
+            android:layout_marginLeft="240dp"
+            />
+        <Button
+            android:id="@+id/btnsignup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:text="Signup"
+            android:background="#e80715"
+            android:textColor="#FFF"
+            android:layout_marginLeft="30dp"
+
+            />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageButton
+            android:id="@+id/btnfb"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/fb"
+            />
+        <ImageButton
+            android:layout_marginLeft="20dp"
+            android:id="@+id/btngg"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/ggplus"
+            />
+        <TextView
+            android:id="@+id/txtquenmk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quên mật khẩu ?"
+            android:textColor="#eb5a16"
+            android:layout_gravity="center"
+            android:layout_marginLeft="160dp"
+            />
+        <com.google.android.gms.common.SignInButton
+
+            android:id="@+id/sign_in_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+
+
+
+
+
+    </LinearLayout>
+
+
+
+
+
+</LinearLayout>

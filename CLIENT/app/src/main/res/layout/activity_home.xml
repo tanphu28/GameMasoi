@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bghome">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="300dp"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp">
+
+            <TextView
+                android:id="@+id/txtlistfriend"
+                android:layout_width="144dp"
+                android:layout_height="wrap_content"
+
+                android:layout_marginStart="80dp"
+                android:layout_marginTop="40dp"
+                android:gravity="center"
+                android:text="List Friends"
+                android:textColor="#fff"
+                android:textSize="26dp"
+                />
+
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+
+            <ListView
+                android:id="@+id/lsvlistfriend"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="65dp"
+                android:layout_marginEnd="50dp"
+                android:layout_marginTop="10dp"
+                ></ListView>
+        </LinearLayout>
+
+
+
+
+
+
+
+
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:orientation="vertical">
+
+
+            <Button
+                android:id="@+id/btnchoingay"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="80dp"
+                android:layout_marginTop="80dp"
+                android:background="@drawable/button"
+                android:text="Chơi ngay"
+                />
+
+            <Button
+                android:id="@+id/btnchonban"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="80dp"
+
+                android:layout_marginTop="20dp"
+                android:text="Chọn bàn"
+                android:background="@drawable/button"
+                />
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <LinearLayout
+                android:layout_width="150dp"
+                android:layout_height="match_parent">
+
+
+                <ImageButton
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+
+                    android:layout_marginTop="100dp"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/icon_gold"
+                    android:layout_marginEnd="5dp"
+                    />
+
+                <TextView
+                    android:id="@+id/txtgold"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content"
+
+
+
+                    android:text="5000"
+                    android:layout_marginTop="100dp"
+                    android:textColor="#f00"
+                    android:textSize="30dp"
+                    android:layout_marginEnd="5dp"
+
+                    />
+
+                <ImageButton
+                    android:id="@+id/bgcong"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+
+
+                    android:layout_marginTop="100dp"
+                    android:background="@drawable/iconcong"
+                    />
+
+
+
+
+
+
+
+
+
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <ImageButton
+                    android:id="@+id/bguser"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="50dp"
+                    android:layout_marginTop="2dp"
+                    android:background="@drawable/user"
+                    />
+
+
+                <TextView
+                    android:id="@+id/txtuser"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content"
+
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="25dp"
+                    android:layout_marginStart="50dp"
+                    android:gravity="center"
+                    android:text="Phú"
+                    android:textColor="#f00"
+                    android:textSize="30dp"
+                    />
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+
+</LinearLayout>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:background="#FFF"
+    >
+    <TextView
+        android:id="@+id/txtban"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:text="Bàn"
+        android:textColor="#000"
+        android:textSize="28dp"
+        android:textAlignment="center"
+        android:layout_gravity="center"
+        />
+    <TextView
+        android:layout_width="2dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:background="#000"/>
+    <TextView
+        android:id="@+id/txttenban"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:text="Tên bàn"
+        android:textColor="#000"
+        android:textSize="28dp"
+        android:textAlignment="center"
+        android:layout_gravity="center"
+        />
+    <TextView
+        android:layout_width="2dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:background="#000"/>
+    <TextView
+        android:id="@+id/txtcuoc"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:text="Cược"
+        android:textColor="#000"
+        android:textSize="28dp"
+        android:textAlignment="center"
+        android:layout_gravity="center"
+        />
+    <TextView
+        android:layout_width="2dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:background="#000"/>
+    <TextView
+        android:id="@+id/txtsonguoi"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="Số người"
+        android:textColor="#000"
+        android:textSize="28dp"
+        android:textAlignment="center"
+        android:layout_gravity="center"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#989696"
+        >
+
+    </LinearLayout>
+
+</LinearLayout>

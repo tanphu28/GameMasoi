@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="@drawable/bgsignup"
+    >
+    <TextView
+        android:id="@+id/txtsigup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SIGN UP"
+        android:textSize="32dp"
+        android:textColor="#FFF"
+        android:layout_marginTop="30dp"
+        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        >
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:textColor="#FFF"
+            android:textSize="24dp"
+            />
+        <EditText
+            android:inputType="textEmailAddress"
+            android:id="@+id/edtemail"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:background="#726d71" />
+
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        >
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="User"
+            android:textColor="#FFF"
+            android:textSize="24dp"
+            />
+        <EditText
+            android:id="@+id/edtuser"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:background="#726d71" />
+
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        >
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Pass"
+            android:textColor="#FFF"
+            android:textSize="24dp"
+            />
+        <EditText
+            android:id="@+id/edtpass"
+            android:inputType="textPassword"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:background="#726d71" />
+
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        >
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Birthday"
+            android:textColor="#FFF"
+            android:textSize="24dp"
+            />
+        <EditText
+            android:hint="dd/mm/yyyy"
+            android:id="@+id/edtbirthday"
+            android:inputType="date"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:background="#726d71" />
+
+
+
+    </LinearLayout>
+    <Button
+        android:id="@+id/btnsignup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sign up"
+        android:textColor="#FFF"
+        android:background="#2a2929"
+        android:textSize="20dp"
+        android:layout_marginTop="30dp"
+        />
+
+
+
+
+
+</LinearLayout>
