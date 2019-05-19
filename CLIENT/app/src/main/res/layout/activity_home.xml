@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bghome">
+    android:background="#0099cc"
+    android:orientation="vertical">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bghome"
+    android:id="@+id/fullscreen_content"
+    android:orientation="horizontal"
+    tools:ignore="UselessParent"
+    >
 
 
     <LinearLayout
@@ -29,7 +41,7 @@
 
 
         </LinearLayout>
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -44,7 +56,81 @@
                 android:layout_marginEnd="50dp"
                 android:layout_marginTop="10dp"
                 ></ListView>
-        </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/imgChat"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="241dp"
+               android:background="@drawable/chat"
+                android:layout_marginBottom="32dp" />
+            <RelativeLayout
+                android:id="@+id/groupChat"
+                android:layout_width="match_parent"
+                android:layout_height="230dp"
+                android:orientation="horizontal"
+                android:visibility="invisible"
+                >
+
+                <ImageButton
+                    android:id="@+id/imgCancleChat"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="1dp"
+                    android:background="@drawable/back" />
+
+                <Button
+                    android:id="@+id/btnSS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="center_vertical"
+                    android:text="Sẵn Sàng"
+                    android:textSize="40dp" />
+
+                <LinearLayout
+                    android:id="@+id/lnrchat"
+                    android:layout_width="250dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+
+                    <ListView
+                        android:id="@+id/listChat"
+                        android:layout_width="match_parent"
+                        android:layout_height="190dp"
+                        android:layout_alignStart="@+id/lnrchat"
+                        android:layout_alignTop="@+id/lnrchat"
+                        android:background="#FFF"></ListView>
+
+                    <LinearLayout
+                        android:id="@+id/lnrkhungchat"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <EditText
+                            android:id="@+id/edtChat"
+                            android:layout_width="180dp"
+                            android:layout_height="match_parent" />
+
+                        <Button
+                            android:id="@+id/btnSend"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="send" />
+
+                    </LinearLayout>
+
+
+
+                </LinearLayout>
+
+
+            </RelativeLayout>
+        </RelativeLayout>
 
 
 
@@ -192,4 +278,5 @@
     </LinearLayout>
 
 
+</LinearLayout>
 </LinearLayout>

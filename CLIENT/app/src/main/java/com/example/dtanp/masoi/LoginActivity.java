@@ -1,11 +1,19 @@
 package com.example.dtanp.masoi;
 
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -52,11 +60,61 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     private FirebaseAuth auth;
     private Emitter.Listener emitterUserLogin;
 
+
+    private static final boolean AUTO_HIDE = true;
+
+
+    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+
+
+    private static final int UI_ANIMATION_DELAY = 300;
+    private final Handler mHideHandler = new Handler();
+    private View mContentView;
+    private final Runnable mHidePart2Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        }
+    };
+    private View mControlsView;
+    private final Runnable mShowPart2Runnable = new Runnable() {
+        @Override
+        public void run() {
+            ActionBar actionBar = getActionBar();
+            if (actionBar != null) {
+                actionBar.show();
+            }
+        }
+    };
+    private boolean mVisible;
+    private final Runnable mHideRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hide();
+        }
+    };
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
+        mVisible = true;
+        mContentView = findViewById(R.id.fullscreen_content);
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -75,7 +133,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 
 
         try {
-            StaticUser.socket = IO.socket("http://192.168.1.7:3000");
+            StaticUser.socket = IO.socket("http://192.168.1.9:3000");
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -86,6 +144,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         AddEvents();
     }
 
+
     private void AddEvents() {
         btnlogin.setOnClickListener(this);
         btngg.setOnClickListener(this);
@@ -93,6 +152,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             @Override
             public void onClick(View view) {
                 startmhsignup();
+                hide();
             }
         });
         emitterUserLogin=new Emitter.Listener(){
@@ -107,6 +167,18 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             }
         };
         StaticUser.socket.on("userlogin",emitterUserLogin);
+        edtuser.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                hide();
+            }
+        });
+        edtpassworld.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                hide();
+            }
+        });
     }
 
     private void AddConTrols() {
@@ -123,6 +195,8 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         Intent intent = new Intent(this,SignupActivity.class);
         startActivity(intent);
     }
+
+
 
     @Override
     public void onClick(View view) {
@@ -230,6 +304,63 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                         // ...
                     }
                 });
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemUI();
+        }
+    }
+
+    private void hideSystemUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE
+                        // Set the content to appear under the system bars so that the
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        // Hide the nav bar and status bar
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        delayedHide(100);
+    }
+    private void hide() {
+        // Hide UI first
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+        mVisible = false;
+
+        mHideHandler.removeCallbacks(mShowPart2Runnable);
+        mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
+    }
+
+    @SuppressLint("InlinedApi")
+    private void show() {
+        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        mVisible = true;
+        mHideHandler.removeCallbacks(mHidePart2Runnable);
+        mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
+    }
+
+    /**
+     * Schedules a call to hide() in delay milliseconds, canceling any
+     * previously scheduled calls.
+     */
+    private void delayedHide(int delayMillis) {
+        mHideHandler.removeCallbacks(mHideRunnable);
+        mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
 
 

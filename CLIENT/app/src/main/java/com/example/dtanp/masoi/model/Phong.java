@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Phong {
+    private  String _id;
     private String id;
     private String name;
     private int people;
@@ -12,7 +13,8 @@ public class Phong {
     private int host;
     private ArrayList<User> users;
 
-    public Phong(String id, String name, int people, int totalpeople, int roomnumber, int host, ArrayList<User> users) {
+    public Phong(String _id, String id, String name, int people, int totalpeople, int roomnumber, int host, ArrayList<User> users) {
+        this._id = _id;
         this.id = id;
         this.name = name;
         this.people = people;
@@ -20,10 +22,19 @@ public class Phong {
         this.roomnumber = roomnumber;
         this.host = host;
         this.users = users;
+
     }
 
     public Phong() {
         this.users = new ArrayList<>();
+    }
+
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
     }
 
     public String getId() {

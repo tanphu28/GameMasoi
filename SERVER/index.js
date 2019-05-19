@@ -97,12 +97,22 @@ io.on("connection",function(socket){
                 }   
                 else
                 {
+                    Room.findOne({id : json.id},function(err,data){
+                    if(err)
+                    {
+                        onsole.log("that bai");
+                    }
+                    else
+                    {
                     socket.Phong="";
-                    socket.Phong = room.id;
-                    socket.join(room.id);
-                    io.sockets.emit("newroom",room);
-                    console.log(room);
+                    socket.Phong = data._id;
+                    socket.join(data._id);
+                    io.sockets.emit("newroom",data);
+                    console.log(socket.Phong);
                     console.log("Them thanh cong");
+                    }
+                    });
+                    
                 }
             });
             console.log(data);
@@ -110,7 +120,7 @@ io.on("connection",function(socket){
         //joinroom
         socket.on("joinroom",function(data){
             var json  = JSON.parse(data);
-            Room.findOne({id:json.id_room},function(err,doc){
+            Room.findOne({_id:json.id_room},function(err,doc){
                 var user = new User(
                 {
                     id:json.id,
@@ -131,6 +141,7 @@ io.on("connection",function(socket){
                         socket.join(json.id_room);
                         socket.Phong=json.id_room;
                         io.sockets.in(json.id_room).emit("newuser",user);
+                        console.log(socket.Phong);
                         console.log("Thanh Cong!");
                     }
                 });
@@ -204,6 +215,11 @@ io.on("connection",function(socket){
             });
             
             
+        });
+
+        //chat Server
+        socket.on("ChatAll",function(data){
+            io.sockets.emit("ChatAll",data);
         });
         //kick user
         
