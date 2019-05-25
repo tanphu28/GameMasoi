@@ -22,6 +22,8 @@ import android.widget.Toast;
 import com.example.dtanp.masoi.control.StaticFirebase;
 import com.example.dtanp.masoi.control.StaticUser;
 import com.example.dtanp.masoi.model.User;
+import com.example.dtanp.masoi.model.UserStore;
+import com.example.dtanp.masoi.utils.MD5Util;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -158,11 +160,25 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         emitterUserLogin=new Emitter.Listener(){
 
             @Override
-            public void call(Object... args) {
-                JSONObject jsonObject = (JSONObject) args[0];
-                StaticUser.user = StaticUser.gson.fromJson(jsonObject.toString(),User.class);
-                startmh();
-                finish();
+            public void call(final Object... args) {
+                LoginActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(args[0]==null)
+                        {
+                            Toast.makeText(LoginActivity.this,"Username or PassWord incorrect",Toast.LENGTH_SHORT).show();
+                        }
+                        else
+                        {
+                            JSONObject jsonObject = (JSONObject) args[0];
+                            StaticUser.user = StaticUser.gson.fromJson(jsonObject.toString(),User.class);
+                            startmh();
+                            finish();
+                        }
+
+                    }
+                });
+
 
             }
         };
@@ -203,40 +219,47 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         int id = view.getId();
         if (id == R.id.btnlogin) {
 
-            final DatabaseReference reference = database.getReference();
-            if (edtuser.getText().toString() != "" && edtpassworld.getText().toString() != "") {
-                String user = edtuser.getText().toString();
-                String pass = edtpassworld.getText().toString();
-                auth.signInWithEmailAndPassword(user, pass).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            //System.out.println(task.getResult().getUser().getUid().toString());
-//                            reference.child("User").child(task.getResult().getUser().getUid().toString()).addValueEventListener(new ValueEventListener() {
-//                                @Override
-//                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                                    User us = dataSnapshot.getValue(User.class);
-//                                    StaticUser.user = us;
-//                                    Toast.makeText(LoginActivity.this,"Đăng nhập thành công",Toast.LENGTH_SHORT).show();
-//                                    startmh();
-//                                    finish();
-//
-//
-//                                }
-//
-//                                @Override
-//                                public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                                }
-//                            });
-                            //Toast.makeText(LoginActivity.this,"Đăng nhập !",Toast.LENGTH_SHORT).show();
-                            StaticUser.socket.emit("finduserlogin",task.getResult().getUser().getUid());
-                        } else {
-                            Toast.makeText(LoginActivity.this,"Đăng nhập thất bại",Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-            }
+//            final DatabaseReference reference = database.getReference();
+//            if (edtuser.getText().toString() != "" && edtpassworld.getText().toString() != "") {
+//                String user = edtuser.getText().toString();
+//                String pass = edtpassworld.getText().toString();
+//                auth.signInWithEmailAndPassword(user, pass).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<AuthResult> task) {
+//                        if (task.isSuccessful()) {
+//                            //System.out.println(task.getResult().getUser().getUid().toString());
+////                            reference.child("User").child(task.getResult().getUser().getUid().toString()).addValueEventListener(new ValueEventListener() {
+////                                @Override
+////                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+////                                    User us = dataSnapshot.getValue(User.class);
+////                                    StaticUser.user = us;
+////                                    Toast.makeText(LoginActivity.this,"Đăng nhập thành công",Toast.LENGTH_SHORT).show();
+////                                    startmh();
+////                                    finish();
+////
+////
+////                                }
+////
+////                                @Override
+////                                public void onCancelled(@NonNull DatabaseError databaseError) {
+////
+////                                }
+////                            });
+//                            //Toast.makeText(LoginActivity.this,"Đăng nhập !",Toast.LENGTH_SHORT).show();
+//                            StaticUser.socket.emit("finduserlogin",task.getResult().getUser().getUid());
+//                        } else {
+//                            Toast.makeText(LoginActivity.this,"Đăng nhập thất bại",Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                });
+//            }
+
+            String username = edtuser.getText().toString().trim();
+            String pass = edtpassworld.getText().toString().trim();
+            pass = MD5Util.getMD5(pass);
+            UserStore userStore = new UserStore(username,pass);
+            String json = StaticUser.gson.toJson(userStore);
+            StaticUser.socket.emit("login",json);
         } else if (id == R.id.btngg) {
             signIn();
         }

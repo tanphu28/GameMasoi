@@ -240,7 +240,7 @@ public class RoomActivity extends Activity {
                 {
                     User us = new User();
                     String s = phong.getId();
-                    us.setId(s);
+                    us.setId_room(s);
                     StaticUser.userHost = us;
                     startmhban();
                     finish();
@@ -258,7 +258,7 @@ public class RoomActivity extends Activity {
                 Phong phong = new Phong();
                 // System.out.println(StaticUser.UserActivity.getId());
                 //int soPhong = getIntent().getIntExtra("sophong",0);
-                phong.setId(StaticUser.user.getId());
+                phong.setId(StaticUser.user.getUserId());
                 phong.setRoomnumber(list.size()+1);
                 phong.setName(StaticUser.user.getName());
                 phong.setPeople(1);

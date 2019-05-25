@@ -197,10 +197,10 @@ public class HostActivity extends Activity {
                     @Override
                     public void run() {
                         String id = (String) args[0];
-                        if (!id.trim().equals(StaticUser.user.getId().toString().trim())) {
+                        if (!id.trim().equals(StaticUser.user.getUserId().toString().trim())) {
                             for (User us : StaticUser.phong.getUsers()) {
-                                if (us.getId().trim().equals(id)) {
-                                    System.out.println(us.getId() + "id ne");
+                                if (us.getUserId().trim().equals(id)) {
+                                    System.out.println(us.getUserId() + "id ne");
                                     RemoveUserList(us);
                                     RemoveUser(us);
                                     break;
@@ -241,7 +241,7 @@ public class HostActivity extends Activity {
             }
         };
         StaticUser.socket.on("ready", listener);
-//        reference.child("Room").child(StaticUser.user.getId()).child("listUserReady").addChildEventListener(new ChildEventListener() {
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("listUserReady").addChildEventListener(new ChildEventListener() {
 //            @Override
 //            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 //
@@ -326,7 +326,7 @@ public class HostActivity extends Activity {
                 OffTouchUser(userRoomList);
                 RanDom();
                 PushNhanVat();
-                //reference.child("Room").child(StaticUser.user.getId()).child("OK").setValue(true);
+                //reference.child("Room").child(StaticUser.user.getUserId()).child("OK").setValue(true);
                 getListXuLy();
                 getTextViewAddList();
 
@@ -340,7 +340,7 @@ public class HostActivity extends Activity {
         btnGiet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //reference.child("Room").child(StaticUser.user.getId()).child("BangBoPhieu").child(StaticUser.user.getId()).setValue(1);
+                //reference.child("Room").child(StaticUser.user.getUserId()).child("BangBoPhieu").child(StaticUser.user.getUserId()).setValue(1);
                 StaticUser.socket.emit("BangBoPhieu", 1);
                 btnGiet.setVisibility(View.INVISIBLE);
                 btnKhongGiet.setVisibility(View.INVISIBLE);
@@ -349,7 +349,7 @@ public class HostActivity extends Activity {
         btnKhongGiet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //reference.child("Room").child(StaticUser.user.getId()).child("BangBoPhieu").child(StaticUser.user.getId()).setValue(2);
+                //reference.child("Room").child(StaticUser.user.getUserId()).child("BangBoPhieu").child(StaticUser.user.getUserId()).setValue(2);
                 StaticUser.socket.emit("BangBoPhieu", 2);
                 btnKhongGiet.setVisibility(View.INVISIBLE);
                 btnGiet.setVisibility(View.INVISIBLE);
@@ -364,7 +364,7 @@ public class HostActivity extends Activity {
     }
 
     public void LangNgheOK() {
-//        reference.child("Room").child(StaticUser.user.getId()).child("OK").addValueEventListener(new ValueEventListener() {
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("OK").addValueEventListener(new ValueEventListener() {
 //            @Override
 //            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                boolean flag = dataSnapshot.getValue(Boolean.class);
@@ -405,9 +405,6 @@ public class HostActivity extends Activity {
                             pushNgay();
                             XuLyLuot(1, true);
                             DemGiay(20);
-                            //StaticUser.socket.emit("AllChat",true);
-
-                            //StaticUser.socket.emit("UserDie", "vAeGwFOYfUOOJNxeltsYSWqbOll2");
                         }
                     }
                 });
@@ -423,8 +420,8 @@ public class HostActivity extends Activity {
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                //reference.child("Room").child(StaticUser.userHost.getId()).child("listUser").child(StaticUser.user.getId()).removeValue();
-                StaticUser.socket.emit("userhostexit", StaticUser.user.getId());
+                //reference.child("Room").child(StaticUser.userHost.getId()).child("listUser").child(StaticUser.user.getUserId()).removeValue();
+                StaticUser.socket.emit("userhostexit", StaticUser.user.getUserId());
                 StaticUser.phong.getUsers().clear();
                 StaticUser.phong = null;
                 StaticUser.user.setId_room("");
@@ -546,7 +543,7 @@ public class HostActivity extends Activity {
 
     public void capnhatlistChat() {
 //        reference = database.getReference();
-//        reference.child("Chat").child(StaticUser.user.getId()).addChildEventListener(new ChildEventListener() {
+//        reference.child("Chat").child(StaticUser.user.getUserId()).addChildEventListener(new ChildEventListener() {
 //            @Override
 //            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 //                Chat chat = dataSnapshot.getValue(Chat.class);
@@ -615,15 +612,15 @@ public class HostActivity extends Activity {
         TextView txtwin = view.findViewById(R.id.txtwwin);
         TextView txtloss = view.findViewById(R.id.txtloss);
 
-        txtid.setText(user.getId());
+        txtid.setText(user.getUserId());
         txtuser.setText(user.getName());
 
         Button btnkick = view.findViewById(R.id.btnkick);
         btnkick.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //reference.child("Room").child(StaticUser.user.getId()).child("listUser").child(user.getId().toString()).removeValue();
-                StaticUser.socket.emit("kickuser", user.getId().toString());
+                //reference.child("Room").child(StaticUser.user.getUserId()).child("listUser").child(user.getUserId().toString()).removeValue();
+                StaticUser.socket.emit("kickuser", user.getUserId().toString());
                 dialog.cancel();
             }
         });
@@ -655,14 +652,14 @@ public class HostActivity extends Activity {
                 break;
             }
         }
-        hashMap.put(user.getName().toString(), user.getId().toString());
+        hashMap.put(user.getName().toString(), user.getUserId().toString());
     }
 
     public void RemoveUser(User user) {
         System.out.println("remove");
         for (UserRoom text : userRoomList) {
             if (text.getUseradd() != null) {
-                if (text.getUseradd().getId().toString().trim().equals(user.getId().toString())) {
+                if (text.getUseradd().getUserId().toString().trim().equals(user.getUserId().toString())) {
                     text.getTxtuser().setText("");
                     text.setFlag(false);
                     text.setUseradd(null);
@@ -700,7 +697,7 @@ public class HostActivity extends Activity {
 
     public void send(Chat chat) {
 //        reference = database.getReference();
-//        reference.child("Chat").child(StaticUser.user.getId()).push().setValue(chat);
+//        reference.child("Chat").child(StaticUser.user.getUserId()).push().setValue(chat);
         String json = StaticUser.gson.toJson(chat);
         StaticUser.socket.emit("Chat", json);
 
@@ -708,7 +705,7 @@ public class HostActivity extends Activity {
 
     public void laylistUser() {
         for (User us : StaticUser.phong.getUsers()) {
-            if (us.getId() != StaticUser.user.getId()) {
+            if (us.getUserId() != StaticUser.user.getUserId()) {
                 System.out.println(us.getName());
                 AddUser(us);
             }
@@ -722,8 +719,8 @@ public class HostActivity extends Activity {
                     public void run() {
                         JSONObject jsonObject = (JSONObject) args[0];
                         User user = StaticUser.gson.fromJson(jsonObject.toString(), User.class);
-                        System.out.println(user.getId());
-                        if (user.getId().equals(StaticUser.user.getId()) == false) {
+                        System.out.println(user.getUserId());
+                        if (user.getUserId().equals(StaticUser.user.getUserId()) == false) {
                             AddUser(user);
                             listUser.add(user);
                             StaticUser.phong.getUsers().add(user);
@@ -737,25 +734,25 @@ public class HostActivity extends Activity {
         };
         StaticUser.socket.on("newuser", listener);
 //        reference = database.getReference();
-//        reference.child("Room").child(StaticUser.user.getId()).child("listUser").addChildEventListener(new ChildEventListener() {
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("listUser").addChildEventListener(new ChildEventListener() {
 //            @Override
 //            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 //                User us = dataSnapshot.getValue(User.class);
-//                if (!us.getId().toString().equals(StaticUser.user.getId().toString())) {
+//                if (!us.getId().toString().equals(StaticUser.user.getUserId().toString())) {
 //                    AddUser(us);
 //                    listUser.add(us);
 //                    StaticUser.phong.setPeople(StaticUser.phong.getPeople()+1);
-//                    reference.child("Room").child(StaticUser.user.getId()).child("songuoi").setValue(StaticUser.phong.getPeople());
-//                    reference.child("Room").child(StaticUser.user.getId()).child("listUserReady").child(us.getId().toString()).setValue(false);
+//                    reference.child("Room").child(StaticUser.user.getUserId()).child("songuoi").setValue(StaticUser.phong.getPeople());
+//                    reference.child("Room").child(StaticUser.user.getUserId()).child("listUserReady").child(us.getId().toString()).setValue(false);
 //                    System.out.println("list UserActivity in lay list UserActivity" + listUser.size());
 //                } else {
 //                    listUser.add(us);
 //                }
-//                reference.child("Room").child(StaticUser.user.getId()).child("BangIdChon").child(us.getId().toString()).setValue("A");
-//                reference.child("Room").child(StaticUser.user.getId()).child("BangChonChucNang").child(us.getId().toString()).setValue("A");
-//                reference.child("Room").child(StaticUser.user.getId()).child("listUserSang").child(us.getId().toString()).setValue(false);
-//                reference.child("Room").child(StaticUser.user.getId()).child("BangBoPhieu").child(us.getId()).setValue(0);
-//                reference.child("Room").child(StaticUser.user.getId()).child("BangDie").child(us.getId()).setValue("A");
+//                reference.child("Room").child(StaticUser.user.getUserId()).child("BangIdChon").child(us.getId().toString()).setValue("A");
+//                reference.child("Room").child(StaticUser.user.getUserId()).child("BangChonChucNang").child(us.getId().toString()).setValue("A");
+//                reference.child("Room").child(StaticUser.user.getUserId()).child("listUserSang").child(us.getId().toString()).setValue(false);
+//                reference.child("Room").child(StaticUser.user.getUserId()).child("BangBoPhieu").child(us.getId()).setValue(0);
+//                reference.child("Room").child(StaticUser.user.getUserId()).child("BangDie").child(us.getId()).setValue("A");
 //
 //
 //            }
@@ -772,13 +769,13 @@ public class HostActivity extends Activity {
 //                Toast.makeText(HostActivity.this,"aaa"+listUser.size(),Toast.LENGTH_SHORT).show();
 //                RemoveUser(us);
 //                StaticUser.phong.setPeople(StaticUser.phong.getPeople()-1);
-//                reference.child("Room").child(StaticUser.user.getId()).child("songuoi").setValue(StaticUser.phong.getPeople());
-//                reference.child("Room").child(StaticUser.user.getId()).child("listUserReady").child(us.getId().toString()).removeValue();
-//                reference.child("Room").child(StaticUser.user.getId()).child("BangIdChon").child(us.getId().toString()).removeValue();
-//                reference.child("Room").child(StaticUser.user.getId()).child("listUserSang").child(us.getId().toString()).removeValue();
-//                reference.child("Room").child(StaticUser.user.getId()).child("BangBoPhieu").child(us.getId()).removeValue();
-//                reference.child("Room").child(StaticUser.user.getId()).child("BangDie").child(us.getId()).removeValue();
-//                reference.child("Room").child(StaticUser.user.getId()).child("BangChonChucNang").child(us.getId().toString()).removeValue();
+//                reference.child("Room").child(StaticUser.user.getUserId()).child("songuoi").setValue(StaticUser.phong.getPeople());
+//                reference.child("Room").child(StaticUser.user.getUserId()).child("listUserReady").child(us.getId().toString()).removeValue();
+//                reference.child("Room").child(StaticUser.user.getUserId()).child("BangIdChon").child(us.getId().toString()).removeValue();
+//                reference.child("Room").child(StaticUser.user.getUserId()).child("listUserSang").child(us.getId().toString()).removeValue();
+//                reference.child("Room").child(StaticUser.user.getUserId()).child("BangBoPhieu").child(us.getId()).removeValue();
+//                reference.child("Room").child(StaticUser.user.getUserId()).child("BangDie").child(us.getId()).removeValue();
+//                reference.child("Room").child(StaticUser.user.getUserId()).child("BangChonChucNang").child(us.getId().toString()).removeValue();
 //            }
 //
 //            @Override
@@ -795,7 +792,7 @@ public class HostActivity extends Activity {
 
     public void RemoveUserList(User user) {
         for (User us : listUser) {
-            if (us.getId().toString().trim().equals(us.getId())) {
+            if (us.getUserId().toString().trim().equals(us.getUserId())) {
                 listUser.remove(us);
                 break;
             }
@@ -806,7 +803,7 @@ public class HostActivity extends Activity {
 //        phong = new Phong();
 //        // System.out.println(StaticUser.UserActivity.getId());
 //        int soPhong = getIntent().getIntExtra("sophong",0);
-//        phong.setId(StaticUser.user.getId());
+//        phong.setId(StaticUser.user.getUserId());
 //        phong.setRoomnumber(soPhong);
 //        phong.setName(StaticUser.user.getName());
 //        phong.setPeople(1);
@@ -816,16 +813,16 @@ public class HostActivity extends Activity {
         txtTenPhong.setText(StaticUser.phong.getName());
         txtSoPhong.setText(StaticUser.phong.getRoomnumber() + "");
 //        reference.child("Room").child(phong.getId()).setValue(phong);
-//        reference.child("Room").child(phong.getId()).child("listUser").child(StaticUser.user.getId()).setValue(StaticUser.user);
-//        reference.child("Room").child(phong.getId()).child("listUserSang").child(StaticUser.user.getId()).setValue(false);
+//        reference.child("Room").child(phong.getId()).child("listUser").child(StaticUser.user.getUserId()).setValue(StaticUser.user);
+//        reference.child("Room").child(phong.getId()).child("listUserSang").child(StaticUser.user.getUserId()).setValue(false);
 //        reference.child("Room").child(phong.getId()).child("Luot").setValue(0);
 //        reference.child("Room").child(phong.getId()).child("AllChat").setValue(false);
 //        reference.child("Room").child(phong.getId()).child("AllManHinhChon").setValue(false);
-//        reference.child("Room").child(phong.getId()).child("BangIdChon").child(StaticUser.user.getId()).setValue("A");
+//        reference.child("Room").child(phong.getId()).child("BangIdChon").child(StaticUser.user.getUserId()).setValue("A");
 //        reference.child("Room").child(phong.getId()).child("IDBiBoPhieu").setValue("A");
-//        reference.child("Room").child(phong.getId()).child("BangBoPhieu").child(StaticUser.user.getId()).setValue(0);
-//        reference.child("Room").child(phong.getId()).child("BangDie").child(StaticUser.user.getId()).setValue("A");
-//        reference.child("Room").child(StaticUser.user.getId()).child("OK").setValue(false);
+//        reference.child("Room").child(phong.getId()).child("BangBoPhieu").child(StaticUser.user.getUserId()).setValue(0);
+//        reference.child("Room").child(phong.getId()).child("BangDie").child(StaticUser.user.getUserId()).setValue("A");
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("OK").setValue(false);
         //Chat chat = new Chat();
         //chat.setUsername(StaticUser.user.getName());
         //chat.setMesage(" ");
@@ -866,12 +863,12 @@ public class HostActivity extends Activity {
                         flagchat = false;
                     }
                     if (flagxuli == true) {
-                        //reference.child("Room").child(StaticUser.user.getId()).child("listUserSang").child(IDBoPhieu).setValue(false);
+                        //reference.child("Room").child(StaticUser.user.getUserId()).child("listUserSang").child(IDBoPhieu).setValue(false);
                         StaticUser.socket.emit("UserBoPhieuTat", IDBoPhieu);
                         //setLuotDB(7);
                         XuLyLuot(7, false);
                         if (die == false) {
-                            if (StaticUser.user.getId().toString().trim().equals(IDBoPhieu) == false) {
+                            if (StaticUser.user.getUserId().toString().trim().equals(IDBoPhieu) == false) {
                                 btnKhongGiet.setVisibility(View.VISIBLE);
                                 btnGiet.setVisibility(View.VISIBLE);
                             }
@@ -905,12 +902,12 @@ public class HostActivity extends Activity {
     }
 
     public void LangNgheDie() {
-//        reference.child("Room").child(StaticUser.user.getId()).child("BangDie").addChildEventListener(new ChildEventListener() {
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("BangDie").addChildEventListener(new ChildEventListener() {
 //            @Override
 //            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 //                String id = dataSnapshot.getValue(String.class);
 //                if (!id.equals("A")) {
-//                    if (id.equals(StaticUser.user.getId())) {
+//                    if (id.equals(StaticUser.user.getUserId())) {
 //                        die = true;
 //                    } else {
 //                        for (UserRoom text : userRoomList) {
@@ -927,7 +924,7 @@ public class HostActivity extends Activity {
 //            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 //                String id = dataSnapshot.getValue(String.class);
 //                if (!id.equals("A")) {
-//                    if (id.equals(StaticUser.user.getId())) {
+//                    if (id.equals(StaticUser.user.getUserId())) {
 //                        die = true;
 //                    } else {
 //                        for (UserRoom text : userRoomList) {
@@ -964,13 +961,13 @@ public class HostActivity extends Activity {
                     public void run() {
                         String id = (String) args[0];
                         if (!id.equals("A")) {
-                            if (id.equals(StaticUser.user.getId())) {
+                            if (id.equals(StaticUser.user.getUserId())) {
                                 die = true;
                             } else {
                                 for (UserRoom text : userRoomList) {
                                     if(text.getUseradd()!=null)
                                     {
-                                        if (text.getUseradd().getId().toString().equals(id)) {
+                                        if (text.getUseradd().getUserId().toString().equals(id)) {
                                             setDieUser(text);
                                             break;
                                         }
@@ -1030,7 +1027,7 @@ public class HostActivity extends Activity {
 
             }
             // System.out.println(k);
-            nv.setId(listUserRandom.get(k).getId());
+            nv.setId(listUserRandom.get(k).getUserId());
             listUserRandom.remove(k);
             //System.out.println(nv.getId());
             listNhanVat.add(nv);
@@ -1043,7 +1040,7 @@ public class HostActivity extends Activity {
             if (nv.getManv() != 1) {
                 for (UserRoom text : userRoomList) {
                     if (text.getUseradd() != null) {
-                        if (text.getUseradd().getId().toString().equals(nv.getId().toString())) {
+                        if (text.getUseradd().getUserId().toString().equals(nv.getId().toString())) {
                             userRoomListDanThuong.add(text);
                             break;
                         }
@@ -1066,7 +1063,7 @@ public class HostActivity extends Activity {
     public void PushNhanVat() {
         JsonArray jsonArray = new JsonArray();
         for (NhanVat nv : listNhanVat) {
-            //reference.child("Room").child(StaticUser.user.getId()).child("BangNhanVat").child(nv.getId()).setValue(nv);
+            //reference.child("Room").child(StaticUser.user.getUserId()).child("BangNhanVat").child(nv.getId()).setValue(nv);
             JSONObject jsonObject = new JSONObject();
 
         }
@@ -1111,12 +1108,12 @@ public class HostActivity extends Activity {
 
     public void pushLuot(int t) {
 
-        //reference.child("Room").child(StaticUser.user.getId()).child("Luot").setValue(t);
+        //reference.child("Room").child(StaticUser.user.getUserId()).child("Luot").setValue(t);
         StaticUser.socket.emit("Luot", t);
     }
 
     public void getNhanVat() {
-//        reference.child("Room").child(StaticUser.user.getId()).child("BangNhanVat").child(StaticUser.user.getId()).addValueEventListener(new ValueEventListener() {
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("BangNhanVat").child(StaticUser.user.getUserId()).addValueEventListener(new ValueEventListener() {
 //            @Override
 //            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                nhanvat = dataSnapshot.getValue(NhanVat.class);
@@ -1145,7 +1142,7 @@ public class HostActivity extends Activity {
                                 try {
                                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                                     NhanVat nv = StaticUser.gson.fromJson(jsonObject.toString(), NhanVat.class);
-                                    if (nv.getId().toString().trim().equals(StaticUser.user.getId().trim())) {
+                                    if (nv.getId().toString().trim().equals(StaticUser.user.getUserId().trim())) {
                                         nhanvat = nv;
                                         System.out.println(nhanvat.getId());
                                         setImageNhanVat(nhanvat.getManv());
@@ -1168,7 +1165,7 @@ public class HostActivity extends Activity {
 
     public void removelistUserInGameID(String id) {
         for (User us : listUserInGame) {
-            if (us.getId().toString().equals(id)) {
+            if (us.getUserId().toString().equals(id)) {
                 listUserInGame.remove(us);
                 break;
             }
@@ -1207,12 +1204,12 @@ public class HostActivity extends Activity {
     }
 
     public void setLuotDB(int luot) {
-        //reference.child("Room").child(StaticUser.user.getId()).child("Luot").setValue(luot);
+        //reference.child("Room").child(StaticUser.user.getUserId()).child("Luot").setValue(luot);
         StaticUser.socket.emit("Luot", luot);
     }
 
     public void LangNgheLuotDB() {
-//        reference.child("Room").child(StaticUser.user.getId()).child("Luot").addValueEventListener(new ValueEventListener() {
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("Luot").addValueEventListener(new ValueEventListener() {
 //            @Override
 //            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                int l = dataSnapshot.getValue(Integer.class);
@@ -1225,7 +1222,7 @@ public class HostActivity extends Activity {
 //                    }
 //                    if (l == 7) {
 //                        if (die == false) {
-//                            if (StaticUser.user.getId().toString().trim().equals(IDBoPhieu) == false) {
+//                            if (StaticUser.user.getUserId().toString().trim().equals(IDBoPhieu) == false) {
 //                                System.out.println("toi luot 7");
 //                                btnGiet.setVisibility(View.VISIBLE);
 //                                btnKhongGiet.setVisibility(View.VISIBLE);
@@ -1259,7 +1256,7 @@ public class HostActivity extends Activity {
                             }
                             if (l == 7) {
                                 if (die == false) {
-                                    if (StaticUser.user.getId().toString().trim().equals(IDBoPhieu) == false) {
+                                    if (StaticUser.user.getUserId().toString().trim().equals(IDBoPhieu) == false) {
                                         System.out.println("toi luot 7");
                                         btnGiet.setVisibility(View.VISIBLE);
                                         btnKhongGiet.setVisibility(View.VISIBLE);
@@ -1312,9 +1309,9 @@ public class HostActivity extends Activity {
                 } else if (manv == 8) {
                     XuLyLuot(8, false);
                     IDBoPhieu = getIDBOPhieu();
-                    //reference.child("Room").child(StaticUser.user.getId()).child("IDBiBoPhieu").setValue(IDBoPhieu);
+                    //reference.child("Room").child(StaticUser.user.getUserId()).child("IDBiBoPhieu").setValue(IDBoPhieu);
                     StaticUser.socket.emit("IDBiBoPhieu", IDBoPhieu);
-                    //reference.child("Room").child(StaticUser.user.getId()).child("listUserSang").child(IDBoPhieu).setValue(true);
+                    //reference.child("Room").child(StaticUser.user.getUserId()).child("listUserSang").child(IDBoPhieu).setValue(true);
                     StaticUser.socket.emit("UserBoPhieu", IDBoPhieu);
                     XuLiGiaiTrinh();
                 } else if (manv == 9) {
@@ -1323,7 +1320,7 @@ public class HostActivity extends Activity {
                         XoaNhanVat(IDBoPhieu);
                         XoaNhanVatChucNang(IDBoPhieu);
                         removelistUserInGameID(IDBoPhieu);
-                        //reference.child("Room").child(StaticUser.user.getId()).child("BangDie").child(IDBoPhieu).setValue(IDBoPhieu);
+                        //reference.child("Room").child(StaticUser.user.getUserId()).child("BangDie").child(IDBoPhieu).setValue(IDBoPhieu);
                         StaticUser.socket.emit("UserDie", IDBoPhieu);
                     }
 
@@ -1344,7 +1341,7 @@ public class HostActivity extends Activity {
         for (UserRoom text : userRoomListSong) {
             if(text.getUseradd()!=null)
             {
-                if (text.getUseradd().getId().toString().equals(id)) {
+                if (text.getUseradd().getUserId().toString().equals(id)) {
                     userRoom = text;
                     userRoomListSong.remove(text);
                     break;
@@ -1355,7 +1352,7 @@ public class HostActivity extends Activity {
         for (UserRoom text : userRoomListDanThuong) {
             if(text.getUseradd()!=null)
             {
-                if (text.getUseradd().getId().toString().equals(id)) {
+                if (text.getUseradd().getUserId().toString().equals(id)) {
                     userRoom = text;
                     userRoomListDanThuong.remove(text);
                     break;
@@ -1364,18 +1361,18 @@ public class HostActivity extends Activity {
 
         }
         for (User user : listUserMaSoi) {
-            if (user.getId().toString().equals(id)) {
+            if (user.getUserId().toString().equals(id)) {
                 listUserMaSoi.remove(user);
                 break;
             }
         }
         for (User user : listUserDanLang) {
-            if (user.getId().toString().equals(id)) {
+            if (user.getUserId().toString().equals(id)) {
                 listUserDanLang.remove(user);
                 break;
             }
         }
-        if (!id.equals(StaticUser.user.getId())) {
+        if (!id.equals(StaticUser.user.getUserId())) {
             setDieUser(userRoom);
         } else {
             die = true;
@@ -1400,7 +1397,7 @@ public class HostActivity extends Activity {
     boolean giet = false;
 
     public void LangNgheKQBP() {
-//        reference.child("Room").child(StaticUser.user.getId()).child("BangBoPhieu").addChildEventListener(new ChildEventListener() {
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("BangBoPhieu").addChildEventListener(new ChildEventListener() {
 //            @Override
 //            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 //                int t = dataSnapshot.getValue(Integer.class);
@@ -1506,7 +1503,7 @@ public class HostActivity extends Activity {
         if (luot == 1) {
             pushLuot(1);
             if (listUserMaSoi.size() > 0) {
-                //reference.child("Room").child(StaticUser.user.getId()).child("listUserSang").child(listUserMaSoi.get(0).getId().toString()).setValue(flag);
+                //reference.child("Room").child(StaticUser.user.getUserId()).child("listUserSang").child(listUserMaSoi.get(0).getId().toString()).setValue(flag);
                 if (flag == true) {
                     StaticUser.socket.emit("NhanVatsang", 1);
                 } else {
@@ -1540,10 +1537,10 @@ public class HostActivity extends Activity {
             }
 
         } else if (luot == 7) {
-            //reference.child("Room").child(StaticUser.user.getId()).child("AllChat").setValue(flag);
+            //reference.child("Room").child(StaticUser.user.getUserId()).child("AllChat").setValue(flag);
             StaticUser.socket.emit("AllChat", flag);
         } else if (luot == 8) {
-            //reference.child("Room").child(StaticUser.user.getId()).child("AllManHinhChon").setValue(flag);
+            //reference.child("Room").child(StaticUser.user.getUserId()).child("AllManHinhChon").setValue(flag);
             StaticUser.socket.emit("AllManHinhChon", flag);
         }
     }
@@ -1551,7 +1548,7 @@ public class HostActivity extends Activity {
     public void ListenSuKien() {
 
         //Bao ve
-//            reference.child("Room").child(StaticUser.user.getId()).child("BangChonChucNang").child(userBaoVe.getId().toString()).addValueEventListener(new ValueEventListener() {
+//            reference.child("Room").child(StaticUser.user.getUserId()).child("BangChonChucNang").child(userBaoVe.getId().toString()).addValueEventListener(new ValueEventListener() {
 //                @Override
 //                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                    String id = dataSnapshot.getValue(String.class);
@@ -1579,7 +1576,7 @@ public class HostActivity extends Activity {
         StaticUser.socket.on("4", listenerBaoVe);
 
         //Phu thuy
-//            reference.child("Room").child(StaticUser.user.getId()).child("BangChonChucNang").child(userTienTri.getId().toString()).addValueEventListener(new ValueEventListener() {
+//            reference.child("Room").child(StaticUser.user.getUserId()).child("BangChonChucNang").child(userTienTri.getId().toString()).addValueEventListener(new ValueEventListener() {
 //                @Override
 //                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                    String id = dataSnapshot.getValue(String.class);
@@ -1607,7 +1604,7 @@ public class HostActivity extends Activity {
 
         //Tho San
 
-//            reference.child("Room").child(StaticUser.user.getId()).child("BangChonChucNang").child(userThoSan.getId().toString()).addValueEventListener(new ValueEventListener() {
+//            reference.child("Room").child(StaticUser.user.getUserId()).child("BangChonChucNang").child(userThoSan.getId().toString()).addValueEventListener(new ValueEventListener() {
 //                @Override
 //                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                    String id = dataSnapshot.getValue(String.class);
@@ -1636,7 +1633,7 @@ public class HostActivity extends Activity {
         StaticUser.socket.on("3", listenerThoSan);
 
         //Ma Soi
-//            reference.child("Room").child(StaticUser.user.getId()).child("BangChonChucNang").child(listUserMaSoi.get(0).getId().toString()).addValueEventListener(new ValueEventListener() {
+//            reference.child("Room").child(StaticUser.user.getUserId()).child("BangChonChucNang").child(listUserMaSoi.get(0).getId().toString()).addValueEventListener(new ValueEventListener() {
 //                @Override
 //                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                    String id = dataSnapshot.getValue(String.class);
@@ -1653,7 +1650,7 @@ public class HostActivity extends Activity {
 //
 //                }
 //            });
-//            reference.child("Room").child(StaticUser.user.getId()).child("BangChonChucNang").child(listUserMaSoi.get(1).getId().toString()).addValueEventListener(new ValueEventListener() {
+//            reference.child("Room").child(StaticUser.user.getUserId()).child("BangChonChucNang").child(listUserMaSoi.get(1).getId().toString()).addValueEventListener(new ValueEventListener() {
 //                @Override
 //                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                    String id = dataSnapshot.getValue(String.class);
@@ -1670,7 +1667,7 @@ public class HostActivity extends Activity {
 //                }
 //            });
 //
-//            reference.child("Room").child(StaticUser.user.getId()).child("BangChonChucNang").child(listUserMaSoi.get(2).getId().toString()).addValueEventListener(new ValueEventListener() {
+//            reference.child("Room").child(StaticUser.user.getUserId()).child("BangChonChucNang").child(listUserMaSoi.get(2).getId().toString()).addValueEventListener(new ValueEventListener() {
 //                @Override
 //                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                    String id = dataSnapshot.getValue(String.class);
@@ -1700,7 +1697,7 @@ public class HostActivity extends Activity {
     }
 
     public void ListenIdBiGiet() {
-//        reference.child("Room").child(StaticUser.user.getId()).child("BangIdChon").addChildEventListener(new ChildEventListener() {
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("BangIdChon").addChildEventListener(new ChildEventListener() {
 //            @Override
 //            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 //            }
@@ -1749,7 +1746,7 @@ public class HostActivity extends Activity {
 
     //client
     public void LangNgheLuot() {
-//        reference.child("Room").child(StaticUser.user.getId()).child("listUserSang").child(StaticUser.user.getId()).addValueEventListener(new ValueEventListener() {
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("listUserSang").child(StaticUser.user.getUserId()).addValueEventListener(new ValueEventListener() {
 //            @Override
 //            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                boolean flag = dataSnapshot.getValue(Boolean.class);
@@ -1831,7 +1828,7 @@ public class HostActivity extends Activity {
 
 
     public void LangNgheChat() {
-//        reference.child("Room").child(StaticUser.user.getId()).child("AllChat").addValueEventListener(new ValueEventListener() {
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("AllChat").addValueEventListener(new ValueEventListener() {
 //            @Override
 //            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                boolean flag = dataSnapshot.getValue(Boolean.class);
@@ -1893,7 +1890,7 @@ public class HostActivity extends Activity {
                     timer.cancel();
                     if (nhanvat.getManv() == 6) {
                         for (NhanVat nv : listNhanVat) {
-                            if (text.getUseradd().getId().toString().equals(nv.getId().toString())) {
+                            if (text.getUseradd().getUserId().toString().equals(nv.getId().toString())) {
                                 if (nv.getManv() == 1) {
                                     Toast.makeText(HostActivity.this, "day la ma soi", Toast.LENGTH_SHORT).show();
 
@@ -1904,7 +1901,7 @@ public class HostActivity extends Activity {
                             }
                         }
                     }
-                    //reference.child("Room").child(StaticUser.user.getId()).child(st).child(StaticUser.user.getId()).setValue(hashMap.get(text.getTxtuser().getText().toString()));
+                    //reference.child("Room").child(StaticUser.user.getUserId()).child(st).child(StaticUser.user.getUserId()).setValue(hashMap.get(text.getTxtuser().getText().toString()));
                     JsonObject jsonObject = new JsonObject();
                     jsonObject.addProperty("manv", nhanvat.getManv() + "");
                     jsonObject.addProperty("idchon", hashMap.get(text.getTxtuser().getText().toString()) + "");
@@ -1917,7 +1914,7 @@ public class HostActivity extends Activity {
     }
 
     public void LangNgheAllManHinh() {
-//        reference.child("Room").child(StaticUser.user.getId()).child("AllManHinhChon").addValueEventListener(new ValueEventListener() {
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("AllManHinhChon").addValueEventListener(new ValueEventListener() {
 //            @Override
 //            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                boolean flag = dataSnapshot.getValue(Boolean.class);
@@ -2006,7 +2003,7 @@ public class HostActivity extends Activity {
             return;
         } else if (idMaSoiChon.equals(IDBoPhieu))
             return;
-        else if (idMaSoiChon.equals(userThoSan.getId().toString())) {
+        else if (idMaSoiChon.equals(userThoSan.getUserId().toString())) {
             XoaNhanVat(idMaSoiChon);
             XoaNhanVat(idThoSanChon);
             XoaNhanVatChucNang(idMaSoiChon);
@@ -2014,8 +2011,8 @@ public class HostActivity extends Activity {
             removelistUserInGameID(idMaSoiChon);
             removelistUserInGameID(idThoSanChon);
             if (!idMaSoiChon.equals(IDBoPhieu)) {
-                //reference.child("Room").child(StaticUser.user.getId()).child("BangDie").child(idMaSoiChon).setValue(idMaSoiChon);
-                //reference.child("Room").child(StaticUser.user.getId()).child("BangDie").child(idThoSanChon).setValue(idThoSanChon);
+                //reference.child("Room").child(StaticUser.user.getUserId()).child("BangDie").child(idMaSoiChon).setValue(idMaSoiChon);
+                //reference.child("Room").child(StaticUser.user.getUserId()).child("BangDie").child(idThoSanChon).setValue(idThoSanChon);
                 StaticUser.socket.emit("UserDie", idMaSoiChon);
                 StaticUser.socket.emit("UserDie", idThoSanChon);
             }
@@ -2024,7 +2021,7 @@ public class HostActivity extends Activity {
             XoaNhanVat(idMaSoiChon);
             XoaNhanVatChucNang(idMaSoiChon);
             removelistUserInGameID(idMaSoiChon);
-            //reference.child("Room").child(StaticUser.user.getId()).child("BangDie").child(idMaSoiChon).setValue(idMaSoiChon);
+            //reference.child("Room").child(StaticUser.user.getUserId()).child("BangDie").child(idMaSoiChon).setValue(idMaSoiChon);
             StaticUser.socket.emit("UserDie", idMaSoiChon);
         }
         if (listUserMaSoi.size() < 1) {
@@ -2036,7 +2033,7 @@ public class HostActivity extends Activity {
     }
 
     public void resetLaiGameMoi() {
-        //reference.child("Room").child(StaticUser.user.getId()).child("OK").setValue(false);
+        //reference.child("Room").child(StaticUser.user.getUserId()).child("OK").setValue(false);
         StaticUser.socket.emit("OK", false);
         listUserMaSoi.clear();
         listUserDanLang.clear();
@@ -2065,13 +2062,13 @@ public class HostActivity extends Activity {
     public void XoaNhanVatChucNang(String id) {
 
 
-        if (flagTienTri == false && userTienTri.getId().toString().equals(id)) {
+        if (flagTienTri == false && userTienTri.getUserId().toString().equals(id)) {
             flagTienTri = true;
         }
-        if (flagThoSan == false && userThoSan.getId().toString().equals(id)) {
+        if (flagThoSan == false && userThoSan.getUserId().toString().equals(id)) {
             flagThoSan = true;
         }
-        if (flagBaoVe == false && userBaoVe.getId().toString().equals(id)) {
+        if (flagBaoVe == false && userBaoVe.getUserId().toString().equals(id)) {
             flagBaoVe = true;
         }
     }
@@ -2090,12 +2087,12 @@ public class HostActivity extends Activity {
     }
 
     public void LangNgheBangIDChon() {
-//        reference.child("Room").child(StaticUser.user.getId()).child("IDBiBoPhieu").addValueEventListener(new ValueEventListener() {
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("IDBiBoPhieu").addValueEventListener(new ValueEventListener() {
 //            @Override
 //            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                String st = dataSnapshot.getValue(String.class);
 //                String name = "";
-//                if (st.equals(StaticUser.user.getId())) {
+//                if (st.equals(StaticUser.user.getUserId())) {
 //                    linearLayoutChat.setVisibility(View.VISIBLE);
 //                    findViewById(R.id.lnrkhungchat).setVisibility(View.VISIBLE);
 //                    listChat.setVisibility(View.VISIBLE);
@@ -2112,7 +2109,7 @@ public class HostActivity extends Activity {
 //                        listChat.setVisibility(View.VISIBLE);
 //
 //                        for (User user : listUser) {
-//                            if (user.getId().equals(st)) {
+//                            if (user.getUserId().equals(st)) {
 //                                txtTreoCo.setText(user.getName());
 //                                break;
 //                            }
@@ -2134,7 +2131,7 @@ public class HostActivity extends Activity {
                     public void run() {
                         String st = (String) args[0];
                         String name = "";
-                        if (st.equals(StaticUser.user.getId())) {
+                        if (st.equals(StaticUser.user.getUserId())) {
                             linearLayoutListUser.setVisibility(View.INVISIBLE);
                             linearLayoutChat.setVisibility(View.VISIBLE);
                             findViewById(R.id.lnrkhungchat).setVisibility(View.VISIBLE);
@@ -2155,7 +2152,7 @@ public class HostActivity extends Activity {
                                 listChat.setVisibility(View.VISIBLE);
 
                                 for (User user : listUser) {
-                                    if (user.getId().equals(st)) {
+                                    if (user.getUserId().equals(st)) {
                                         txtTreoCo.setText(user.getName());
                                         break;
                                     }
@@ -2177,17 +2174,17 @@ public class HostActivity extends Activity {
 
     public void resetAllBang() {
 //        for (User us : listUser) {
-//            reference.child("Room").child(StaticUser.user.getId()).child("BangIdChon").child(us.getId().toString()).setValue("A");
-//            reference.child("Room").child(StaticUser.user.getId()).child("BangChonChucNang").child(us.getId().toString()).setValue("A");
-//            reference.child("Room").child(StaticUser.user.getId()).child("BangBoPhieu").child(us.getId()).setValue(0);
+//            reference.child("Room").child(StaticUser.user.getUserId()).child("BangIdChon").child(us.getId().toString()).setValue("A");
+//            reference.child("Room").child(StaticUser.user.getUserId()).child("BangChonChucNang").child(us.getId().toString()).setValue("A");
+//            reference.child("Room").child(StaticUser.user.getUserId()).child("BangBoPhieu").child(us.getId()).setValue(0);
 //        }
-//        reference.child("Room").child(StaticUser.user.getId()).child("IDBiBoPhieu").setValue("A");
+//        reference.child("Room").child(StaticUser.user.getUserId()).child("IDBiBoPhieu").setValue("A");
     }
 
     public void resetLaiBangDie() {
 //        for (User us : listUser)
 //        {
-//            reference.child("Room").child(StaticUser.user.getId()).child("BangDie").child(us.getId()).setValue("A");
+//            reference.child("Room").child(StaticUser.user.getUserId()).child("BangDie").child(us.getId()).setValue("A");
 //        }
     }
 

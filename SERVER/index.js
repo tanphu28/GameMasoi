@@ -9,6 +9,7 @@ var io = require("socket.io")(server);
 var mongoose = require("mongoose");
 let User = require('./models/UserModel');
 let Room = require('./models/RoomModel');
+let UserStore = require('./models/UserStore');
 server.listen(3000);
 
 io.on("connection",function(socket){
@@ -23,30 +24,102 @@ io.on("connection",function(socket){
 
         //signup
         socket.on("register_user",function(data){
+            // console.log(data);
+            // var json = JSON.parse(data);
+            // var user = new User({
+            //     id:json.id,
+            //     username:json.username,
+            //     name:json.username,
+            //     id_room:""
+            // });
+            // user.save((err)=>{
+            //     if(err)
+            //     {
+            //         console.log("Them tat bai");
+            //     }   
+            //     else
+            //     {
+            //         console.log("Them thanh cong");
+            //     }
+            // });
             console.log(data);
             var json = JSON.parse(data);
-            var user = new User({
-                id:json.id,
-                username:json.username,
-                name:json.username,
-                id_room:""
-            });
-            user.save((err)=>{
-                if(err)
-                {
-                    console.log("Them tat bai");
-                }   
+            UserStore.findOne({userId : json.userId},function(err,data){
+                if(err){
+                    console.log('Khong Tim thay');
+                }
                 else
                 {
-                    console.log("Them thanh cong");
+                    if(data==null){
+                        var userStore = new UserStore({
+                            userId : json.userId,
+                            passWord  :json.passWord
+                        })
+                        userStore.save((err)=>{
+                            socket.emit('register_user',true);
+                        })
+                    }
+                    else{
+                        socket.emit('register_user',false);
+                    }
                 }
-            });
+            })
         
         });
 
+        socket.on("CheckUser",function(data){
+            User.findOne({name : data},(err,data) => {
+                if(err)
+                {
+                    console.log('Khongtim Thay!');
+                }
+                else
+                {
+                    if(data == null)
+                    {
+                        socket.emit('CheckUser',true);
+                    }
+                    else
+                    {
+                        socket.emit('CheckUser',false);
+                    }
+                }
+            })
+        })
+
+        socket.on("Registnickname",function(data){
+            var json = JSON.parse(data);
+            var user = new User({
+                userId : json.userId,
+                name : json.name
+            })
+            user.save((err)=>{
+                if(err){
+                    console.log("Err");
+                }
+                else{
+                    console.log("Thanh Cong")
+                    User.findOne({userId : json.userId},(err,doc)=>{
+                        if(err)
+                        {
+                            console.log('That Bai');
+                        }
+                        else
+                        {
+                            console.log("Thanh cong");
+                            console.log(doc);
+                            socket.emit("Registnickname",doc);
+                        }
+                    })
+                }
+
+            })
+        })
+
         //login
-        socket.on("finduserlogin",function(data){
-            User.findOne({id:data},function(err,doc)
+        socket.on("login",function(data){
+            var json = JSON.parse(data)
+            UserStore.findOne({userId:json.userId,passWord:json.passWord},function(err,doc)
             {
                 if(err)
                 {
@@ -54,9 +127,25 @@ io.on("connection",function(socket){
                 }
                 else
                 {
-                    console.log(doc);
-                    socket.emit("userlogin",doc);
-                    console.log("Tim thay!");
+                    if(doc==null)
+                    {
+                        socket.emit("userlogin",null);
+                    }
+                    else
+                    {
+                        User.findOne({userId:json.userId},function(err,doc2){
+                            if(err)
+                            {
+                                console.log('That Bai')
+                            }
+                            else
+                            {
+                                socket.emit("userlogin",doc2);
+                                console.log(doc2)
+                                console.log("Thanh cong");
+                            }
+                        })
+                    }
                 }
             });
         });
@@ -123,9 +212,9 @@ io.on("connection",function(socket){
             Room.findOne({_id:json.id_room},function(err,doc){
                 var user = new User(
                 {
-                    id:json.id,
+                    userId:json.userId,
                     name:json.name,
-                    username:json.username,
+                    fullname:json.fullname,
                     id_room:json.id_room    
                 }
                 );
@@ -193,7 +282,7 @@ io.on("connection",function(socket){
                     {
                         Room.update(
                             {id:socket.Phong},
-                            { $pull: { users: {id:data } }
+                            { $pull: { users: {userId:data } }
                         },
                             { multi: true },function(err){
                                 if(err)
@@ -307,7 +396,7 @@ io.on("connection",function(socket){
                         }
                         else
                         {
-                            id = doc.users[0].id;
+                            id = doc.users[0].userId;
                             console.log("thanh cong!");
                         }
                     });
@@ -332,7 +421,7 @@ io.on("connection",function(socket){
                     {
                         Room.update(
                             {id:socket.Phong},
-                            { $pull: { users: {id:data } }
+                            { $pull: { users: {userId:data } }
                         },{ multi: true },function(err){
                                 if(err)
                                 {

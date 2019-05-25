@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dtanp.masoi.adapter.CustomAdapterChat;
@@ -86,7 +87,7 @@ public class HomeActivity extends Activity {
     RelativeLayout relativeLayoutChat;
     ImageButton imgChat,imgCancleChat;
     boolean flagChat = false;
-
+    TextView txtUser;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +98,8 @@ public class HomeActivity extends Activity {
         AddEvents();
         AddConTrols();
         LangNgheAllChat();
+        txtUser.setText(StaticUser.user.getName());
+
     }
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -145,6 +148,7 @@ public class HomeActivity extends Activity {
         relativeLayoutChat =findViewById(R.id.groupChat);
         imgChat = findViewById(R.id.imgChat);
         imgCancleChat = findViewById(R.id.imgCancleChat);
+        txtUser = findViewById(R.id.txtuser);
     }
 
     private void AddConTrols() {

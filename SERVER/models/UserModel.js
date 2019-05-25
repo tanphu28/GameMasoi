@@ -2,17 +2,53 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var PersonSchema  = new Schema({
 
-    id:{
+    userId:{
         type:String
     },
 
-    username:{
+    fullname:{
         type:String,
-        require : true
+        default:""
     },
     name:{
         type:String,
         default:""
+    },
+    phone_number : {
+        type : String,
+        default:""
+    },
+    birthday : {
+        type : String,
+        default:""
+    },
+    address : {
+        type : String,
+        default:""
+    },
+    email : {
+        type : String,
+        default:""
+    },
+    level : {
+        type : Number,
+        default:0
+    },
+    win : {
+        type : Number,
+        default:0
+    },
+    lose : {
+        type : Number,
+        default:0
+    },
+    cancle : {
+        type : Number,
+        default:0
+    },
+    money : {
+        type : Number,
+        default:0
     },
     id_room:{
         type:String,
@@ -24,8 +60,4 @@ var PersonSchema  = new Schema({
     }
     
 });
-// UserSchema.path('name').set((inputString)=>{
-
-
-// });
 module.exports = mongoose.model('User',PersonSchema);
