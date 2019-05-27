@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -17,6 +18,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.dtanp.masoi.control.StaticFirebase;
@@ -24,13 +26,28 @@ import com.example.dtanp.masoi.control.StaticUser;
 import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.model.UserStore;
 import com.example.dtanp.masoi.utils.MD5Util;
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -49,7 +66,7 @@ import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 
-public class LoginActivity extends Activity implements View.OnClickListener {
+public class LoginActivity extends FragmentActivity implements View.OnClickListener ,GoogleApiClient.OnConnectionFailedListener  {
 
 
     public static final int RC_SIGN_IN = 123;
@@ -62,7 +79,12 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     private FirebaseAuth auth;
     private Emitter.Listener emitterUserLogin;
 
-
+    private CallbackManager callbackManager;
+    private LoginButton loginButton;
+    private SignInButton SignIn;
+    private LinearLayout Prof_section;
+    private GoogleApiClient googleApiClient;
+    public static final int REC_CODE = 9001;
     private static final boolean AUTO_HIDE = true;
 
 
@@ -117,16 +139,80 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         setContentView(R.layout.activity_login);
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
+        //configure fb
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        FacebookSdk.setApplicationId(getResources().getString(R.string.facebook_app_id));
+        loginButton = (LoginButton) findViewById(R.id.login_button);
+        loginButton.setReadPermissions("email");
+        // configure login fb
+        callbackManager = CallbackManager.Factory.create();
+        LoginManager.getInstance().registerCallback(callbackManager,
+                new FacebookCallback<LoginResult>() {
+                    @Override
+                    public void onSuccess(LoginResult loginResult) {
+                        Log.d(TAG, "Success !");
+                        AccessToken tok;
+                        tok = AccessToken.getCurrentAccessToken();
+                        Log.d(TAG, tok.getUserId());
+                        System.out.println(tok.getUserId());
 
+
+
+
+                        GraphRequest.newMeRequest(
+                                loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+                                    @Override
+                                    public void onCompleted(JSONObject me, GraphResponse response) {
+                                        if (response.getError() != null) {
+                                            // handle error
+                                        } else {
+                                            // get email and id of the user
+                                            String email = me.optString("email");
+                                            String id = me.optString("id");
+                                            String name =me.optString("name");
+                                           // User us= new User(id,name,email,"");
+//                                            StaticUser.user=us;
+//                                            //reference.child("User").child(StaticUser.user.getId()).setValue(StaticUser.user);
+//                                            String jsonUser =  StaticUser.gson.toJson(us);
+//                                            StaticUser.socket.emit("fb",jsonUser);
+                                            startmh();
+                                            finish();
+                                        }
+                                    }
+                                }).executeAsync();
+
+                    }
+
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+
+                    @Override
+                    public void onError(FacebookException exception) {
+
+                    }
+                });
         // Configure Google Sign In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+
+        SignIn=(SignInButton) findViewById(R.id.btn_login);
+        SignIn.setOnClickListener(this);
+
+        GoogleSignInOptions signInOptions =new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        googleApiClient=new GoogleApiClient.Builder(this).enableAutoManage(this,this).addApi(Auth.GOOGLE_SIGN_IN_API,signInOptions).build();
+
+//        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//                .requestIdToken(getString(R.string.default_web_client_id))
+//                .requestEmail()
+//                .build();
+//        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+
         database = StaticFirebase.database;
         auth = StaticFirebase.auth;
-        findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_login).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 signIn();
@@ -270,19 +356,27 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         startActivity(intent);
     }
 
+//    private void signIn() {
+//        System.out.println("toi 3");
+//        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+//        startActivityForResult(signInIntent, 1);
+//        System.out.println("toi 4");
+//    }
     private void signIn() {
-        System.out.println("toi 3");
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, 1);
-        System.out.println("toi 4");
+        Intent intent =Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
+        startActivityForResult(intent,REC_CODE);
     }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         System.out.println("toi 5");
+        if(requestCode==REC_CODE){
+            GoogleSignInResult result=Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleSignInResult(result);
+            System.out.println("toi 5g");
 
+        }
         Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
         try {
             // Google Sign In was successful, authenticate with Firebase
@@ -300,6 +394,19 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 
     }
 
+
+    private void handleSignInResult(GoogleSignInResult result) {
+        if(result.isSuccess()) {
+            GoogleSignInAccount account = result.getSignInAccount();
+            String name = account.getDisplayName();
+            String email = account.getEmail();
+            String img_url = account.getPhotoUrl().toString();
+            // Name.setText(name);
+            //Email.setText(email);
+            //Glide.with(this).load(img_url).into(Prof_pic);
+        }
+
+    }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         System.out.println("toi ne");
@@ -387,6 +494,8 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     }
 
 
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-
+    }
 }

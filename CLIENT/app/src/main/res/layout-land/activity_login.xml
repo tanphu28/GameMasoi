@@ -98,6 +98,7 @@
 
     </LinearLayout>
     <LinearLayout
+        android:id="@+id/prof_section"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -107,6 +108,21 @@
             android:layout_height="60dp"
             android:background="@drawable/fb"
             />
+        <TextView
+            android:id="@+id/tv_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            />
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/login_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp" />
+
         <ImageButton
             android:layout_marginLeft="20dp"
             android:id="@+id/btngg"
@@ -125,17 +141,12 @@
             />
         <com.google.android.gms.common.SignInButton
 
-            android:id="@+id/sign_in_button"
+            android:id="@+id/btn_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             />
 
-
-
-
-
     </LinearLayout>
-
 
 
 
