@@ -10,7 +10,21 @@ var mongoose = require("mongoose");
 let User = require('./models/UserModel');
 let Room = require('./models/RoomModel');
 let UserStore = require('./models/UserStore');
-server.listen(3000);
+var PORT = process.env.PORT || 3000
+const versionName = '3.0'
+server.listen(PORT);
+var fs = require('fs');
+var http = require('http');
+var path = require('path');
+http.createServer(function(req,res){
+    if(req.url.match(/.jpg$/)){
+        var imgPath = path.join(__dirname,'image',req.url);
+        var imgStream = fs.createReadStream(imgPath);
+        res.writeHead(200,{"Content-Type" : "image/jpeg"});
+        imgStream.pipe(res);
+    }
+}).listen(4000);
+
 
 io.on("connection",function(socket){
         //join room cho web test
@@ -20,6 +34,12 @@ io.on("connection",function(socket){
         socket.on("disconnect",function(){
                 console.log("ngat ket noi toi server");
         });
+
+        //update version android
+        socket.on("CheckVersionName",function(data){
+            console.log(data);
+            socket.emit("CheckVersionName",versionName);
+        })
         
 
         //signup
@@ -501,6 +521,19 @@ io.on("connection",function(socket){
 app.get("/",function(req,res){
     res.render("index");
 });
+app.get("/image",function(req,res){
+    var imgPath = path.join(__dirname,'image','aaa.jpg');
+    var imgStream = fs.createReadStream(imgPath);
+    res.writeHead(200,{"Content-Type" : "image/jpeg"});
+    imgStream.pipe(res);
+});
+app.get("/apk",function(req,res){
+    var imgPath = path.join(__dirname,'public','app-debug.apk');
+    var imgStream = fs.createReadStream(imgPath);
+    res.writeHead(200,{"Content-Type" : "application/vnd.android.package-archive"});
+    imgStream.pipe(res);
+});
+
 let options ={
     db:{native_parser:true},
     server: {poolSize: 5},

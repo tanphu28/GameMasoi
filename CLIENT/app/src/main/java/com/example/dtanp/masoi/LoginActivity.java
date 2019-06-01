@@ -3,9 +3,15 @@ package com.example.dtanp.masoi;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
@@ -23,6 +29,7 @@ import android.widget.Toast;
 
 import com.example.dtanp.masoi.control.StaticFirebase;
 import com.example.dtanp.masoi.control.StaticUser;
+import com.example.dtanp.masoi.model.API;
 import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.model.UserStore;
 import com.example.dtanp.masoi.utils.MD5Util;
@@ -64,7 +71,19 @@ import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoginActivity extends FragmentActivity implements View.OnClickListener ,GoogleApiClient.OnConnectionFailedListener  {
 
@@ -86,6 +105,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     private GoogleApiClient googleApiClient;
     public static final int REC_CODE = 9001;
     private static final boolean AUTO_HIDE = true;
+    private AlertDialog dialogUpdate;
 
 
     private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
@@ -132,6 +152,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
             return false;
         }
     };
+    String version;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,13 +224,6 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         GoogleSignInOptions signInOptions =new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         googleApiClient=new GoogleApiClient.Builder(this).enableAutoManage(this,this).addApi(Auth.GOOGLE_SIGN_IN_API,signInOptions).build();
 
-//        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//                .requestIdToken(getString(R.string.default_web_client_id))
-//                .requestEmail()
-//                .build();
-//        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-
         database = StaticFirebase.database;
         auth = StaticFirebase.auth;
         findViewById(R.id.btn_login).setOnClickListener(new View.OnClickListener() {
@@ -227,9 +241,142 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         }
         StaticUser.socket.connect();
         StaticUser.gson=new Gson();
-
+        createDialogUpdate();
+        LangNgheVersionName();
         AddConTrols();
         AddEvents();
+
+        try {
+            PackageInfo pInfo = LoginActivity.this.getPackageManager().getPackageInfo(getPackageName(), 0);
+            version = pInfo.versionName;
+            StaticUser.socket.emit("CheckVersionName",1);
+
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public  void LangNgheVersionName(){
+        Emitter.Listener listener = new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                LoginActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String ver = (String) args[0];
+                        if(!version.equals(ver)){
+                            dialogUpdate.show();
+                        }
+                    }
+                });
+
+            }
+        };
+        StaticUser.socket.on("CheckVersionName",listener);
+    }
+
+    public void  createDialogUpdate(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+        builder.setTitle("Update Version Android");
+        builder.setMessage("You must update version app!");
+        builder.setNegativeButton("Accept", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                downloadfile();
+            }
+        });
+        dialogUpdate = builder.create();
+    }
+
+    public  void downloadfile(){
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://192.168.1.9:3000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        API downloadService = retrofit.create(API.class);
+
+        Call<ResponseBody> call = downloadService.downloadApk("http://192.168.1.9:3000/apk");
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    //Log.d(TAG, "server contacted and has file");
+
+                    boolean writtenToDisk = writeResponseBodyToDisk(response.body());
+                    Toast.makeText(LoginActivity.this,"Download Successfully",Toast.LENGTH_SHORT).show();
+                    if(writtenToDisk){
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/app.apk")), "application/vnd.android.package-archive");
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
+
+                    //Log.d(TAG, "file download was a success? " + writtenToDisk);
+                } else {
+                    //Log.d(TAG, "server contact failed");
+                    Toast.makeText(LoginActivity.this,"Fail!",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                //Log.e(TAG, "error");
+            }
+        });
+    }
+
+    public boolean writeResponseBodyToDisk(ResponseBody body) {
+        try {
+            // todo change the file location/name according to your needs
+            File futureStudioIconFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "app.apk");
+
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+
+            try {
+                byte[] fileReader = new byte[4096];
+
+                long fileSize = body.contentLength();
+                long fileSizeDownloaded = 0;
+
+                inputStream = body.byteStream();
+                outputStream = new FileOutputStream(futureStudioIconFile);
+
+                while (true) {
+                    int read = inputStream.read(fileReader);
+
+                    if (read == -1) {
+                        break;
+                    }
+
+                    outputStream.write(fileReader, 0, read);
+
+                    fileSizeDownloaded += read;
+
+                    Log.d("CHIM", "file download: " + fileSizeDownloaded + " of " + fileSize);
+                }
+
+                outputStream.flush();
+
+                return true;
+            } catch (IOException e) {
+                Log.d("CHIMERR",e.getMessage().toString());
+                return false;
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            }
+        } catch (IOException e) {
+            Log.d("CHIMERR",e.getMessage().toString());
+            return false;
+        }
     }
 
 
