@@ -19,9 +19,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.example.dtanp.masoi.adapter.CustomAdapterChat;
 import com.example.dtanp.masoi.control.StaticUser;
 import com.example.dtanp.masoi.model.Chat;
+import com.example.dtanp.masoi.model.User;
+import com.facebook.login.widget.LoginButton;
 import com.github.nkzawa.emitter.Emitter;
 
 import org.json.JSONException;
@@ -29,6 +32,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.fabric.sdk.android.Fabric;
 
 public class HomeActivity extends Activity {
 
@@ -88,9 +93,12 @@ public class HomeActivity extends Activity {
     ImageButton imgChat,imgCancleChat;
     boolean flagChat = false;
     TextView txtUser;
+    LoginButton loginButton;
+    ImageButton btnUserinfo;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_home);
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
@@ -149,10 +157,19 @@ public class HomeActivity extends Activity {
         imgChat = findViewById(R.id.imgChat);
         imgCancleChat = findViewById(R.id.imgCancleChat);
         txtUser = findViewById(R.id.txtuser);
+        loginButton = findViewById(R.id.login_button);
+        btnUserinfo = findViewById(R.id.btnUserinfo);
     }
 
     private void AddConTrols() {
 
+        btnUserinfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this,UserActivity.class);
+                startActivity(intent);
+            }
+        });
         edtChat.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {

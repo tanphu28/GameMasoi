@@ -2,9 +2,7 @@ package com.example.dtanp.masoi;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -14,17 +12,18 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
-import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -54,22 +53,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
+import io.fabric.sdk.android.Fabric;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -77,9 +67,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
 import java.net.URISyntaxException;
 
-import io.fabric.sdk.android.Fabric;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -87,25 +77,29 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class LoginActivity extends FragmentActivity implements View.OnClickListener ,GoogleApiClient.OnConnectionFailedListener  {
 
+public class MainActivity extends FragmentActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
+    private LinearLayout Prof_section;
+    private Button SignOut;
+    private SignInButton SignIn;
+    private TextView Name,Email;
+    private ImageView Prof_pic;
+    private GoogleSignInClient mGoogleSignInClient;
+    private GoogleApiClient googleApiClient;
+    private CallbackManager callbackManager;
+    private LoginButton loginButton;
+
+
+    public static final int REC_CODE = 9001;
 
     public static final int RC_SIGN_IN = 123;
     public static final String TAG = "abc";
-    private GoogleSignInClient mGoogleSignInClient;
     private EditText edtuser, edtpassworld;
     private Button btnlogin, btnsignup;
     ImageButton btngg;
     private FirebaseDatabase database;
     private FirebaseAuth auth;
     private Emitter.Listener emitterUserLogin;
-
-    private CallbackManager callbackManager;
-    private LoginButton loginButton;
-    private SignInButton SignIn;
-    private LinearLayout Prof_section;
-    private GoogleApiClient googleApiClient;
-    public static final int REC_CODE = 9001;
     private static final boolean AUTO_HIDE = true;
     private AlertDialog dialogUpdate;
 
@@ -155,7 +149,9 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         }
     };
     String version;
-
+    boolean isOK = false;
+    AlertDialog dialog;
+    String userId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,7 +159,10 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         setContentView(R.layout.activity_login);
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
-        //configure fb
+        SignIn=findViewById(R.id.btn_login);
+        SignIn.setOnClickListener(this);
+
+        //fb login
         FacebookSdk.sdkInitialize(getApplicationContext());
         FacebookSdk.setApplicationId(getResources().getString(R.string.facebook_app_id));
         loginButton = (LoginButton) findViewById(R.id.login_button);
@@ -174,26 +173,27 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
-                        Toast.makeText(LoginActivity.this,"eee",Toast.LENGTH_SHORT).show();
+
                         AccessToken tok;
                         tok = AccessToken.getCurrentAccessToken();
-                        System.out.println("aaaaa");
-                        System.out.println(tok.getUserId());
+                        System.out.println("aaaa");
+                        System.out.println(tok.toString());
                         GraphRequest.newMeRequest(
                                 loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
                                     @Override
                                     public void onCompleted(JSONObject me, GraphResponse response) {
                                         if (response.getError() != null) {
-                                            // handle error
-                                            Toast.makeText(LoginActivity.this,"aaa",Toast.LENGTH_SHORT).show();
-                                            System.out.println("bbbb");
+                                            Toast.makeText(MainActivity.this,"Login Fail!",Toast.LENGTH_SHORT).show();
                                         } else {
-                                            Toast.makeText(LoginActivity.this,"bbb",Toast.LENGTH_SHORT).show();
-                                            String id = me.optString("id");
-                                            String name =me.optString("name");
-                                            System.out.println("cccc");
+                                            //System.out.println("cccc");
+                                              userId = me.optString("id");
+//                                            String name =me.optString("name");
+
+                                            //System.out.println(me.toString());
+                                            //System.out.println(response.getJSONArray().toString());
+                                            StaticUser.socket.emit("LoginFB",me.toString());
+                                            Toast.makeText(MainActivity.this,"Login Success!",Toast.LENGTH_SHORT).show();
                                             StaticUser.METHOD_LOGIN = 2;
-                                            //finish();
                                         }
                                     }
                                 }).executeAsync();
@@ -202,23 +202,21 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
                     @Override
                     public void onCancel() {
-                        Toast.makeText(LoginActivity.this,"ddd",Toast.LENGTH_SHORT).show();
+                        System.out.println("eeee");
                     }
 
                     @Override
                     public void onError(FacebookException exception) {
-                        Toast.makeText(LoginActivity.this,"ccc",Toast.LENGTH_SHORT).show();
-                        System.out.println("dddd");
+                        System.out.println("ffff");
                     }
                 });
-        // Configure Google Sign In
-
-
-        SignIn=(SignInButton) findViewById(R.id.btn_login);
-        SignIn.setOnClickListener(this);
-
+        //google
         GoogleSignInOptions signInOptions =new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-        googleApiClient=new GoogleApiClient.Builder(this).enableAutoManage(this,this).addApi(Auth.GOOGLE_SIGN_IN_API,signInOptions).build();
+
+        mGoogleSignInClient= GoogleSignIn.getClient(this, signInOptions);
+        googleApiClient=new GoogleApiClient.Builder(this).enableAutoManage(this,this).addApi(
+                Auth.GOOGLE_SIGN_IN_API,signInOptions
+        ).build();
 
         database = StaticFirebase.database;
         auth = StaticFirebase.auth;
@@ -234,23 +232,221 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         LangNgheVersionName();
         AddConTrols();
         AddEvents();
+        AddDialog();
+        LangNgheLogin();
+        LangNgheRegister();
 
         try {
-            PackageInfo pInfo = LoginActivity.this.getPackageManager().getPackageInfo(getPackageName(), 0);
+            PackageInfo pInfo = MainActivity.this.getPackageManager().getPackageInfo(getPackageName(), 0);
             version = pInfo.versionName;
             StaticUser.socket.emit("CheckVersionName",1);
 
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+    }
+    public  void LangNgheRegister(){
+        Emitter.Listener listener = new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if((boolean)args[0]==true)
+                        {
+                            dialog.show();
+                        }
+                    }
+                });
+            }
+        };
+
+        StaticUser.socket.on("register_user",listener);
+    }
+    private void LangNgheLogin(){
+        Emitter.Listener listener =  new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject jsonObject = (JSONObject) args[0];
+                        StaticUser.user = StaticUser.gson.fromJson(jsonObject.toString(),User.class);
+                        startmh();
+                        finish();
+                    }
+                });
+            }
+        };
+        StaticUser.socket.on("LonginSuccess",listener);
+    }
+
+    public  void  AddDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        LayoutInflater layoutInflater = getLayoutInflater();
+        View view = layoutInflater.inflate(R.layout.dialog_nickname,null);
+        builder.setView(view);
+        Button btnCheck = view.findViewById(R.id.btnCheck);
+        Button btnOK = view . findViewById(R.id.btnApply);
+        final EditText edtNickname = view.findViewById(R.id.nickName);
+        final TextView textCheck = view.findViewById(R.id.textCheck);
+        btnCheck.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!edtNickname.getText().toString().trim().equals(""))
+                {
+                    StaticUser.socket.emit("CheckUser",edtNickname.getText().toString().trim());
+                }
+                else
+                {
+                    Toast.makeText(MainActivity.this,"nick name is not empty !",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+        btnOK.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isOK && !edtNickname.getText().toString().trim().equals(""))
+                {
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("userId", userId);
+                    jsonObject.addProperty("name", edtNickname.getText().toString().trim());
+                    String json = StaticUser.gson.toJson(jsonObject);
+                    StaticUser.socket.emit("RegistnicknameLoginFb",json);
+                }
+                else
+                {
+                    Toast.makeText(MainActivity.this,"Unsuccessful!",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        Emitter.Listener listener2 = new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if((boolean)args[0]==true)
+                        {
+                            textCheck.setText("Nickname is use");
+                            isOK = true;
+                        }
+                        else {
+                            textCheck.setText("Nickname is Exists");
+                        }
+                    }
+                });
+            }
+        };
+        StaticUser.socket.on("CheckUser",listener2);
+
+        Emitter.Listener listenerLogin = new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject jsonObject = (JSONObject) args[0];
+                        StaticUser.user = StaticUser.gson.fromJson(jsonObject.toString(),User.class);
+                        dialog.cancel();
+                        startmh();
+                        finish();
+                    }
+                });
+            }
+        };
+
+        StaticUser.socket.on("Registnickname",listenerLogin);
+
+        dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+    }
+
+    private void signIn() {
+        Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
+        startActivityForResult(intent,REC_CODE);
+        googleApiClient.connect();
+    }
+    private void updateUI(boolean isLogin){
+        if(isLogin){
+            Prof_section.setVisibility(View.VISIBLE);
+            SignIn.setVisibility(View.GONE);
+        }else
+        {
+            Prof_section.setVisibility(View.GONE);
+            SignIn.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==REC_CODE){
+            GoogleSignInResult result= Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            Toast.makeText(MainActivity.this,result.getStatus().toString()+"",Toast.LENGTH_SHORT).show();
+            handleSignInResult(result);
+
+        }
+
 
     }
+    private void handleSignInResult(GoogleSignInResult result) {
+        Toast.makeText(MainActivity.this,result.isSuccess()+"",Toast.LENGTH_SHORT).show();
+        if(result.isSuccess()){
+            GoogleSignInAccount account=result.getSignInAccount();
+            String name =account.getDisplayName();
+            String email=account.getEmail();
+            //String img_url=account.getPhotoUrl().toString();
+            //Glide.with(this).load(img_url).into(Prof_pic);
+            //System.out.println("cccc");
+            userId =email;
+//                                            String name =me.optString("name");
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("id", userId);
+            jsonObject.addProperty("name", name);
+            String json = StaticUser.gson.toJson(jsonObject);
+            //System.out.println(me.toString());
+            //System.out.println(response.getJSONArray().toString());
+            StaticUser.socket.emit("LoginFB",json);
+            Toast.makeText(MainActivity.this,"Login Success!",Toast.LENGTH_SHORT).show();
+        }else{
+            updateUI(false);
+        }
+
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()){
+            case R.id.btn_login:
+                signIn();
+                StaticUser.METHOD_LOGIN = 3;
+                break;
+
+        }
+        int id = v.getId();
+        if (id == R.id.btnlogin) {
+
+
+            StaticUser.METHOD_LOGIN = 1;
+            String username = edtuser.getText().toString().trim();
+            String pass = edtpassworld.getText().toString().trim();
+            pass = MD5Util.getMD5(pass);
+            UserStore userStore = new UserStore(username,pass);
+            String json = StaticUser.gson.toJson(userStore);
+            StaticUser.socket.emit("login",json);
+        }
+    }
+
 
     public  void LangNgheVersionName(){
         Emitter.Listener listener = new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
-                LoginActivity.this.runOnUiThread(new Runnable() {
+                MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         String ver = (String) args[0];
@@ -266,7 +462,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     }
 
     public void  createDialogUpdate(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Update Version Android");
         builder.setMessage("You must update version app!");
         builder.setNegativeButton("Accept", new DialogInterface.OnClickListener() {
@@ -294,7 +490,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                     //Log.d(TAG, "server contacted and has file");
 
                     boolean writtenToDisk = writeResponseBodyToDisk(response.body());
-                    Toast.makeText(LoginActivity.this,"Download Successfully",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this,"Download Successfully",Toast.LENGTH_SHORT).show();
                     if(writtenToDisk){
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         intent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/app.apk")), "application/vnd.android.package-archive");
@@ -305,7 +501,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                     //Log.d(TAG, "file download was a success? " + writtenToDisk);
                 } else {
                     //Log.d(TAG, "server contact failed");
-                    Toast.makeText(LoginActivity.this,"Fail!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this,"Fail!",Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -383,17 +579,17 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
             @Override
             public void call(final Object... args) {
-                LoginActivity.this.runOnUiThread(new Runnable() {
+                MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if(args[0]==null)
                         {
-                            Toast.makeText(LoginActivity.this,"Username or PassWord incorrect",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this,"Username or PassWord incorrect",Toast.LENGTH_SHORT).show();
                         }
                         else
                         {
                             JSONObject jsonObject = (JSONObject) args[0];
-                            StaticUser.user = StaticUser.gson.fromJson(jsonObject.toString(),User.class);
+                            StaticUser.user = StaticUser.gson.fromJson(jsonObject.toString(), User.class);
                             startmh();
                             finish();
                         }
@@ -436,55 +632,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
 
 
-    @Override
-    public void onClick(View view) {
-        int id = view.getId();
-        if (id == R.id.btnlogin) {
 
-//            final DatabaseReference reference = database.getReference();
-//            if (edtuser.getText().toString() != "" && edtpassworld.getText().toString() != "") {
-//                String user = edtuser.getText().toString();
-//                String pass = edtpassworld.getText().toString();
-//                auth.signInWithEmailAndPassword(user, pass).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<AuthResult> task) {
-//                        if (task.isSuccessful()) {
-//                            //System.out.println(task.getResult().getUser().getUid().toString());
-////                            reference.child("User").child(task.getResult().getUser().getUid().toString()).addValueEventListener(new ValueEventListener() {
-////                                @Override
-////                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-////                                    User us = dataSnapshot.getValue(User.class);
-////                                    StaticUser.user = us;
-////                                    Toast.makeText(LoginActivity.this,"Đăng nhập thành công",Toast.LENGTH_SHORT).show();
-////                                    startmh();
-////                                    finish();
-////
-////
-////                                }
-////
-////                                @Override
-////                                public void onCancelled(@NonNull DatabaseError databaseError) {
-////
-////                                }
-////                            });
-//                            //Toast.makeText(LoginActivity.this,"Đăng nhập !",Toast.LENGTH_SHORT).show();
-//                            StaticUser.socket.emit("finduserlogin",task.getResult().getUser().getUid());
-//                        } else {
-//                            Toast.makeText(LoginActivity.this,"Đăng nhập thất bại",Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                });
-//            }
-
-            String username = edtuser.getText().toString().trim();
-            String pass = edtpassworld.getText().toString().trim();
-            pass = MD5Util.getMD5(pass);
-            UserStore userStore = new UserStore(username,pass);
-            String json = StaticUser.gson.toJson(userStore);
-            StaticUser.socket.emit("login",json);
-            StaticUser.METHOD_LOGIN = 1;
-        }
-    }
 
     public void startmh() {
         Intent intent = new Intent(this, HomeActivity.class);
@@ -555,3 +703,32 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.example.dtanp.masoi.control.StaticFirebase;
 import com.example.dtanp.masoi.control.StaticUser;
 import com.example.dtanp.masoi.model.User;
@@ -35,6 +36,8 @@ import com.google.gson.JsonObject;
 import org.json.JSONObject;
 
 import java.net.Socket;
+
+import io.fabric.sdk.android.Fabric;
 
 public class SignupActivity extends Activity {
 
@@ -97,7 +100,7 @@ public class SignupActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_signup);
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.dtanp.masoi">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:hardwareAccelerated="false"
@@ -11,9 +13,8 @@
         android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
 
-        >
         <meta-data
             android:name="com.google.android.gms.vision"
             android:value="@integer/google_play_services_version" />
@@ -37,67 +38,70 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".FullscreenActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_fullscreen"
-            android:theme="@style/FullscreenTheme"
-            android:windowSoftInputMode="adjustResize|adjustPan"
             android:screenOrientation="landscape"
-            >
-        </activity>
+            android:theme="@style/FullscreenTheme"
+            android:windowSoftInputMode="adjustResize|adjustPan"></activity>
         <activity
             android:name=".LoginActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="landscape"
             android:theme="@style/FullscreenTheme"
-            android:windowSoftInputMode="adjustResize|adjustPan"
-            android:screenOrientation="landscape">
+            android:windowSoftInputMode="adjustResize|adjustPan"></activity>
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="landscape"
+            android:theme="@style/FullscreenTheme"
+            android:windowSoftInputMode="adjustResize|adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TestRetroFit">
-
-        </activity>
         <activity
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/FullscreenTheme"
-            android:windowSoftInputMode="adjustResize|adjustPan"
-            android:name=".MainActivity"
-            android:screenOrientation="landscape" />
-        <activity
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/FullscreenTheme"
-            android:windowSoftInputMode="adjustResize|adjustPan"
             android:name=".SignupActivity"
-            android:screenOrientation="landscape" />
-        <activity
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="landscape"
             android:theme="@style/FullscreenTheme"
-            android:windowSoftInputMode="adjustResize|adjustPan"
+            android:windowSoftInputMode="adjustResize|adjustPan" />
+        <activity
+            android:name=".UserActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="landscape"
+            android:theme="@style/FullscreenTheme"
+            android:windowSoftInputMode="adjustResize|adjustPan" />
+        <activity
             android:name=".HostActivity"
-            android:screenOrientation="landscape" />
-        <activity
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="landscape"
             android:theme="@style/FullscreenTheme"
-            android:windowSoftInputMode="adjustResize|adjustPan"
+            android:windowSoftInputMode="adjustResize|adjustPan" />
+        <activity
             android:name=".HomeActivity"
-            android:screenOrientation="landscape" />
-        <activity
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="landscape"
             android:theme="@style/FullscreenTheme"
-            android:windowSoftInputMode="adjustResize|adjustPan"
+            android:windowSoftInputMode="adjustResize|adjustPan" />
+        <activity
             android:name=".BanActivity"
-            android:screenOrientation="landscape" />
-        <activity
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="landscape"
             android:theme="@style/FullscreenTheme"
-            android:windowSoftInputMode="adjustResize|adjustPan"
+            android:windowSoftInputMode="adjustResize|adjustPan" />
+        <activity
             android:name=".RoomActivity"
-            android:screenOrientation="landscape" />
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="adjustResize|adjustPan" />
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="be1b67295cd5816f4f4b6fca64c94a795b9b1a13" />
     </application>
 
 </manifest>

@@ -10,7 +10,7 @@
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bghome"
+    android:background="@drawable/bgmasoi"
     android:id="@+id/fullscreen_content"
     android:orientation="horizontal"
     tools:ignore="UselessParent"
@@ -149,35 +149,40 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:orientation="vertical">
+            android:layout_height="200dp">
 
 
-            <Button
-                android:id="@+id/btnchoingay"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="80dp"
+            <ImageButton
+                android:id="@+id/btnUserinfo"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="17dp"
+                android:background="@drawable/image_user"
+                android:scaleType="fitCenter" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
                 android:layout_marginTop="80dp"
-                android:background="@drawable/button"
-                android:text="Chơi ngay"
-                />
-
-            <Button
-                android:id="@+id/btnchonban"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="80dp"
-
-                android:layout_marginTop="20dp"
-                android:text="Chọn bàn"
-                android:background="@drawable/button"
-                />
+                android:orientation="vertical">
 
 
-        </LinearLayout>
+                <Button
+                    android:id="@+id/btnchonban"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="80dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/button"
+                    android:text="Chơi ngay" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
 
 
         <LinearLayout
@@ -188,7 +193,6 @@
             <LinearLayout
                 android:layout_width="150dp"
                 android:layout_height="match_parent">
-
 
                 <ImageButton
                     android:layout_width="30dp"
@@ -209,7 +213,7 @@
                     android:layout_marginTop="100dp"
                     android:layout_marginEnd="5dp"
                     android:text="5000"
-                    android:textColor="#f00"
+                    android:textColor="#FFFFFF"
                     android:textSize="30dp"
 
                     />
@@ -263,7 +267,7 @@
                     android:layout_marginEnd="20dp"
                     android:gravity="center"
                     android:text="Phú"
-                    android:textColor="#f00"
+                    android:textColor="#ffffff"
                     android:textSize="20dp" />
 
 

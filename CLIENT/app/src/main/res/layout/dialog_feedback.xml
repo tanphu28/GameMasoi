@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bgmasoi"
+    android:orientation="vertical"
+    android:gravity="center"
+    >
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Thank You!"
+        android:textSize="24dp"
+        />
+    <EditText
+        android:layout_marginTop="20dp"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/edtEmail"
+        android:hint="Email"
+        />
+
+    <EditText
+        android:id="@+id/edtContent"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:minLines="4"
+        android:hint="Content"
+        />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send"
+        android:textSize="20dp"
+        android:background="@drawable/button"
+        android:id="@+id/btnSendFeedBack"
+        />
+
+</LinearLayout>

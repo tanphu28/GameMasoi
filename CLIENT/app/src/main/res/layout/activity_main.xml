@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:text="Google"/>
+
+   <LinearLayout
+       android:id="@+id/prof_section"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content">
+       <ImageView
+           android:id="@+id/prof_pic"
+           android:layout_width="90dp"
+           android:layout_height="wrap_content"
+           android:src="@drawable/ic_launcher_background"/>
+
+       <LinearLayout
+           android:orientation="vertical"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_marginLeft="30dp">
+           <TextView
+               android:id="@+id/name"
+               android:layout_width="match_parent"
+               android:textSize="20dp"
+               android:text="Display Nmae here"
+               android:layout_height="wrap_content"
+               />
+
+           <TextView
+               android:id="@+id/email"
+               android:layout_width="match_parent"
+               android:textSize="20dp"
+               android:text="Display email here"
+               android:layout_height="wrap_content"
+               />
+
+           <Button
+               android:id="@+id/btn_logout"
+               android:layout_width="match_parent"
+               android:layout_height="37dp"
+               android:text="LogOut Google Account " />
+       </LinearLayout>
+   </LinearLayout>
+    <com.google.android.gms.common.SignInButton
+
+        android:id="@+id/btn_login"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        />
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp" />
+</LinearLayout>
+
+
+</LinearLayout>

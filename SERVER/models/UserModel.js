@@ -32,7 +32,7 @@ var PersonSchema  = new Schema({
     },
     level : {
         type : Number,
-        default:0
+        default:1
     },
     win : {
         type : Number,

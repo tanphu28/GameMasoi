@@ -25,6 +25,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.example.dtanp.masoi.adapter.CustomAdapterChat;
 import com.example.dtanp.masoi.control.StaticFirebase;
 import com.example.dtanp.masoi.control.StaticUser;
@@ -51,6 +52,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import io.fabric.sdk.android.Fabric;
 
 public class BanActivity extends Activity {
 
@@ -130,6 +133,7 @@ public class BanActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_ban);
         AnhXa();
         AddConTrols();

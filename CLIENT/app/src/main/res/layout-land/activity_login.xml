@@ -102,34 +102,32 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-        <ImageButton
-            android:id="@+id/btnfb"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="@drawable/fb"
-            />
+
         <TextView
             android:id="@+id/tv_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18sp"
             />
-
-        <com.facebook.login.widget.LoginButton
-            android:id="@+id/login_button"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="30dp" />
+            android:orientation="vertical">
+            <com.facebook.login.widget.LoginButton
+                android:id="@+id/login_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                 />
+            <com.google.android.gms.common.SignInButton
+                android:id="@+id/btn_login"
+                android:layout_width="match_parent"
+                android:layout_height="40dp" />
+        </LinearLayout>
 
-        <ImageButton
-            android:layout_marginLeft="20dp"
-            android:id="@+id/btngg"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="@drawable/ggplus"
-            />
+
+
+
         <TextView
             android:id="@+id/txtquenmk"
             android:layout_width="wrap_content"
@@ -139,16 +137,5 @@
             android:layout_gravity="center"
             android:layout_marginLeft="160dp"
             />
-        <com.google.android.gms.common.SignInButton
-
-            android:id="@+id/btn_login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
-
     </LinearLayout>
-
-
-
-
 </LinearLayout>

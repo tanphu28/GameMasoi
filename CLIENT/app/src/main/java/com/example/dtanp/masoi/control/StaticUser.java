@@ -13,4 +13,5 @@ public class StaticUser {
     public  static Socket socket;
     public static Gson gson;
     public  static  final int TOTAL_PEOPLE = 7;
+    public  static  int METHOD_LOGIN; //1 : Normal 2: Facebook 3: Google
 }
