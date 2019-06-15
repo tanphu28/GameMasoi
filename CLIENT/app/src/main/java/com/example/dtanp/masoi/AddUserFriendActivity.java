@@ -215,11 +215,8 @@ public class AddUserFriendActivity extends Activity {
             @Override
             public void afterTextChanged(Editable s) {
                 filter(s.toString());
-
             }
         });
-        //edtUser=(EditText)findViewById(R.id.edtUserFriend);
-        // btnGoToChat=(Button)findViewById(R.id.btnGotoChat);
     }
     public void sendUser(Chat chat){
         String json = StaticUser.gson.toJson(chat);
@@ -269,28 +266,7 @@ public class AddUserFriendActivity extends Activity {
             }
         }
 
-        // mRcvAdapter.filterList(filterName);
-        //mRcvAdapter.filterList(filterName);
-        // mRcvAdapter.notifyDataSetChanged();
+
     }
-
-    // Filter Class
-//    public void filters(String charText) {
-//        charText = charText.toLowerCase(Locale.getDefault());
-//        list.clear();
-//        if (charText.length() == 0) {
-//            list.addAll(arraylist);
-//        } else
-//            {
-//            for (User wp : arraylist)
-//            {
-//                if (wp.getName().toLowerCase(Locale.getDefault()).contains(charText)) {
-//                    list.add(wp);
-//                }
-//            }
-//        }
-//        mRcvAdapter.notifyDataSetChanged();
-//    }
-
 
 }
