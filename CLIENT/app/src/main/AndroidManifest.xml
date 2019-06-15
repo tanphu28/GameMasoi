@@ -98,6 +98,11 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustResize|adjustPan" />
+        <activity
+            android:name=".AddUserFriendActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="adjustResize|adjustPan" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

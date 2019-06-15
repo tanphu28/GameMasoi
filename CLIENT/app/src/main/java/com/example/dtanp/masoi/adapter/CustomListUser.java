@@ -98,7 +98,6 @@ public class CustomListUser extends RecyclerView.Adapter<CustomListUser.Recycler
                     filter=filterList;
                 }
 
-
                 FilterResults filterResults =new FilterResults();
                 filterResults.values=filter;
                 return  filterResults;
@@ -111,7 +110,6 @@ public class CustomListUser extends RecyclerView.Adapter<CustomListUser.Recycler
             }
         };
     }
-
 
     public class RecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView txtUserName, txtNumber;
@@ -137,8 +135,6 @@ public class CustomListUser extends RecyclerView.Adapter<CustomListUser.Recycler
             final String userIdN = data.get(position).getUserId();
             String userID2=data.get(position).getUserId();
             final User u=new User(userID2,userID2,userID2);
-
-
             alertDialog.setPositiveButton("Add friend", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {

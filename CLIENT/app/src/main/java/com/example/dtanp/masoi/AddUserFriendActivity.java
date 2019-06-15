@@ -55,7 +55,7 @@ public class AddUserFriendActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_test);
+        setContentView(R.layout.activity_add_user_friend);
         recyclerView=findViewById(R.id.recycler_view1);
         recyclerView.setHasFixedSize(true);
         edtsearch = findViewById(R.id.search1);
@@ -104,7 +104,6 @@ public class AddUserFriendActivity extends Activity {
                     System.out.println("aaaa");
 
                 }
-
             }
         });
         imgCancleChat.setOnClickListener(new View.OnClickListener() {
@@ -183,8 +182,7 @@ public class AddUserFriendActivity extends Activity {
         edtsearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                //Toast.makeText(getApplicationContext(),"before text change",Toast.LENGTH_LONG).show();
-                //mRcvAdapter.notifyDataSetChanged();
+
             }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -192,9 +190,7 @@ public class AddUserFriendActivity extends Activity {
 
 
                 if(s.length()>0){
-                    //s=s.toString().toLowerCase();
-                    //filterdList =new ArrayList<>();
-                    //filterdList.clear();
+
 
                     textlength = edtsearch.getText().length();
                     for(int i=0;i< list.size();i++){
@@ -206,26 +202,11 @@ public class AddUserFriendActivity extends Activity {
                             }
                         }
 
-                        //LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
-                        //layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-                        //recyclerView.setLayoutManager(layoutManager);
-                        //recyclerView.setAdapter(mRcvAdapter);
-                        //recyclerView.setHasFixedSize(true);
-                        //mRcvAdapter.notifyDataSetChanged();
-//                        if(text.contains(s)){
-//                            filterdList.add(list.get(i));
-//                        }
-                        //list.clear();
-                        //mRcvAdapter.notifyDataSetChanged();
-                        //list.clear();
+
                     }
-                    //mRcvAdapter.
                     mRcvAdapter=new CustomListUser(filterdList);
                     recyclerView.setAdapter(mRcvAdapter);
                     mRcvAdapter.notifyDataSetChanged();
-                    //    list.clear();
-
-                    //   filterdList.clear();
 
                 }
 
@@ -234,8 +215,7 @@ public class AddUserFriendActivity extends Activity {
             @Override
             public void afterTextChanged(Editable s) {
                 filter(s.toString());
-                //mRcvAdapter.notifyDataSetChanged();
-                //Toast.makeText(getApplicationContext(),"after text change", Toast.LENGTH_LONG).show();
+
             }
         });
         //edtUser=(EditText)findViewById(R.id.edtUserFriend);

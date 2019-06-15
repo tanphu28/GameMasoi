@@ -191,7 +191,6 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
             alertDialog.setNegativeButton("Chat", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-
                     // addChatDialog(context);
                     Intent intent = new Intent(context, AddUserFriendActivity.class);
                     //intent.putExtra("id", item.getSnippet());
@@ -204,11 +203,6 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
             dialog.show();
         }
 
-        public void capnhatlistChat() {
-
-
-
-        }
 
         public void sendUser(Chat chat){
             String json = StaticUser.gson.toJson(chat);
@@ -220,7 +214,6 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
 
 
         public  void addChatDialog(final Context context){
-            capnhatlistChat();
             int position =getLayoutPosition();
             LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
             final AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
@@ -242,10 +235,7 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
                 }
             });
 
-
-
-
-            btn.setOnClickListener(new View.OnClickListener() {
+              btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     System.out.println("ok ");
@@ -257,7 +247,6 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
                         sendUser(chat);
                         edt.setText("");
                         System.out.println("aaaa");
-
                     }
 
                 }
