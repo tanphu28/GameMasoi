@@ -94,7 +94,7 @@
             android:theme="@style/FullscreenTheme"
             android:windowSoftInputMode="adjustResize|adjustPan" />
         <activity
-            android:name=".RoomActivity"
+            android:name=".ChooseRoomActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustResize|adjustPan" />
