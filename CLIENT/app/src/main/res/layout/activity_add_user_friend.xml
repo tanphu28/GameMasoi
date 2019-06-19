@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusable="true"
+    android:orientation="vertical"
+    android:focusableInTouchMode="true">
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <EditText
+                    android:id="@+id/search1"
+                    android:layout_marginRight="2dp"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:hint="Search"/>
+                <ImageButton
+                    android:id="@+id/btnBack1"
+                    android:layout_width="40dp"
+                    android:layout_height="47dp"
+                    android:layout_gravity="center"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/back" />
+
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+
+
+
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+
+
+                <ImageButton
+                    android:id="@+id/imgChat"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+
+
+                    android:layout_marginEnd="23dp"
+                    android:layout_marginBottom="21dp"
+                    android:background="@drawable/chat" />
+                <RelativeLayout
+                    android:id="@+id/groupChat"
+                    android:layout_marginTop="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="230dp"
+                    android:orientation="horizontal"
+                    android:visibility="invisible"
+                    >
+
+                    <ImageButton
+                        android:id="@+id/imgCancleChat"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="250dp"
+
+                        android:background="@drawable/back" />
+
+
+
+                    <LinearLayout
+                        android:id="@+id/lnrchat1"
+                        android:layout_width="250dp"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+
+                        <ListView
+                            android:id="@+id/listChat1"
+                            android:layout_width="match_parent"
+                            android:layout_height="190dp"
+                            android:layout_alignStart="@+id/lnrchat"
+                            android:layout_alignTop="@+id/lnrchat1"
+                            android:background="#00BCD4"></ListView>
+
+                        <LinearLayout
+                            android:id="@+id/lnrkhungchat"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <EditText
+                                android:id="@+id/edtChat1"
+                                android:layout_width="180dp"
+                                android:layout_height="match_parent" />
+
+                            <Button
+                                android:id="@+id/btnSend1"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:text="send" />
+
+                        </LinearLayout>
+
+
+
+                    </LinearLayout>
+
+
+                </RelativeLayout>
+            </RelativeLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>

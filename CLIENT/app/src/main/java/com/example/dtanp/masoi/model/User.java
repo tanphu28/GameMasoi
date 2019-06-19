@@ -31,6 +31,12 @@ public class User {
         this.id_room = id_room;
     }
 
+    public  User(String userId, String fullname, String name){
+        this.userId = userId;
+        this.fullname = fullname;
+        this.name = name;
+    }
+
     public User() {
     }
 

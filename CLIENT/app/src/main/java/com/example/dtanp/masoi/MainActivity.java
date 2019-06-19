@@ -222,7 +222,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         auth = StaticFirebase.auth;
 
         try {
-            StaticUser.socket = IO.socket("http://192.168.1.9:3000");
+            StaticUser.socket = IO.socket("http://172.16.1.189:3000");
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }

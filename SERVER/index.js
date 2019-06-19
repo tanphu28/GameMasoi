@@ -10,6 +10,7 @@ var mongoose = require("mongoose");
 let User = require('./models/UserModel');
 let Room = require('./models/RoomModel');
 let UserStore = require('./models/UserStore');
+let UserFriends=require('./models/UserFriends');
 let FeedBack = require('./models/FeedBackModel');
 var PORT = process.env.PORT || 3000
 const versionName = '1.0'
@@ -31,6 +32,7 @@ io.on("connection", function (socket) {
     //join room cho web test
     socket.join("TPv1zwikUlbUR7zp8lYZoRnPTWl1");
     socket.Phong = "TPv1zwikUlbUR7zp8lYZoRnPTWl1";
+    socket.UserFriends="TPv1zwikUlbUR7zp8lYZoRnPTWl1";
     console.log("co nguoi ket noi den server");
     socket.on("disconnect", function () {
         console.log("ngat ket noi toi server");
@@ -205,7 +207,7 @@ io.on("connection", function (socket) {
         });
     });
     //all room
-    socket.on("allroom", function () {
+    socket.on("allroom", function (data) {
         Room.find(
             (err, doc) => {
                 if (err) {
@@ -218,6 +220,7 @@ io.on("connection", function (socket) {
             }
         );
     });
+
     //create room
     socket.on("createroom", function (data) {
         var json = JSON.parse(data);
@@ -288,11 +291,93 @@ io.on("connection", function (socket) {
             
         });
     });
+        //all user
+    socket.on("alluser",function()
+    {
+        console.log("that all user");
+        User.find(
+            (err,doc)=>
+            {
+                if(err)
+                {
+                    console.log("that bai");
+                }
+                else
+                {
+                    socket.emit("alluser",doc);
+                    console.log("thanh cong");
+                }
+            }
+        );
+    });
+ //user friend
+    socket.on("alluserfriend",function()
+    {
+        console.log("that all user");
+        UserFriends.find(
+            (err,doc)=>
+            {
+                if(err)
+                {
+                    console.log("that bai");
+                    
+                }
+                else
+                {
+                    socket.emit("alluserfriend",doc);
+                    console.log("thanh cong");
+                }
+            }
+        );
+    });
+     //create user friends
+     socket.on("createUserFriend",function(data)
+     {
+         var ketqua =false;
+         console.log("create friend");
+         var json =JSON.parse(data);
+         var userfriend=new UserFriends({
+                 friend_no:json.friend_no,
+                 userId1:json.userId1,
+                 userId2:json.userId2,
+                 users :json.users,
+                 regist_dt:json.regist_dt
+
+         });
+         userfriend.save((err)=>{
+                 if(err){
+
+                     console.log(" add user friends  fail");
+                 }else
+                 {
+                     UserFriends.findOne({friend_no:json.friend_no},function(err,data){
+                         if(err){
+                             console.log("fail ");
+                             ketqua=false;
+                         }else
+                         {
+                             console.log("tc ");
+                            
+                             callback(constants.success.msg_reg_success);
+                             socket.UserFriends="";
+                             socket.UserFriends=data.friend_no;
+                             ketqua=true;
+                         }
+                         socket.emit('ketquakb',{noidung: ketqua});
+                     });
+
+                 }
+         })
+         
+     })
+     //chat user
+     socket.on("ChatUser",function(data){
+         io.sockets.in(socket.UserFriends).emit("ChatUser",data);
+     });
     //user ready
     socket.on("ready", function (data) {
         io.sockets.in(socket.Phong).emit("ready", data);
     });
-
     //user exit
     socket.on("userexit", function (data) {
         Room.findOne({ _id: socket.Phong }, function (err, doc) {
@@ -596,7 +681,7 @@ let options = {
     pass: 'admin'
 };
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/MasoiDB', options).then(
+mongoose.connect('mongodb://localhost:27017/MasoiDB').then(
     () => {
         console.log("connect Db Succes");
     },
@@ -751,4 +836,6 @@ mongoose.connect('mongodb://localhost:27017/MasoiDB', options).then(
 //     console.log(doc);
 
 // });
+
+//start
 

@@ -8,6 +8,10 @@ import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
@@ -21,12 +25,15 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.example.dtanp.masoi.adapter.CustomAdapterChat;
+import com.example.dtanp.masoi.adapter.CustomListUserFriends;
 import com.example.dtanp.masoi.control.StaticUser;
 import com.example.dtanp.masoi.model.Chat;
 import com.example.dtanp.masoi.model.User;
+import com.example.dtanp.masoi.model.UserFriends;
 import com.facebook.login.widget.LoginButton;
 import com.github.nkzawa.emitter.Emitter;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -95,6 +102,14 @@ public class HomeActivity extends Activity {
     TextView txtUser;
     LoginButton loginButton;
     ImageButton btnUserinfo;
+
+    private RecyclerView recyclerView;
+    CustomListUserFriends mRcvAdapter;
+    List<UserFriends> list;
+
+    EditText edtsearch;
+    ImageButton imgsearch;
+    Emitter.Listener eListenerAllUser;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -159,9 +174,63 @@ public class HomeActivity extends Activity {
         txtUser = findViewById(R.id.txtuser);
         loginButton = findViewById(R.id.login_button);
         btnUserinfo = findViewById(R.id.btnUserinfo);
+        //user friend
+        recyclerView=findViewById(R.id.recycler_view);
+        edtsearch = findViewById(R.id.edtsearch);
+        imgsearch = findViewById(R.id.imgsearch);
+        list=new ArrayList<>();
+        mRcvAdapter = new CustomListUserFriends(list);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(layoutManager);
+        this.recyclerView.setAdapter(mRcvAdapter);
+
+        StaticUser.socket.emit("alluserfriend");
+
+        eListenerAllUser = new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                HomeActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONArray jsonObject = (JSONArray) args[0];
+                        System.out.println(jsonObject.toString());
+                        for (int i =0;i<jsonObject.length();i++)
+                        {
+                            try {
+
+                                JSONObject jsonObject1 = jsonObject.getJSONObject(i);
+                                System.out.println(jsonObject1.toString());
+                                UserFriends user = StaticUser.gson.fromJson(jsonObject1.toString(),UserFriends.class);
+                                if(StaticUser.user.getUserId().equals(user.getUserId1())){
+                                    list.add(user);
+                                }
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                        mRcvAdapter.notifyDataSetChanged();
+
+                    }
+
+                });
+            }
+        };
+        StaticUser.socket.on("alluserfriend",eListenerAllUser);
     }
 
     private void AddConTrols() {
+
+        imgsearch.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                startmhuserfr();
+
+            }
+        });
 
         btnUserinfo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -212,6 +281,45 @@ public class HomeActivity extends Activity {
                 relativeLayoutChat.setVisibility(View.INVISIBLE);
             }
         });
+
+        edtsearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                s=s.toString().toLowerCase();
+                final List<UserFriends> filterdList =new ArrayList<>();
+                for(int i=0;i< list.size();i++){
+
+                    final String text =list.get(i).toString();
+                    if(text.contains(s)){
+                        filterdList.add(list.get(i));
+                    }
+                }
+                recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                mRcvAdapter=new CustomListUserFriends(filterdList);
+                recyclerView.setAdapter(mRcvAdapter);
+                mRcvAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                filter(s.toString());
+            }
+        });
+    }
+
+    public   void filter(String text){
+        List<UserFriends> filterName=new ArrayList<>();
+        for(UserFriends s: list){
+            if(s.getUserId1().contains(text.toLowerCase())){
+                filterName.add(s);
+            }
+        }
+        this.list=filterName;
     }
 
     public void send(Chat chat) {
@@ -254,6 +362,14 @@ public class HomeActivity extends Activity {
         startActivity(intent);
         finish();
     }
+
+    public void startmhuserfr()
+    {
+        Intent intent = new Intent(this,AddUserFriendActivity.class);
+        startActivity(intent);
+        // finish();
+    }
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -288,7 +404,6 @@ public class HomeActivity extends Activity {
         mHideHandler.removeCallbacks(mHidePart2Runnable);
         mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
     }
-
     /**
      * Schedules a call to hide() in delay milliseconds, canceling any
      * previously scheduled calls.
