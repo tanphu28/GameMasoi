@@ -508,7 +508,7 @@ io.on("connection", function (socket) {
         var id;
         Room.findOne({ _id: socket.Phong }, function (err, doc) {
             if (err) {
-                console.log("That bai!");
+                console.log("That bai! 0");
             }
             else {
                 doc.people = doc.users.length - 1;
@@ -517,48 +517,49 @@ io.on("connection", function (socket) {
                 console.log(doc);
                 doc.save((err) => {
                     if (err) {
-                        console.log("That bai!");
+                        console.log("That bai! 1");
                     }
                     else {
                         id = doc.users[0].userId;
                         console.log("thanh cong!");
-                    }
-                });
-                if (doc.users.length == 1) {
-                    Room.deleteOne({ _id: socket.Phong }, function (err) {
-                        if (err) {
-                            console.log("That bai!");
+                        if (doc.users.length == 1) {
+                            Room.deleteOne({ _id: socket.Phong }, function (err) {
+                                if (err) {
+                                    console.log("That bai! 2");
+                                }
+                                else {
+                                    console.log("Thanh cong!");
+                                    io.sockets.emit("DeleteRoom",socket.Phong);
+                                    socket.leave(socket.Phong);
+                                    
+        
+                                }
+                            });
+        
+        
                         }
                         else {
-                            console.log("Thanh cong!");
-                            io.sockets.emit("DeleteRoom",socket.Phong);
-                            socket.leave(socket.Phong);
-                            
-
+                            Room.update(
+                                { _id: socket.Phong },
+                                {
+                                    $pull: { users: { userId: data } }
+                                }, { multi: true }, function (err) {
+                                    if (err) {
+                                        console.log("That Bai 3");
+                                    }
+                                    else {
+                                        console.log("Thanh cong !");
+                                        io.sockets.in(socket.Phong).emit("userexit", data);
+                                        io.sockets.in(socket.Phong).emit("useruphost", id);
+                                        socket.leave(socket.Phong);
+                                        // socket.Phong="";
+                                    }
+                                }
+                            );
                         }
-                    });
-
-
-                }
-                else {
-                    Room.update(
-                        { _id: socket.Phong },
-                        {
-                            $pull: { users: { userId: data } }
-                        }, { multi: true }, function (err) {
-                            if (err) {
-                                console.log("That Bai");
-                            }
-                            else {
-                                console.log("Thanh cong !");
-                                io.sockets.in(socket.Phong).emit("userexit", data);
-                                io.sockets.in(socket.Phong).emit("useruphost", id);
-                                socket.leave(socket.Phong);
-                                // socket.Phong="";
-                            }
-                        }
-                    );
-                }
+                    }
+                });
+                
 
 
             }
@@ -681,7 +682,7 @@ let options = {
     pass: 'admin'
 };
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/MasoiDB').then(
+mongoose.connect('mongodb://localhost:27017/MasoiDB',options).then(
     () => {
         console.log("connect Db Succes");
     },

@@ -1,4 +1,4 @@
-package com.example.dtanp.masoi.model;
+package com.example.dtanp.masoi.appinterface;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;

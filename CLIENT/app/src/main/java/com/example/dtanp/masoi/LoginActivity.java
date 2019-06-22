@@ -2,9 +2,7 @@ package com.example.dtanp.masoi;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -15,12 +13,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -28,9 +23,8 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.example.dtanp.masoi.control.StaticFirebase;
-import com.example.dtanp.masoi.control.StaticUser;
-import com.example.dtanp.masoi.model.API;
+import com.example.dtanp.masoi.appinterface.API;
+import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.model.UserStore;
 import com.example.dtanp.masoi.utils.MD5Util;
@@ -47,27 +41,13 @@ import com.facebook.login.widget.LoginButton;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 import org.json.JSONObject;
@@ -96,8 +76,6 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     private EditText edtuser, edtpassworld;
     private Button btnlogin, btnsignup;
     ImageButton btngg;
-    private FirebaseDatabase database;
-    private FirebaseAuth auth;
     private Emitter.Listener emitterUserLogin;
 
     private CallbackManager callbackManager;
@@ -156,11 +134,13 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     };
     String version;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_login);
+
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
         //configure fb
@@ -192,7 +172,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                                             String id = me.optString("id");
                                             String name =me.optString("name");
                                             System.out.println("cccc");
-                                            StaticUser.METHOD_LOGIN = 2;
+                                            Enviroment.METHOD_LOGIN = 2;
                                             //finish();
                                         }
                                     }
@@ -220,16 +200,14 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         GoogleSignInOptions signInOptions =new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         googleApiClient=new GoogleApiClient.Builder(this).enableAutoManage(this,this).addApi(Auth.GOOGLE_SIGN_IN_API,signInOptions).build();
 
-        database = StaticFirebase.database;
-        auth = StaticFirebase.auth;
 
         try {
-            StaticUser.socket = IO.socket("http://192.168.1.9:3000");
+            Enviroment.socket = IO.socket("http://172.16.6.183:3000");
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        StaticUser.socket.connect();
-        StaticUser.gson=new Gson();
+        Enviroment.socket.connect();
+        Enviroment.gson=new Gson();
         createDialogUpdate();
         LangNgheVersionName();
         AddConTrols();
@@ -238,7 +216,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         try {
             PackageInfo pInfo = LoginActivity.this.getPackageManager().getPackageInfo(getPackageName(), 0);
             version = pInfo.versionName;
-            StaticUser.socket.emit("CheckVersionName",1);
+            Enviroment.socket.emit("CheckVersionName",1);
 
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -262,7 +240,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
             }
         };
-        StaticUser.socket.on("CheckVersionName",listener);
+        Enviroment.socket.on("CheckVersionName",listener);
     }
 
     public void  createDialogUpdate(){
@@ -393,7 +371,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                         else
                         {
                             JSONObject jsonObject = (JSONObject) args[0];
-                            StaticUser.user = StaticUser.gson.fromJson(jsonObject.toString(),User.class);
+                            Enviroment.user = Enviroment.gson.fromJson(jsonObject.toString(),User.class);
                             startmh();
                             finish();
                         }
@@ -404,7 +382,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
             }
         };
-        StaticUser.socket.on("userlogin",emitterUserLogin);
+        Enviroment.socket.on("userlogin",emitterUserLogin);
         edtuser.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -454,7 +432,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 ////                                @Override
 ////                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 ////                                    User us = dataSnapshot.getValue(User.class);
-////                                    StaticUser.user = us;
+////                                    Enviroment.user = us;
 ////                                    Toast.makeText(LoginActivity.this,"Đăng nhập thành công",Toast.LENGTH_SHORT).show();
 ////                                    startmh();
 ////                                    finish();
@@ -468,7 +446,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 ////                                }
 ////                            });
 //                            //Toast.makeText(LoginActivity.this,"Đăng nhập !",Toast.LENGTH_SHORT).show();
-//                            StaticUser.socket.emit("finduserlogin",task.getResult().getUser().getUid());
+//                            Enviroment.socket.emit("finduserlogin",task.getResult().getUser().getUid());
 //                        } else {
 //                            Toast.makeText(LoginActivity.this,"Đăng nhập thất bại",Toast.LENGTH_SHORT).show();
 //                        }
@@ -480,9 +458,9 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
             String pass = edtpassworld.getText().toString().trim();
             pass = MD5Util.getMD5(pass);
             UserStore userStore = new UserStore(username,pass);
-            String json = StaticUser.gson.toJson(userStore);
-            StaticUser.socket.emit("login",json);
-            StaticUser.METHOD_LOGIN = 1;
+            String json = Enviroment.gson.toJson(userStore);
+            Enviroment.socket.emit("login",json);
+            Enviroment.METHOD_LOGIN = 1;
         }
     }
 

@@ -7,17 +7,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dtanp.masoi.R;
-import com.example.dtanp.masoi.control.StaticUser;
-import com.example.dtanp.masoi.model.Phong;
+
+import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.model.UserFriends;
 import com.github.nkzawa.emitter.Emitter;
@@ -140,17 +137,17 @@ public class CustomListUser extends RecyclerView.Adapter<CustomListUser.Recycler
                 public void onClick(DialogInterface dialog, int which) {
 
                     UserFriends userFriends = new UserFriends();
-                    userFriends.setFriend_no(StaticUser.user.getUserId());
-                    userFriends.setUserId1(StaticUser.user.getUserId());
+                    userFriends.setFriend_no(Enviroment.user.getUserId());
+                    userFriends.setUserId1(Enviroment.user.getUserId());
                     userFriends.setUserId2(userIdN);
 
-                    userFriends.getUsers().add(StaticUser.user);
+                    userFriends.getUsers().add(Enviroment.user);
                     userFriends.getUsers().add(u);
 
-                    StaticUser.userFriends = userFriends;
-                    String jsonFriends = StaticUser.gson.toJson(userFriends);
-                    StaticUser.socket.emit("createUserFriend", jsonFriends);
-                    StaticUser.socket.on("ketquakb", onNewMessage);
+                    Enviroment.userFriends = userFriends;
+                    String jsonFriends = Enviroment.gson.toJson(userFriends);
+                    Enviroment.socket.emit("createUserFriend", jsonFriends);
+                    Enviroment.socket.on("ketquakb", onNewMessage);
                 }
             });
 

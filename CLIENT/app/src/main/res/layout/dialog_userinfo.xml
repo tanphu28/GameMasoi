@@ -58,13 +58,14 @@
             <LinearLayout
                 android:layout_width="300dp"
                 android:layout_height="wrap_content">
+
                 <EditText
+                    android:id="@+id/edtBirthday"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:hint="Birthday"
-                    android:id="@+id/edtBirthday"
-                   android:inputType="none"
-                    />
+                    android:enabled="false"
+                    android:inputType="none" />
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

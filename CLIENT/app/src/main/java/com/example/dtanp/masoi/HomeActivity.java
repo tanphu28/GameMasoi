@@ -21,14 +21,12 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.example.dtanp.masoi.adapter.CustomAdapterChat;
 import com.example.dtanp.masoi.adapter.CustomListUserFriends;
-import com.example.dtanp.masoi.control.StaticUser;
+import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Chat;
-import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.model.UserFriends;
 import com.facebook.login.widget.LoginButton;
 import com.github.nkzawa.emitter.Emitter;
@@ -121,7 +119,7 @@ public class HomeActivity extends Activity {
         AddEvents();
         AddConTrols();
         LangNgheAllChat();
-        txtUser.setText(StaticUser.user.getName());
+        txtUser.setText(Enviroment.user.getName());
 
     }
     @Override
@@ -186,7 +184,7 @@ public class HomeActivity extends Activity {
         recyclerView.setLayoutManager(layoutManager);
         this.recyclerView.setAdapter(mRcvAdapter);
 
-        StaticUser.socket.emit("alluserfriend");
+        Enviroment.socket.emit("alluserfriend");
 
         eListenerAllUser = new Emitter.Listener() {
             @Override
@@ -202,8 +200,8 @@ public class HomeActivity extends Activity {
 
                                 JSONObject jsonObject1 = jsonObject.getJSONObject(i);
                                 System.out.println(jsonObject1.toString());
-                                UserFriends user = StaticUser.gson.fromJson(jsonObject1.toString(),UserFriends.class);
-                                if(StaticUser.user.getUserId().equals(user.getUserId1())){
+                                UserFriends user = Enviroment.gson.fromJson(jsonObject1.toString(),UserFriends.class);
+                                if(Enviroment.user.getUserId().equals(user.getUserId1())){
                                     list.add(user);
                                 }
 
@@ -219,7 +217,7 @@ public class HomeActivity extends Activity {
                 });
             }
         };
-        StaticUser.socket.on("alluserfriend",eListenerAllUser);
+        Enviroment.socket.on("alluserfriend",eListenerAllUser);
     }
 
     private void AddConTrols() {
@@ -250,7 +248,7 @@ public class HomeActivity extends Activity {
             public void onClick(View v) {
                 Chat chat = new Chat();
                 if (edtChat.getText().toString() != "") {
-                    chat.setUsername(StaticUser.user.getName());
+                    chat.setUsername(Enviroment.user.getName());
                     chat.setMesage(edtChat.getText().toString());
                     send(chat);
                     edtChat.setText("");
@@ -323,8 +321,8 @@ public class HomeActivity extends Activity {
     }
 
     public void send(Chat chat) {
-        String json = StaticUser.gson.toJson(chat);
-        StaticUser.socket.emit("ChatAll", json);
+        String json = Enviroment.gson.toJson(chat);
+        Enviroment.socket.emit("ChatAll", json);
 
     }
 
@@ -340,7 +338,7 @@ public class HomeActivity extends Activity {
                         JSONObject jsonObject = null;
                         try {
                             jsonObject = new JSONObject(json);
-                            Chat chat = StaticUser.gson.fromJson(jsonObject.toString(), Chat.class);
+                            Chat chat = Enviroment.gson.fromJson(jsonObject.toString(), Chat.class);
                             if (!chat.getMesage().equals(" ")) {
                                 listChat.add(chat);
                                 adapterChat.notifyDataSetChanged();
@@ -353,12 +351,12 @@ public class HomeActivity extends Activity {
 
             }
         };
-        StaticUser.socket.on("ChatAll", listenerChatMes);
+        Enviroment.socket.on("ChatAll", listenerChatMes);
     }
 
     public void startmhroom()
     {
-        Intent intent = new Intent(this,RoomActivity.class);
+        Intent intent = new Intent(this,ChooseRoomActivity.class);
         startActivity(intent);
         finish();
     }

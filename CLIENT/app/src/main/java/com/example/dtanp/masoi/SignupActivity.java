@@ -4,11 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -19,27 +16,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.example.dtanp.masoi.control.StaticFirebase;
-import com.example.dtanp.masoi.control.StaticUser;
-import com.example.dtanp.masoi.model.User;
+import com.example.dtanp.masoi.appinterface.SignupView;
+import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.UserStore;
+import com.example.dtanp.masoi.presenter.SignupPresenter;
 import com.example.dtanp.masoi.utils.MD5Util;
-import com.github.nkzawa.emitter.Emitter;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.gson.JsonObject;
-
-import org.json.JSONObject;
-
-import java.net.Socket;
-
 import io.fabric.sdk.android.Fabric;
 
-public class SignupActivity extends Activity {
+public class SignupActivity extends Activity implements SignupView {
 
     private static final boolean AUTO_HIDE = true;
 
@@ -91,23 +78,19 @@ public class SignupActivity extends Activity {
 
     EditText edtuser,edtpass,edtpass2;
     Button btnsignup;
-    FirebaseAuth auth;
-    FirebaseDatabase database;
-    DatabaseReference reference;
     boolean isOpened = false,isOK = false;
     AlertDialog dialog;
+    private SignupPresenter signupPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_signup);
+        signupPresenter = new SignupPresenter(SignupActivity.this,SignupActivity.this);
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
 
-        auth = StaticFirebase.auth;
-        database = StaticFirebase.database;
-        reference = database.getReference();
 
 
         AddConTrols();
@@ -131,11 +114,11 @@ public class SignupActivity extends Activity {
                 hide();
             }
         });
-        LangNgheRegister();
+        signupPresenter.listenRegister();
         AddDialog();
 
     }
-
+    private TextView textCheck;
     public  void  AddDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(SignupActivity.this);
         LayoutInflater layoutInflater = getLayoutInflater();
@@ -144,13 +127,13 @@ public class SignupActivity extends Activity {
         Button btnCheck = view.findViewById(R.id.btnCheck);
         Button btnOK = view . findViewById(R.id.btnApply);
         final EditText edtNickname = view.findViewById(R.id.nickName);
-        final TextView textCheck = view.findViewById(R.id.textCheck);
+        textCheck = view.findViewById(R.id.textCheck);
         btnCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!edtNickname.getText().toString().trim().equals(""))
                 {
-                    StaticUser.socket.emit("CheckUser",edtNickname.getText().toString().trim());
+                    signupPresenter.emitCheckUser(edtNickname.getText().toString().trim());
                 }
                 else
                 {
@@ -164,11 +147,7 @@ public class SignupActivity extends Activity {
             public void onClick(View v) {
                 if(isOK && !edtNickname.getText().toString().trim().equals(""))
                 {
-                    JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty("userId", edtuser.getText().toString().trim());
-                    jsonObject.addProperty("name", edtNickname.getText().toString().trim());
-                    String json = StaticUser.gson.toJson(jsonObject);
-                    StaticUser.socket.emit("Registnickname",json);
+                    signupPresenter.emitRegistNickname(edtuser.getText().toString().trim(),edtNickname.getText().toString().trim());
                 }
                 else
                 {
@@ -176,44 +155,8 @@ public class SignupActivity extends Activity {
                 }
             }
         });
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                SignupActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if((boolean)args[0]==true)
-                        {
-                            textCheck.setText("Nickname is use");
-                            isOK = true;
-                        }
-                        else {
-                            textCheck.setText("Nickname is Exists");
-                        }
-                    }
-                });
-            }
-        };
-        StaticUser.socket.on("CheckUser",listener);
-
-        Emitter.Listener listenerLogin = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-               SignupActivity.this.runOnUiThread(new Runnable() {
-                   @Override
-                   public void run() {
-                       JSONObject jsonObject = (JSONObject) args[0];
-                       StaticUser.user = StaticUser.gson.fromJson(jsonObject.toString(),User.class);
-                       dialog.cancel();
-                       startmh();
-                       finish();
-                   }
-               });
-            }
-        };
-
-        StaticUser.socket.on("Registnickname",listenerLogin);
-
+        signupPresenter.listenCheckUser();
+        signupPresenter.listenRegistnickname();
         dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
     }
@@ -239,31 +182,6 @@ public class SignupActivity extends Activity {
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
-
-    public  void LangNgheRegister(){
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                SignupActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if((boolean)args[0]==true)
-                        {
-                            dialog.show();
-                        }
-                        else
-                        {
-                            Toast.makeText(SignupActivity.this,"User is exists",Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-            }
-        };
-
-        StaticUser.socket.on("register_user",listener);
-    }
-
-
     private void AddEvents() {
         btnsignup.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -271,25 +189,6 @@ public class SignupActivity extends Activity {
                  String userId = edtuser.getText().toString();
                  String pass= edtpass.getText().toString();
                  String passAgain = edtpass2.getText().toString();
-//                auth.createUserWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<AuthResult> task) {
-//                        if(task.isSuccessful())
-//                        {
-//                            UserStore us= new UserStore(task.getResult().getUser().getUid().toString(),pass);
-//
-//                            //reference.child("User").child(StaticUser.user.getUserId()).setValue(StaticUser.user);
-//                            String jsonUser =  StaticUser.gson.toJson(us);
-//                            StaticUser.socket.emit("register_user",jsonUser);
-//                            startmh();
-//                            finish();
-//                        }
-//                        else
-//                        {
-//                            System.out.println("Khong thanh cong");
-//                        }
-//                    }
-//                });
                 if(userId.trim().equals(""))
                 {
                     Toast.makeText(SignupActivity.this,"Username is not empty !",Toast.LENGTH_SHORT).show();
@@ -305,8 +204,8 @@ public class SignupActivity extends Activity {
                     }else{
                         pass = MD5Util.getMD5(pass);
                         UserStore userStore = new UserStore(userId,pass);
-                        String json =  StaticUser.gson.toJson(userStore);
-                        StaticUser.socket.emit("register_user",json);
+                        String json =  Enviroment.gson.toJson(userStore);
+                        Enviroment.socket.emit("register_user",json);
                     }
                 }
                 hide();
@@ -370,5 +269,33 @@ public class SignupActivity extends Activity {
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
+    }
+
+    @Override
+    public void checkUser(boolean flag) {
+        if(flag == true)
+        {
+            textCheck.setText("Nickname is use");
+            isOK = true;
+        }
+        else {
+            textCheck.setText("Nickname is Exists");
+        }
+    }
+
+    @Override
+    public void loginSuccess() {
+        dialog.cancel();
+        startmh();
+        finish();
+    }
+
+    @Override
+    public void register(boolean flag) {
+        if (flag == true){
+            dialog.show();
+        }else {
+            Toast.makeText(SignupActivity.this,"User is exists",Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -16,28 +16,29 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.dtanp.masoi.control.StaticFirebase;
-import com.example.dtanp.masoi.control.StaticUser;
-import com.example.dtanp.masoi.model.User;
+import com.example.dtanp.masoi.appinterface.UserView;
+import com.example.dtanp.masoi.environment.Enviroment;
+import com.example.dtanp.masoi.presenter.UserPresenter;
 import com.facebook.login.LoginManager;
-import com.google.gson.JsonObject;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class UserActivity extends Activity {
+public class UserActivity extends Activity implements UserView {
 
     TextView  txtlevel,txtid  ,txtloss,txtwin,txtNickName,txtFullname,txtPhone,txtBirthday,txtEmail;
     ImageButton btnLogout,btnFeedback;
     Button btnEdit;
     AlertDialog dialog,dialogUserInfo;
+    private UserPresenter userPresenter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
-
+        userPresenter = new UserPresenter(UserActivity.this,UserActivity.this);
         AddConTrols();
         AddEvents();
         LoadData();
@@ -74,15 +75,15 @@ public class UserActivity extends Activity {
                 dialog.show();
             }
         });
-
+        final FirebaseAuth auth = FirebaseAuth.getInstance();
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (StaticUser.METHOD_LOGIN == 2) {
+                if (Enviroment.METHOD_LOGIN == 2) {
                     LoginManager.getInstance().logOut();
                 }
-                else if (StaticUser.METHOD_LOGIN ==3){
-                    StaticFirebase.auth.signOut();
+                else if (Enviroment.METHOD_LOGIN ==3){
+                    auth.signOut();
                 }
 
                 Intent intent = new Intent(UserActivity.this,MainActivity.class);
@@ -116,15 +117,15 @@ public class UserActivity extends Activity {
     }
 
     private void LoadData(){
-        txtid.setText(StaticUser.user.getUserId());
-        txtNickName.setText(StaticUser.user.getName());
-        txtFullname.setText(StaticUser.user.getFullname());
-        txtEmail.setText(StaticUser.user.getEmail());
-        txtBirthday.setText(StaticUser.user.getBirthday());
-        txtPhone.setText(StaticUser.user.getPhone_number());
-        txtlevel.setText(StaticUser.user.getLevel()+"");
-        txtwin.setText(StaticUser.user.getWin()+"");
-        txtloss.setText(StaticUser.user.getLose()+"");
+        txtid.setText(Enviroment.user.getUserId());
+        txtNickName.setText(Enviroment.user.getName());
+        txtFullname.setText(Enviroment.user.getFullname());
+        txtEmail.setText(Enviroment.user.getEmail());
+        txtBirthday.setText(Enviroment.user.getBirthday());
+        txtPhone.setText(Enviroment.user.getPhone_number());
+        txtlevel.setText(Enviroment.user.getLevel()+"");
+        txtwin.setText(Enviroment.user.getWin()+"");
+        txtloss.setText(Enviroment.user.getLose()+"");
     }
 
     private void AddDialogFeedBack(){
@@ -138,11 +139,7 @@ public class UserActivity extends Activity {
         btnSendFeedBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("email",edtEmail.getText().toString());
-                jsonObject.addProperty("message",edtcontent.getText().toString());
-                String json = StaticUser.gson.toJson(jsonObject);
-                StaticUser.socket.emit("feedback",json);
+                userPresenter.emitFeedBack(edtEmail.getText().toString(),edtcontent.getText().toString());
                 Toast.makeText(UserActivity.this,"Thank You!",Toast.LENGTH_SHORT).show();
                 dialog.cancel();
             }
@@ -160,6 +157,11 @@ public class UserActivity extends Activity {
         final EditText edtPhoneNumber = view.findViewById(R.id.edtPhone);
         final EditText edtAddress = view.findViewById(R.id.edtaddress);
         final EditText edtBirthday = view.findViewById(R.id.edtBirthday);
+        edtFullName.setText(Enviroment.user.getFullname());
+        edtEmail.setText(Enviroment.user.getEmail());
+        edtPhoneNumber.setText(Enviroment.user.getPhone_number());
+        edtBirthday.setText(Enviroment.user.getBirthday());
+        edtAddress.setText(Enviroment.user.getAddress());
         Calendar calendar = Calendar.getInstance();
         final int year = calendar.get(calendar.YEAR);
         final int month = calendar.get(calendar.MONTH);
@@ -189,13 +191,12 @@ public class UserActivity extends Activity {
         builder.setPositiveButton("Apply", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                StaticUser.user.setFullname(edtFullName.getText().toString());
-                StaticUser.user.setEmail(edtEmail.getText().toString());
-                StaticUser.user.setPhone_number(edtPhoneNumber.getText().toString());
-                StaticUser.user.setAddress(edtAddress.getText().toString());
-                StaticUser.user.setBirthday(edtBirthday.getText().toString());
-                String json = StaticUser.gson.toJson(StaticUser.user);
-                StaticUser.socket.emit("updateuserinfo",json);
+                Enviroment.user.setFullname(edtFullName.getText().toString());
+                Enviroment.user.setEmail(edtEmail.getText().toString());
+                Enviroment.user.setPhone_number(edtPhoneNumber.getText().toString());
+                Enviroment.user.setAddress(edtAddress.getText().toString());
+                Enviroment.user.setBirthday(edtBirthday.getText().toString());
+                userPresenter.emitUpdateUserInfo(Enviroment.user);
                 LoadData();
             }
         });

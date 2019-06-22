@@ -22,7 +22,8 @@ import android.widget.TextView;
 
 import com.example.dtanp.masoi.AddUserFriendActivity;
 import com.example.dtanp.masoi.R;
-import com.example.dtanp.masoi.control.StaticUser;
+
+import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Chat;
 import com.example.dtanp.masoi.model.UserFriends;
 import com.github.nkzawa.emitter.Emitter;
@@ -123,7 +124,7 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
                             JSONObject jsonObject = null;
                             try {
                                 jsonObject = new JSONObject(json);
-                                Chat chat = StaticUser.gson.fromJson(jsonObject.toString(), Chat.class);
+                                Chat chat = Enviroment.gson.fromJson(jsonObject.toString(), Chat.class);
                                 if (!chat.getMesage().equals(" ")) {
                                     listChat.add(chat);
                                     //adapterChat.notifyDataSetChanged();
@@ -136,7 +137,7 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
 
                 }
             };
-            StaticUser.socket.on("ChatAll", listenerChatMes);
+            Enviroment.socket.on("ChatAll", listenerChatMes);
         }
     }
 
@@ -205,8 +206,8 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
 
 
         public void sendUser(Chat chat){
-            String json = StaticUser.gson.toJson(chat);
-            StaticUser.socket.emit("ChatUser", json);
+            String json = Enviroment.gson.toJson(chat);
+            Enviroment.socket.emit("ChatUser", json);
         }
 
 
@@ -242,7 +243,7 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
                     Chat chat = new Chat();
 
                     if (edt.getText().toString() != "") {
-                        chat.setUsername(StaticUser.user.getName());
+                        chat.setUsername(Enviroment.user.getName());
                         chat.setMesage(edt.getText().toString());
                         sendUser(chat);
                         edt.setText("");

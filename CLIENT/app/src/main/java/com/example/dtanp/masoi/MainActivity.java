@@ -27,12 +27,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.example.dtanp.masoi.control.StaticFirebase;
-import com.example.dtanp.masoi.control.StaticUser;
-import com.example.dtanp.masoi.model.API;
-import com.example.dtanp.masoi.model.User;
-import com.example.dtanp.masoi.model.UserStore;
-import com.example.dtanp.masoi.utils.MD5Util;
+import com.example.dtanp.masoi.appinterface.LoginView;
+import com.example.dtanp.masoi.appinterface.API;
+import com.example.dtanp.masoi.environment.Enviroment;
+import com.example.dtanp.masoi.presenter.LoginPresenter;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -57,17 +55,13 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
 import io.fabric.sdk.android.Fabric;
 import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
 import java.net.URISyntaxException;
 
 import okhttp3.ResponseBody;
@@ -78,7 +72,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
-public class MainActivity extends FragmentActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends FragmentActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener, LoginView {
     private LinearLayout Prof_section;
     private Button SignOut;
     private SignInButton SignIn;
@@ -88,7 +82,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private GoogleApiClient googleApiClient;
     private CallbackManager callbackManager;
     private LoginButton loginButton;
-
+    private LoginPresenter loginPresenter;
 
     public static final int REC_CODE = 9001;
 
@@ -96,7 +90,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public static final String TAG = "abc";
     private EditText edtuser, edtpassworld;
     private Button btnlogin, btnsignup;
-    ImageButton btngg;
+    private ImageButton btngg;
     private FirebaseDatabase database;
     private FirebaseAuth auth;
     private Emitter.Listener emitterUserLogin;
@@ -157,6 +151,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_login);
+        loginPresenter = new LoginPresenter(MainActivity.this,MainActivity.this);
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
         SignIn=findViewById(R.id.btn_login);
@@ -185,15 +180,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                                         if (response.getError() != null) {
                                             Toast.makeText(MainActivity.this,"Login Fail!",Toast.LENGTH_SHORT).show();
                                         } else {
-                                            //System.out.println("cccc");
-                                              userId = me.optString("id");
-//                                            String name =me.optString("name");
-
-                                            //System.out.println(me.toString());
-                                            //System.out.println(response.getJSONArray().toString());
-                                            StaticUser.socket.emit("LoginFB",me.toString());
+                                            userId = me.optString("id");
+                                            String name =me.optString("name");
+                                            loginPresenter.emitLoginFB(userId,name);
                                             Toast.makeText(MainActivity.this,"Login Success!",Toast.LENGTH_SHORT).show();
-                                            StaticUser.METHOD_LOGIN = 2;
+                                            Enviroment.METHOD_LOGIN = 2;
                                         }
                                     }
                                 }).executeAsync();
@@ -218,69 +209,35 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 Auth.GOOGLE_SIGN_IN_API,signInOptions
         ).build();
 
-        database = StaticFirebase.database;
-        auth = StaticFirebase.auth;
+        database = FirebaseDatabase.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         try {
-            StaticUser.socket = IO.socket("http://172.16.1.189:3000");
+            Enviroment.socket = IO.socket("http://192.168.1.6:3000");
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        StaticUser.socket.connect();
-        StaticUser.gson=new Gson();
-        createDialogUpdate();
-        LangNgheVersionName();
-        AddConTrols();
-        AddEvents();
-        AddDialog();
-        LangNgheLogin();
-        LangNgheRegister();
 
+        Enviroment.socket.connect();
+        Enviroment.gson=new Gson();
+        createDialogUpdate();
         try {
             PackageInfo pInfo = MainActivity.this.getPackageManager().getPackageInfo(getPackageName(), 0);
             version = pInfo.versionName;
-            StaticUser.socket.emit("CheckVersionName",1);
 
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-    }
-    public  void LangNgheRegister(){
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if((boolean)args[0]==true)
-                        {
-                            dialog.show();
-                        }
-                    }
-                });
-            }
-        };
+        loginPresenter.listenVersionName(version);
+        AddConTrols();
+        AddEvents();
+        AddDialog();
+        loginPresenter.listenLogin();
+        loginPresenter.listenRegister();
+        loginPresenter.emitCheckVersionName();
 
-        StaticUser.socket.on("register_user",listener);
     }
-    private void LangNgheLogin(){
-        Emitter.Listener listener =  new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        JSONObject jsonObject = (JSONObject) args[0];
-                        StaticUser.user = StaticUser.gson.fromJson(jsonObject.toString(),User.class);
-                        startmh();
-                        finish();
-                    }
-                });
-            }
-        };
-        StaticUser.socket.on("LonginSuccess",listener);
-    }
-
+    private static TextView textCheck;
     public  void  AddDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         LayoutInflater layoutInflater = getLayoutInflater();
@@ -289,13 +246,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         Button btnCheck = view.findViewById(R.id.btnCheck);
         Button btnOK = view . findViewById(R.id.btnApply);
         final EditText edtNickname = view.findViewById(R.id.nickName);
-        final TextView textCheck = view.findViewById(R.id.textCheck);
+        textCheck = view.findViewById(R.id.textCheck);
         btnCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!edtNickname.getText().toString().trim().equals(""))
                 {
-                    StaticUser.socket.emit("CheckUser",edtNickname.getText().toString().trim());
+                    loginPresenter.emitCheckUser(edtNickname.getText().toString().trim());
                 }
                 else
                 {
@@ -309,11 +266,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             public void onClick(View v) {
                 if(isOK && !edtNickname.getText().toString().trim().equals(""))
                 {
-                    JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty("userId", userId);
-                    jsonObject.addProperty("name", edtNickname.getText().toString().trim());
-                    String json = StaticUser.gson.toJson(jsonObject);
-                    StaticUser.socket.emit("RegistnicknameLoginFb",json);
+                    loginPresenter.registNicknameLoginFb(userId,edtNickname.getText().toString().trim());
                 }
                 else
                 {
@@ -321,43 +274,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 }
             }
         });
-        Emitter.Listener listener2 = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if((boolean)args[0]==true)
-                        {
-                            textCheck.setText("Nickname is use");
-                            isOK = true;
-                        }
-                        else {
-                            textCheck.setText("Nickname is Exists");
-                        }
-                    }
-                });
-            }
-        };
-        StaticUser.socket.on("CheckUser",listener2);
-
-        Emitter.Listener listenerLogin = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        JSONObject jsonObject = (JSONObject) args[0];
-                        StaticUser.user = StaticUser.gson.fromJson(jsonObject.toString(),User.class);
-                        dialog.cancel();
-                        startmh();
-                        finish();
-                    }
-                });
-            }
-        };
-
-        StaticUser.socket.on("Registnickname",listenerLogin);
+        loginPresenter.listenCheckUser();
+        loginPresenter.listenRegistNickname();
 
         dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
@@ -398,18 +316,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             GoogleSignInAccount account=result.getSignInAccount();
             String name =account.getDisplayName();
             String email=account.getEmail();
-            //String img_url=account.getPhotoUrl().toString();
-            //Glide.with(this).load(img_url).into(Prof_pic);
-            //System.out.println("cccc");
             userId =email;
-//                                            String name =me.optString("name");
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("id", userId);
-            jsonObject.addProperty("name", name);
-            String json = StaticUser.gson.toJson(jsonObject);
-            //System.out.println(me.toString());
-            //System.out.println(response.getJSONArray().toString());
-            StaticUser.socket.emit("LoginFB",json);
+            loginPresenter.emitLoginFB(email,name);
             Toast.makeText(MainActivity.this,"Login Success!",Toast.LENGTH_SHORT).show();
         }else{
             updateUI(false);
@@ -423,43 +331,18 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         switch (v.getId()){
             case R.id.btn_login:
                 signIn();
-                StaticUser.METHOD_LOGIN = 3;
+                Enviroment.METHOD_LOGIN = 3;
                 break;
 
         }
         int id = v.getId();
         if (id == R.id.btnlogin) {
-
-
-            StaticUser.METHOD_LOGIN = 1;
             String username = edtuser.getText().toString().trim();
             String pass = edtpassworld.getText().toString().trim();
-            pass = MD5Util.getMD5(pass);
-            UserStore userStore = new UserStore(username,pass);
-            String json = StaticUser.gson.toJson(userStore);
-            StaticUser.socket.emit("login",json);
+            loginPresenter.login(username,pass);
         }
     }
 
-
-    public  void LangNgheVersionName(){
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String ver = (String) args[0];
-                        if(!version.equals(ver)){
-                            dialogUpdate.show();
-                        }
-                    }
-                });
-
-            }
-        };
-        StaticUser.socket.on("CheckVersionName",listener);
-    }
 
     public void  createDialogUpdate(){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -487,8 +370,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    //Log.d(TAG, "server contacted and has file");
-
                     boolean writtenToDisk = writeResponseBodyToDisk(response.body());
                     Toast.makeText(MainActivity.this,"Download Successfully",Toast.LENGTH_SHORT).show();
                     if(writtenToDisk){
@@ -497,10 +378,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
                     }
-
-                    //Log.d(TAG, "file download was a success? " + writtenToDisk);
                 } else {
-                    //Log.d(TAG, "server contact failed");
                     Toast.makeText(MainActivity.this,"Fail!",Toast.LENGTH_SHORT).show();
                 }
             }
@@ -575,32 +453,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 hide();
             }
         });
-        emitterUserLogin=new Emitter.Listener(){
-
-            @Override
-            public void call(final Object... args) {
-                MainActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(args[0]==null)
-                        {
-                            Toast.makeText(MainActivity.this,"Username or PassWord incorrect",Toast.LENGTH_SHORT).show();
-                        }
-                        else
-                        {
-                            JSONObject jsonObject = (JSONObject) args[0];
-                            StaticUser.user = StaticUser.gson.fromJson(jsonObject.toString(), User.class);
-                            startmh();
-                            finish();
-                        }
-
-                    }
-                });
-
-
-            }
-        };
-        StaticUser.socket.on("userlogin",emitterUserLogin);
+        loginPresenter.listenUserLogin();
         edtuser.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -702,33 +555,51 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
+    @Override
+    public void showDialogRegister() {
+        dialog.show();
+    }
+
+    @Override
+    public void loginSuccess() {
+        startmh();
+        finish();
+    }
+
+    @Override
+    public void checkUser(boolean flag) {
+        if(flag==true)
+        {
+            textCheck.setText("Nickname is use");
+            isOK = true;
+        }
+        else {
+            textCheck.setText("Nickname is Exists");
+        }
+    }
+
+    @Override
+    public void registNicknameSuccess() {
+        dialog.cancel();
+        startmh();
+        finish();
+    }
+
+    @Override
+    public void showDialogUpdate() {
+        dialogUpdate.show();
+    }
+
+    @Override
+    public void userLoginSuccess(boolean flag) {
+        if(flag==false)
+        {
+            Toast.makeText(MainActivity.this,"Username or PassWord incorrect",Toast.LENGTH_SHORT).show();
+        }
+        else {
+            startmh();
+            finish();
+        }
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

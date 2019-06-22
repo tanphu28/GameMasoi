@@ -1,14 +1,10 @@
 package com.example.dtanp.masoi;
 
-import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -22,10 +18,11 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.example.dtanp.masoi.adapter.CustomAdapter;
-import com.example.dtanp.masoi.control.StaticFirebase;
-import com.example.dtanp.masoi.control.StaticUser;
+import com.example.dtanp.masoi.appinterface.ChooseRoomView;
+import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Phong;
 import com.example.dtanp.masoi.model.User;
+import com.example.dtanp.masoi.presenter.ChooseRoomPresenter;
 import com.github.nkzawa.emitter.Emitter;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -44,7 +41,7 @@ import io.fabric.sdk.android.Fabric;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
-public class RoomActivity extends Activity {
+public class ChooseRoomActivity extends Activity implements ChooseRoomView {
 
     private FirebaseDatabase database;
     ListView listroom;
@@ -58,7 +55,7 @@ public class RoomActivity extends Activity {
     TextView txtTenUser;
     Emitter.Listener eListenerAllRoom;
     List<String> listString;
-    ArrayAdapter<String> adapterString;
+    private ChooseRoomPresenter chooseRoomPresenter;
 //    private static final boolean AUTO_HIDE = true;
 //
 //
@@ -114,10 +111,9 @@ public class RoomActivity extends Activity {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_room);
+        chooseRoomPresenter = new ChooseRoomPresenter(ChooseRoomActivity.this,ChooseRoomActivity.this);
         //mVisible = true;
         // mContentView = findViewById(R.id.fullscreen_content);
-        database = StaticFirebase.database;
-        reference = database.getReference();
         listSearch = new ArrayList<>();
         adapterSearch = new CustomAdapter(this, R.layout.custom_adapter, listSearch);
         AddConTrols();
@@ -128,79 +124,86 @@ public class RoomActivity extends Activity {
         listroom.setAdapter(adapter);
 
         //laylistroom();
-        StaticUser.socket.emit("allroom");
-        eListenerAllRoom = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                RoomActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        JSONArray jsonObject = (JSONArray) args[0];
-                        System.out.println(jsonObject.toString());
-                        for (int i = 0; i < jsonObject.length(); i++) {
-                            try {
-                                JSONObject jsonObject1 = jsonObject.getJSONObject(i);
-                                System.out.println(jsonObject1.toString());
-                                Phong phong = StaticUser.gson.fromJson(jsonObject1.toString(), Phong.class);
-                                list.add(phong);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-
-                    }
-                });
-            }
-        };
-        StaticUser.socket.on("allroom", eListenerAllRoom);
-        AddNewRoom();
-        LangNgheJoinRoom();
-        LangNgheXoaPhong();
+//        eListenerAllRoom = new Emitter.Listener() {
+//            @Override
+//            public void call(final Object... args) {
+//                ChooseRoomActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        JSONArray jsonObject = (JSONArray) args[0];
+//                        System.out.println(jsonObject.toString());
+//                        for (int i = 0; i < jsonObject.length(); i++) {
+//                            try {
+//                                JSONObject jsonObject1 = jsonObject.getJSONObject(i);
+//                                System.out.println(jsonObject1.toString());
+//                                Phong phong = Enviroment.gson.fromJson(jsonObject1.toString(), Phong.class);
+//                                list.add(phong);
+//                            } catch (JSONException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                        adapter.notifyDataSetChanged();
+//
+//                    }
+//                });
+//            }
+//        };
+//        Enviroment.socket.on("allroom", eListenerAllRoom);
+//
+//        Enviroment.socket.emit("allroom");
+        chooseRoomPresenter.listenAllRoom();
+        chooseRoomPresenter.emitAllRoom();
+        chooseRoomPresenter.listenJoinRoom();
+        chooseRoomPresenter.listenNewRoom();
+        //AddNewRoom();
+        //LangNgheJoinRoom();
+        //LangNgheXoaPhong();
+        chooseRoomPresenter.listenRemoveRoom();
     }
 
-    public void LangNgheXoaPhong(){
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                RoomActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String id = (String) args[0];
-                        for (Phong p : list){
-                            if (p.get_id().equals(id)){
-                                list.remove(p);
-                                adapter.notifyDataSetChanged();
-                                adapter.notifyDataSetInvalidated();
-                                break;
-                            }
-                        }
-                    }
-                });
-            }
-        };
-    }
+//    public void LangNgheXoaPhong(){
+//        Emitter.Listener listener = new Emitter.Listener() {
+//            @Override
+//            public void call(final Object... args) {
+//                ChooseRoomActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        String id = (String) args[0];
+//                        for (Phong p : list){
+//                            if (p.get_id().equals(id)){
+//                                list.remove(p);
+//                                adapter.notifyDataSetChanged();
+//                                adapter.notifyDataSetInvalidated();
+//                                break;
+//                            }
+//                        }
+//                    }
+//                });
+//            }
+//        };
+//
+//    }
 
-    public  void  LangNgheJoinRoom(){
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                RoomActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean flag  = (boolean) args[0];
-                        if (flag==true){
-                            Toast.makeText(RoomActivity.this, "Phong Day!", LENGTH_SHORT).show();
-                        }else{
-                            startmhban();
-                            finish();
-                        }
-                    }
-                });
-            }
-        };
-        StaticUser.socket.on("FullPeople",listener);
-    }
+//    public  void  LangNgheJoinRoom(){
+//        Emitter.Listener listener = new Emitter.Listener() {
+//            @Override
+//            public void call(final Object... args) {
+//                ChooseRoomActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        boolean flag  = (boolean) args[0];
+//                        if (flag==true){
+//                            Toast.makeText(ChooseRoomActivity.this, "Phong Day!", LENGTH_SHORT).show();
+//                        }else{
+//                            startmhban();
+//                            finish();
+//                        }
+//                    }
+//                });
+//            }
+//        };
+//        Enviroment.socket.on("FullPeople",listener);
+//    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -224,24 +227,24 @@ public class RoomActivity extends Activity {
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
-    private void AddNewRoom() {
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                RoomActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        JSONObject jsonObject = (JSONObject) args[0];
-                        Phong phong = StaticUser.gson.fromJson(jsonObject.toString(), Phong.class);
-                        list.add(phong);
-                        adapter.notifyDataSetChanged();
-
-                    }
-                });
-            }
-        };
-        StaticUser.socket.on("newroom", listener);
-    }
+//    private void AddNewRoom() {
+//        Emitter.Listener listener = new Emitter.Listener() {
+//            @Override
+//            public void call(final Object... args) {
+//                ChooseRoomActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        JSONObject jsonObject = (JSONObject) args[0];
+//                        Phong phong = Enviroment.gson.fromJson(jsonObject.toString(), Phong.class);
+//                        list.add(phong);
+//                        adapter.notifyDataSetChanged();
+//
+//                    }
+//                });
+//            }
+//        };
+//        Enviroment.socket.on("newroom", listener);
+//    }
 
     private void AddEvents() {
         edtsearch.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -271,7 +274,7 @@ public class RoomActivity extends Activity {
                     }
                     if (flag==false)
                     {
-                        Toast.makeText(RoomActivity.this,"Khong Tìm Thấy Phong Số " + sophong +" !",LENGTH_SHORT).show();
+                        Toast.makeText(ChooseRoomActivity.this,"Khong Tìm Thấy Phong Số " + sophong +" !",LENGTH_SHORT).show();
                     }
                 }else{
                     listSearch.clear();
@@ -289,7 +292,7 @@ public class RoomActivity extends Activity {
                     User us = new User();
                     String s = phong.getId();
                     us.setId_room(s);
-                    StaticUser.userHost = us;
+                    Enviroment.userHost = us;
                     startmhban();
                     finish();
                 } else {
@@ -302,17 +305,19 @@ public class RoomActivity extends Activity {
             @Override
             public void onClick(View view) {
                 Phong phong = new Phong();
-                // System.out.println(StaticUser.UserActivity.getId());
+                // System.out.println(Enviroment.UserActivity.getId());
                 //int soPhong = getIntent().getIntExtra("sophong",0);
-                phong.setId(StaticUser.user.getUserId());
+                phong.setId(Enviroment.user.getUserId());
                 phong.setRoomnumber(list.size() + 1);
-                phong.setName(StaticUser.user.getName());
+                phong.setName(Enviroment.user.getName());
                 phong.setPeople(1);
-                phong.getUsers().add(StaticUser.user);
+                phong.getUsers().add(Enviroment.user);
                 phong.setHost(1);
-                StaticUser.phong = phong;
-                String jsonroom = StaticUser.gson.toJson(phong);
-                StaticUser.socket.emit("createroom", jsonroom);
+                Enviroment.phong = phong;
+                //
+                chooseRoomPresenter.emitCreateRoom(phong);
+//                String jsonroom = Enviroment.gson.toJson(phong);
+//                Enviroment.socket.emit("createroom", jsonroom);
                 startmhhost();
                 finish();
             }
@@ -323,13 +328,15 @@ public class RoomActivity extends Activity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
                 if (list.get(i).getPeople() >= 10) {
-                    Toast.makeText(RoomActivity.this, "Phong Day!", LENGTH_SHORT).show();
+                    Toast.makeText(ChooseRoomActivity.this, "Phong Day!", LENGTH_SHORT).show();
                 } else {
 
-                    StaticUser.phong = (Phong) listroom.getAdapter().getItem(i);
-                    StaticUser.user.setId_room(StaticUser.phong.get_id());
-                    String jsonuser = StaticUser.gson.toJson(StaticUser.user);
-                    StaticUser.socket.emit("joinroom", jsonuser);
+                    Enviroment.phong = (Phong) listroom.getAdapter().getItem(i);
+                    Enviroment.user.setId_room(Enviroment.phong.get_id());
+                    //
+                    chooseRoomPresenter.emitJoinRoom(Enviroment.user);
+//                    String jsonuser = Enviroment.gson.toJson(Enviroment.user);
+//                    Enviroment.socket.emit("joinroom", jsonuser);
                 }
 
 
@@ -348,7 +355,7 @@ public class RoomActivity extends Activity {
 
     private void AddConTrols() {
         txtTenUser = findViewById(R.id.txtTenUser);
-        txtTenUser.setText(StaticUser.user.getName());
+        txtTenUser.setText(Enviroment.user.getName());
         listroom = findViewById(R.id.listroom);
         btnnew = findViewById(R.id.btnnew);
         imgback = findViewById(R.id.imgback);
@@ -379,50 +386,41 @@ public class RoomActivity extends Activity {
         finish();
     }
 
+    @Override
+    public void updateListView(ArrayList<Phong> list) {
+        for (Phong p : list)
+        {
+            this.list.add(p);
+        }
+        adapter.notifyDataSetChanged();
+    }
 
-    public void laylistroom() {
-        reference.child("Room").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Phong phong = new Phong();
-                phong.setId(dataSnapshot.child("id").getValue(String.class));
-                phong.setName(dataSnapshot.child("tenphong").getValue(String.class));
-                phong.setPeople(dataSnapshot.child("songuoi").getValue(Integer.class));
-                phong.setRoomnumber(dataSnapshot.child("sophong").getValue(Integer.class));
-                list.add(phong);
-                adapter.notifyDataSetChanged();
+    @Override
+    public void checkRoomFullPeople(boolean flag) {
+        if (flag==true){
+            Toast.makeText(ChooseRoomActivity.this, "Phong Day!", LENGTH_SHORT).show();
+        }else{
+            startmhban();
+            finish();
+        }
+    }
+
+    @Override
+    public void addNewRoom(Phong phong) {
+        this.list.add(phong);
+        this.adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void removeRoom(String roomId) {
+        for (Phong p : this.list){
+            if (p.get_id().equals(roomId)){
+                this.list.remove(p);
+                this.adapter.notifyDataSetChanged();
+                this.adapter.notifyDataSetInvalidated();
+                break;
             }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Phong phong = new Phong();
-                phong.setId(dataSnapshot.child("id").getValue(String.class));
-                phong.setPeople(dataSnapshot.child("songuoi").getValue(Integer.class));
-                for (Phong p : list) {
-                    if (p.getId().toString().equals(phong.getId().toString())) {
-                        p.setPeople(phong.getPeople());
-                        break;
-                    }
-                }
-                adapter.notifyDataSetChanged();
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        }
     }
 
     // @Override

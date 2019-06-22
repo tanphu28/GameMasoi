@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 import com.example.dtanp.masoi.adapter.CustomAdapterChat;
 import com.example.dtanp.masoi.adapter.CustomListUser;
-import com.example.dtanp.masoi.control.StaticUser;
+import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Chat;
 import com.example.dtanp.masoi.model.User;
 import com.github.nkzawa.emitter.Emitter;
@@ -97,7 +97,7 @@ public class AddUserFriendActivity extends Activity {
                 Chat chat = new Chat();
 
                 if (edt.getText().toString() != "") {
-                    chat.setUsername(StaticUser.user.getName());
+                    chat.setUsername(Enviroment.user.getName());
                     chat.setMesage(edt.getText().toString());
                     sendUser(chat);
                     edt.setText("");
@@ -137,7 +137,7 @@ public class AddUserFriendActivity extends Activity {
             }
         });
 
-        StaticUser.socket.emit("alluser");
+        Enviroment.socket.emit("alluser");
         btnback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -157,7 +157,7 @@ public class AddUserFriendActivity extends Activity {
                             try {
                                 JSONObject jsonObject1 = jsonObject.getJSONObject(i);
                                 System.out.println(jsonObject1.toString());
-                                User user = StaticUser.gson.fromJson(jsonObject1.toString(),User.class);
+                                User user = Enviroment.gson.fromJson(jsonObject1.toString(),User.class);
                                 list.add(user);
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -178,7 +178,7 @@ public class AddUserFriendActivity extends Activity {
                 return false;
             }
         });
-        StaticUser.socket.on("alluser",eListenerAllUser);
+        Enviroment.socket.on("alluser",eListenerAllUser);
         edtsearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -219,8 +219,8 @@ public class AddUserFriendActivity extends Activity {
         });
     }
     public void sendUser(Chat chat){
-        String json = StaticUser.gson.toJson(chat);
-        StaticUser.socket.emit("ChatUser", json);
+        String json = Enviroment.gson.toJson(chat);
+        Enviroment.socket.emit("ChatUser", json);
     }
     public void LangNgheAllChat()
     {
@@ -234,7 +234,7 @@ public class AddUserFriendActivity extends Activity {
                         JSONObject jsonObject = null;
                         try {
                             jsonObject = new JSONObject(json);
-                            Chat chat = StaticUser.gson.fromJson(jsonObject.toString(), Chat.class);
+                            Chat chat = Enviroment.gson.fromJson(jsonObject.toString(), Chat.class);
 
                             if (!chat.getMesage().equals(" ")) {
                                 listChat.add(chat);
@@ -249,7 +249,7 @@ public class AddUserFriendActivity extends Activity {
 
             }
         };
-        StaticUser.socket.on("ChatUser", listenerChatMes);
+        Enviroment.socket.on("ChatUser", listenerChatMes);
     }
 
     public void startmhhome()
