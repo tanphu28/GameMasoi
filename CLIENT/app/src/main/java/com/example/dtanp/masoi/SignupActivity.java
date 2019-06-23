@@ -204,8 +204,7 @@ public class SignupActivity extends Activity implements SignupView {
                     }else{
                         pass = MD5Util.getMD5(pass);
                         UserStore userStore = new UserStore(userId,pass);
-                        String json =  Enviroment.gson.toJson(userStore);
-                        Enviroment.socket.emit("register_user",json);
+                       signupPresenter.emitRegister(userStore);
                     }
                 }
                 hide();

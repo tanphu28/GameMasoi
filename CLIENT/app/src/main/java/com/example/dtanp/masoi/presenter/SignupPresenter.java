@@ -7,6 +7,7 @@ import com.example.dtanp.masoi.SignupActivity;
 import com.example.dtanp.masoi.appinterface.SignupView;
 import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.User;
+import com.example.dtanp.masoi.model.UserStore;
 import com.example.dtanp.masoi.singleton.SocketSingleton;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
@@ -96,6 +97,11 @@ public class SignupPresenter {
         };
 
        this.socket.on("register_user",listener);
+    }
+
+    public void emitRegister(UserStore userStore){
+        String json =  Enviroment.gson.toJson(userStore);
+        this.socket.emit("register_user",json);
     }
 
 }
