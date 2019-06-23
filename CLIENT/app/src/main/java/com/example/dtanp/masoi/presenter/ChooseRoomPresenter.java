@@ -11,6 +11,7 @@ import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.singleton.SocketSingleton;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
+import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -72,12 +73,20 @@ public class ChooseRoomPresenter {
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        boolean flag = (boolean) args[0];
-                        if (flag == true) {
-                            chooseRoomView.checkRoomFullPeople(true);
-                        } else {
-                            chooseRoomView.checkRoomFullPeople(false);
+                        JSONObject json = (JSONObject) args[0];
+                        boolean flag = false;
+                        try {
+                            flag = json.getBoolean("flag");
+                            if (flag == true) {
+                                chooseRoomView.checkRoomFullPeople(true,null);
+                            } else {
+                                Phong phong = Enviroment.gson.fromJson(json.getString("room"), Phong.class);
+                                chooseRoomView.checkRoomFullPeople(false, phong);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
+
                     }
                 });
             }
@@ -94,11 +103,12 @@ public class ChooseRoomPresenter {
                     public void run() {
                         JSONObject jsonObject = (JSONObject) args[0];
                         Phong phong = Enviroment.gson.fromJson(jsonObject.toString(), Phong.class);
+                        chooseRoomView.addNewRoom(phong);
                     }
                 });
             }
         };
-        Enviroment.socket.on("newroom", listener);
+        this.socket.on("newroom", listener);
     }
 
     public void emitCreateRoom(Phong phong) {
@@ -108,7 +118,7 @@ public class ChooseRoomPresenter {
 
     public void emitJoinRoom(User user){
         String jsonuser = Enviroment.gson.toJson(user);
-        Enviroment.socket.emit("joinroom", jsonuser);
+        this.socket.emit("joinroom", jsonuser);
     }
 
     public void listenRemoveRoom(){

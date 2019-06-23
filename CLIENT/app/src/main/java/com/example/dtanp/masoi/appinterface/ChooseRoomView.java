@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public interface ChooseRoomView {
     public void updateListView(ArrayList<Phong> list);
-    public void checkRoomFullPeople(boolean flag);
+    public void checkRoomFullPeople(boolean flag, Phong phong);
     public void  addNewRoom(Phong phong);
     public void removeRoom(String roomId);
 }

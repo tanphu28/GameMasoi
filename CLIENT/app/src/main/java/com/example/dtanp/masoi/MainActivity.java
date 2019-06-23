@@ -211,14 +211,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         database = FirebaseDatabase.getInstance();
         auth = FirebaseAuth.getInstance();
-
-        try {
-            Enviroment.socket = IO.socket("http://192.168.1.6:3000");
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-
-        Enviroment.socket.connect();
         Enviroment.gson=new Gson();
         createDialogUpdate();
         try {

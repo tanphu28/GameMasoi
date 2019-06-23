@@ -296,7 +296,7 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
                     startmhban();
                     finish();
                 } else {
-                    startmhhost();
+                    startmhhost(true);
                     finish();
                 }
             }
@@ -318,7 +318,7 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
                 chooseRoomPresenter.emitCreateRoom(phong);
 //                String jsonroom = Enviroment.gson.toJson(phong);
 //                Enviroment.socket.emit("createroom", jsonroom);
-                startmhhost();
+                startmhhost(true);
                 finish();
             }
         });
@@ -331,7 +331,7 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
                     Toast.makeText(ChooseRoomActivity.this, "Phong Day!", LENGTH_SHORT).show();
                 } else {
 
-                    Enviroment.phong = (Phong) listroom.getAdapter().getItem(i);
+                   Enviroment.phong = (Phong) listroom.getAdapter().getItem(i);
                     Enviroment.user.setId_room(Enviroment.phong.get_id());
                     //
                     chooseRoomPresenter.emitJoinRoom(Enviroment.user);
@@ -373,9 +373,9 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
         return null;
     }
 
-    public void startmhhost() {
+    public void startmhhost(boolean flag) {
         Intent intent = new Intent(this, HostActivity.class);
-        //intent.putExtra("sophong",list.size()+1);
+        intent.putExtra("host",flag);
         startActivity(intent);
         finish();
     }
@@ -396,11 +396,12 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
     }
 
     @Override
-    public void checkRoomFullPeople(boolean flag) {
+    public void checkRoomFullPeople(boolean flag, Phong phong) {
         if (flag==true){
             Toast.makeText(ChooseRoomActivity.this, "Phong Day!", LENGTH_SHORT).show();
         }else{
-            startmhban();
+            startmhhost(false);
+            Enviroment.phong = phong;
             finish();
         }
     }

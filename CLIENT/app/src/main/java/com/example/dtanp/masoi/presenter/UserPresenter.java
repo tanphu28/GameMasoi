@@ -30,7 +30,7 @@ public class UserPresenter {
 
     public  void emitUpdateUserInfo(User user){
         String json = Enviroment.gson.toJson(user);
-        Enviroment.socket.emit("updateuserinfo",json);
+        this.socket.emit("updateuserinfo",json);
     }
 
 }

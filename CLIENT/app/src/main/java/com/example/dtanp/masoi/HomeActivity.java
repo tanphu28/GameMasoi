@@ -25,9 +25,11 @@ import android.widget.TextView;
 import com.crashlytics.android.Crashlytics;
 import com.example.dtanp.masoi.adapter.CustomAdapterChat;
 import com.example.dtanp.masoi.adapter.CustomListUserFriends;
+import com.example.dtanp.masoi.appinterface.HomeView;
 import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Chat;
 import com.example.dtanp.masoi.model.UserFriends;
+import com.example.dtanp.masoi.presenter.HomePresenter;
 import com.facebook.login.widget.LoginButton;
 import com.github.nkzawa.emitter.Emitter;
 
@@ -40,7 +42,7 @@ import java.util.List;
 
 import io.fabric.sdk.android.Fabric;
 
-public class HomeActivity extends Activity {
+public class HomeActivity extends Activity implements HomeView {
 
     private static final boolean AUTO_HIDE = true;
 
@@ -108,17 +110,19 @@ public class HomeActivity extends Activity {
     EditText edtsearch;
     ImageButton imgsearch;
     Emitter.Listener eListenerAllUser;
+    private HomePresenter homePresenter;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_home);
+        homePresenter = new HomePresenter(HomeActivity.this,HomeActivity.this);
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
-
         AddEvents();
         AddConTrols();
-        LangNgheAllChat();
+        homePresenter.listenAllChat();
         txtUser.setText(Enviroment.user.getName());
 
     }
@@ -184,40 +188,43 @@ public class HomeActivity extends Activity {
         recyclerView.setLayoutManager(layoutManager);
         this.recyclerView.setAdapter(mRcvAdapter);
 
-        Enviroment.socket.emit("alluserfriend");
 
-        eListenerAllUser = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HomeActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        JSONArray jsonObject = (JSONArray) args[0];
-                        System.out.println(jsonObject.toString());
-                        for (int i =0;i<jsonObject.length();i++)
-                        {
-                            try {
+        //updatelisuserfreinds
+//        eListenerAllUser = new Emitter.Listener() {
+//            @Override
+//            public void call(final Object... args) {
+//                HomeActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        JSONArray jsonObject = (JSONArray) args[0];
+//                        System.out.println(jsonObject.toString());
+//                        for (int i =0;i<jsonObject.length();i++)
+//                        {
+//                            try {
+//
+//                                JSONObject jsonObject1 = jsonObject.getJSONObject(i);
+//                                System.out.println(jsonObject1.toString());
+//                                UserFriends user = Enviroment.gson.fromJson(jsonObject1.toString(),UserFriends.class);
+//                                if(Enviroment.user.getUserId().equals(user.getUserId1())){
+//                                    list.add(user);
+//                                }
+//
+//                            } catch (JSONException e) {
+//                                e.printStackTrace();
+//                            }
+//
+//                        }
+//                        mRcvAdapter.notifyDataSetChanged();
+//
+//                    }
+//
+//                });
+//            }
+//        };
+//        Enviroment.socket.on("alluserfriend",eListenerAllUser);
+        homePresenter.listenGetAllUserFreinds();;
 
-                                JSONObject jsonObject1 = jsonObject.getJSONObject(i);
-                                System.out.println(jsonObject1.toString());
-                                UserFriends user = Enviroment.gson.fromJson(jsonObject1.toString(),UserFriends.class);
-                                if(Enviroment.user.getUserId().equals(user.getUserId1())){
-                                    list.add(user);
-                                }
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-                        mRcvAdapter.notifyDataSetChanged();
-
-                    }
-
-                });
-            }
-        };
-        Enviroment.socket.on("alluserfriend",eListenerAllUser);
+        homePresenter.emitGetAllUserFreinds();
     }
 
     private void AddConTrols() {
@@ -250,11 +257,10 @@ public class HomeActivity extends Activity {
                 if (edtChat.getText().toString() != "") {
                     chat.setUsername(Enviroment.user.getName());
                     chat.setMesage(edtChat.getText().toString());
-                    send(chat);
+                    homePresenter.emitChat(chat);
                     edtChat.setText("");
                 }
                 hide();
-                System.out.println("aaaa");
             }
         });
         imgChat.setOnClickListener(new View.OnClickListener() {
@@ -320,40 +326,6 @@ public class HomeActivity extends Activity {
         this.list=filterName;
     }
 
-    public void send(Chat chat) {
-        String json = Enviroment.gson.toJson(chat);
-        Enviroment.socket.emit("ChatAll", json);
-
-    }
-
-    public void LangNgheAllChat()
-    {
-        Emitter.Listener listenerChatMes = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HomeActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String json = (String) args[0];
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = new JSONObject(json);
-                            Chat chat = Enviroment.gson.fromJson(jsonObject.toString(), Chat.class);
-                            if (!chat.getMesage().equals(" ")) {
-                                listChat.add(chat);
-                                adapterChat.notifyDataSetChanged();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-            }
-        };
-        Enviroment.socket.on("ChatAll", listenerChatMes);
-    }
-
     public void startmhroom()
     {
         Intent intent = new Intent(this,ChooseRoomActivity.class);
@@ -411,4 +383,17 @@ public class HomeActivity extends Activity {
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
 
+    @Override
+    public void updateListUserFreinds(ArrayList<UserFriends> list) {
+        for (UserFriends us : list){
+            this.list.add(us);
+        }
+        mRcvAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void addChatMessage(Chat chat) {
+        listChat.add(chat);
+        adapterChat.notifyDataSetChanged();
+    }
 }

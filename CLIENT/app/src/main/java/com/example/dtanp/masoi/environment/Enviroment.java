@@ -12,7 +12,8 @@ public class Enviroment {
     public static Phong phong;
     public  static Socket socket;
     public static Gson gson;
-    public  static  final int TOTAL_PEOPLE = 7;
     public  static UserFriends userFriends;
+    
     public  static  int METHOD_LOGIN;
+    public  static  final int TOTAL_PEOPLE = 7;
 }

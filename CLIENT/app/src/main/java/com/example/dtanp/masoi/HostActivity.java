@@ -26,31 +26,23 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.example.dtanp.masoi.adapter.CustomAdapterChat;
 
+import com.example.dtanp.masoi.appinterface.RoomView;
 import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Chat;
 import com.example.dtanp.masoi.model.NhanVat;
-import com.example.dtanp.masoi.model.Phong;
 import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.model.UserRoom;
-import com.github.nkzawa.emitter.Emitter;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.example.dtanp.masoi.presenter.RoomPresenter;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import io.fabric.sdk.android.Fabric;
 
-public class HostActivity extends Activity {
+public class HostActivity extends Activity implements RoomView {
     ListView listChat;
     CustomAdapterChat adapterChat;
     Button btnBatDau, btnSend, btnGiet, btnKhongGiet;
@@ -67,7 +59,6 @@ public class HostActivity extends Activity {
     List<User> listUserMaSoi, listUserDanLang;
     User userThoSan, userBaoVe, userTienTri;
     List<NhanVat> listNhanVat;
-    Phong phong;
     NhanVat nhanvat;
     int manv, countUserReady = 0;
     List<String> listIdMaSoichon, listAllChon;
@@ -123,7 +114,9 @@ public class HostActivity extends Activity {
             return false;
         }
     };
-
+    private RoomPresenter roomPresenter;
+    private boolean host, ready = false;
+    private Button btnSS;
 
 
     @SuppressLint("ResourceType")
@@ -132,34 +125,46 @@ public class HostActivity extends Activity {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_host);
+        host = getIntent().getBooleanExtra("host",false);
+        roomPresenter = new RoomPresenter(HostActivity.this,HostActivity.this);
         AnhXa();
         taophong();
         ConTrols();
-        capnhatlistChat();
+        LamMoUser();
+        roomPresenter.listenChat();
         laylistUser();
         setThoiGian();
-        XuLyChon();
-        LangNgheUserReady();
-        LangNgheUserExit();
-        LamMoUser();
-        //OK
-        LangNgheLuotDB();
-        getNhanVat();
-        LangNgheAllManHinh();
-        LangNgheLuot();
-        //HienThiLuot(1);
-        LangNgheChat();
-        ListenSuKien();
-        ListenIdBiGiet();
-        LangNgheKQBP();
-        LangNgheBangIDChon();
-        LangNgheDie();
-        LangNgheOK();
-        LangNgheTime();
+        roomPresenter.listenUserExit();
+        roomPresenter.listenLuotDB();
+        roomPresenter.listenGetNhanVat();
+        roomPresenter.listenAllManHinh();
+        roomPresenter.listenLuot();
+        roomPresenter.listenAllChat();
+        roomPresenter.listenUserDie();
+        roomPresenter.listenOK();
+        roomPresenter.listenTime();
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
+        roomPresenter.listenBangIDChon();
+        if(host==true){
+            getHost();
+            btnBatDau.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            btnSS.setVisibility(View.VISIBLE);
+        }
 
     }
+
+    public void getHost(){
+        XuLyChon();
+        roomPresenter.listenUserReady();
+        roomPresenter.listenSuKien();
+        roomPresenter.listenKetQuaBoPhieu();
+        roomPresenter.listenUserIdBiGiet();
+    }
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -182,112 +187,6 @@ public class HostActivity extends Activity {
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
-
-    private void LangNgheUserExit() {
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String id = (String) args[0];
-                        if (!id.trim().equals(Enviroment.user.getUserId().toString().trim())) {
-                            for (User us : Enviroment.phong.getUsers()) {
-                                if (us.getUserId().trim().equals(id)) {
-                                    System.out.println(us.getUserId() + "id ne");
-                                    RemoveUserList(us);
-                                    RemoveUser(us);
-                                    break;
-                                }
-
-
-                            }
-                        } else {
-                            Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
-                            startActivity(intent);
-                        }
-                    }
-                });
-            }
-        };
-        Enviroment.socket.on("userexit", listener);
-    }
-
-    public void LangNgheUserReady() {
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        int t = (int) args[0];
-                        if (t == 1) {
-                            //countUserReady=0;
-                            btnBatDau.setAlpha(1);
-                            btnBatDau.setEnabled(true);
-                        } else {
-                            //countUserReady=0;
-                            btnBatDau.setAlpha(0.3f);
-                            btnBatDau.setEnabled(false);
-                        }
-                    }
-                });
-            }
-        };
-        Enviroment.socket.on("ready", listener);
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("listUserReady").addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//                    boolean flag = dataSnapshot.getValue(Boolean.class);
-//                    if(flag==true)
-//                    {
-//                        countUserReady++;
-//                        if (countUserReady>8)
-//                        {
-//                            countUserReady=0;
-//                            btnBatDau.setAlpha(1);
-//                            btnBatDau.setEnabled(true);
-//
-//                        }
-//                    }
-//                    else if(flag==false)
-//                    {
-//                        countUserReady--;
-//                        if (countUserReady<8)
-//                        {
-//                            countUserReady=0;
-//                            btnBatDau.setAlpha(0.3f);
-//                            btnBatDau.setEnabled(false);
-//
-//                        }
-//                    }
-//
-//            }
-//
-//            @Override
-//            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-//                countUserReady--;
-//                btnBatDau.setAlpha(0.3f);
-//                btnBatDau.setEnabled(false);
-//            }
-//
-//            @Override
-//            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-    }
-
     public void ConTrols() {
         edtChat.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -295,7 +194,20 @@ public class HostActivity extends Activity {
                 hide();;
             }
         });
-
+        btnSS.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ready == false) {
+                    roomPresenter.emitReady(1);
+                    ready = true;
+                    btnSS.setText("BỎ SẲN SÀNG");
+                } else {
+                    roomPresenter.emitReady(0);
+                    ready = false;
+                    btnSS.setText("SẲN SÀNG");
+                }
+            }
+        });
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -306,8 +218,6 @@ public class HostActivity extends Activity {
                         chat.setMesage(edtChat.getText().toString());
                         send(chat);
                         edtChat.setText("");
-
-                        //Toast.makeText(HostActivity.this,"send",Toast.LENGTH_SHORT).show();
                     }
                 }
                 hide();
@@ -320,22 +230,17 @@ public class HostActivity extends Activity {
                 OffTouchUser(userRoomList);
                 RanDom();
                 PushNhanVat();
-                //reference.child("Room").child(Enviroment.user.getUserId()).child("OK").setValue(true);
                 getListXuLy();
                 getTextViewAddList();
-
-
                 btnBatDau.setVisibility(View.INVISIBLE);
-                Enviroment.socket.emit("OK", true);
-
+                roomPresenter.emitOk(true);
 
             }
         });
         btnGiet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //reference.child("Room").child(Enviroment.user.getUserId()).child("BangBoPhieu").child(Enviroment.user.getUserId()).setValue(1);
-                Enviroment.socket.emit("BangBoPhieu", 1);
+                roomPresenter.emitBangBoPhieu(1);
                 btnGiet.setVisibility(View.INVISIBLE);
                 btnKhongGiet.setVisibility(View.INVISIBLE);
             }
@@ -343,8 +248,7 @@ public class HostActivity extends Activity {
         btnKhongGiet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //reference.child("Room").child(Enviroment.user.getUserId()).child("BangBoPhieu").child(Enviroment.user.getUserId()).setValue(2);
-                Enviroment.socket.emit("BangBoPhieu", 2);
+                roomPresenter.emitBangBoPhieu(2);
                 btnKhongGiet.setVisibility(View.INVISIBLE);
                 btnGiet.setVisibility(View.INVISIBLE);
             }
@@ -357,56 +261,6 @@ public class HostActivity extends Activity {
         });
     }
 
-    public void LangNgheOK() {
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("OK").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                boolean flag = dataSnapshot.getValue(Boolean.class);
-//                if (flag == false) {
-//                    OntouchUser(userRoomList);
-//                    linearLayoutChat.setVisibility(View.INVISIBLE);
-//                    imgNhanVat.setVisibility(View.INVISIBLE);
-//                    txtThoiGian.setVisibility(View.INVISIBLE);
-//                    linearLayoutTreoCo.setVisibility(View.INVISIBLE);
-//                    linearLayoutListUser.setVisibility(View.VISIBLE);
-//                    resetLaiGameMoi();
-//                    btnBatDau.setVisibility(View.VISIBLE);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-        Emitter.Listener listenerOK = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean flag = (boolean) args[0];
-                        if (flag == false) {
-                            OntouchUser(userRoomList);
-                            linearLayoutChat.setVisibility(View.INVISIBLE);
-                            imgNhanVat.setVisibility(View.INVISIBLE);
-                            txtThoiGian.setVisibility(View.INVISIBLE);
-                            linearLayoutTreoCo.setVisibility(View.INVISIBLE);
-                            linearLayoutListUser.setVisibility(View.VISIBLE);
-                            resetLaiGameMoi();
-                            btnBatDau.setVisibility(View.VISIBLE);
-                        } else {
-                            pushNgay();
-                            XuLyLuot(1, true);
-                            DemGiay(20);
-                        }
-                    }
-                });
-
-            }
-        };
-        Enviroment.socket.on("OK", listenerOK);
-    }
     public void addDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Thoát");
@@ -414,8 +268,7 @@ public class HostActivity extends Activity {
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                //reference.child("Room").child(Enviroment.userHost.getId()).child("listUser").child(Enviroment.user.getUserId()).removeValue();
-                Enviroment.socket.emit("userhostexit", Enviroment.user.getUserId());
+                roomPresenter.emitUserHostExit(Enviroment.user.getUserId());
                 Enviroment.phong.getUsers().clear();
                 Enviroment.phong = null;
                 Enviroment.user.setId_room("");
@@ -468,10 +321,10 @@ public class HostActivity extends Activity {
         btnBatDau = findViewById(R.id.btnBatDau);
         btnBatDau.setAlpha(0.6f);
         btnBatDau.setEnabled(false);
+        btnSS = findViewById(R.id.btnSS);
         btnback = findViewById(R.id.btnBack);
 
         imgNhanVat = findViewById(R.id.imgNhanVat);
-        // imgNhanVat.setAlpha(0);
         imgNhanVat.setVisibility(View.INVISIBLE);
         txtThoiGian = findViewById(R.id.txtThoiGian);
 
@@ -535,65 +388,6 @@ public class HostActivity extends Activity {
         }
     }
 
-    public void capnhatlistChat() {
-//        reference = database.getReference();
-//        reference.child("Chat").child(Enviroment.user.getUserId()).addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//                Chat chat = dataSnapshot.getValue(Chat.class);
-//                if (!chat.getMesage().equals(" ")) {
-//                    list.add(chat);
-//                    adapterChat.notifyDataSetChanged();
-//                }
-//            }
-//
-//            @Override
-//            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-        Emitter.Listener listenerChatMes = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String json = (String) args[0];
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = new JSONObject(json);
-                            Chat chat = Enviroment.gson.fromJson(jsonObject.toString(), Chat.class);
-                            if (!chat.getMesage().equals(" ")) {
-                                list.add(chat);
-                                adapterChat.notifyDataSetChanged();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                });
-
-            }
-        };
-        Enviroment.socket.on("Chat", listenerChatMes);
-
-    }
 
     public void addDialoguser(final User user) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -610,11 +404,13 @@ public class HostActivity extends Activity {
         txtuser.setText(user.getName());
 
         Button btnkick = view.findViewById(R.id.btnkick);
+        if(host==false){
+            btnkick.setVisibility(View.GONE);
+        }
         btnkick.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //reference.child("Room").child(Enviroment.user.getUserId()).child("listUser").child(user.getUserId().toString()).removeValue();
-                Enviroment.socket.emit("kickuser", user.getUserId().toString());
+                roomPresenter.emitKickUser(user.getUserId().toString());
                 dialog.cancel();
             }
         });
@@ -650,7 +446,6 @@ public class HostActivity extends Activity {
     }
 
     public void RemoveUser(User user) {
-        System.out.println("remove");
         for (UserRoom text : userRoomList) {
             if (text.getUseradd() != null) {
                 if (text.getUseradd().getUserId().toString().trim().equals(user.getUserId().toString())) {
@@ -685,15 +480,11 @@ public class HostActivity extends Activity {
         text.getUser().setEnabled(false);
         text.getUser().setImageResource(R.drawable.die);
         text.getUser().setAlpha(0.3f);
-        //userRoomList.remove(text);
     }
 
 
     public void send(Chat chat) {
-//        reference = database.getReference();
-//        reference.child("Chat").child(Enviroment.user.getUserId()).push().setValue(chat);
-        String json = Enviroment.gson.toJson(chat);
-        Enviroment.socket.emit("Chat", json);
+        roomPresenter.emitChatMessage(chat);
 
     }
 
@@ -705,83 +496,8 @@ public class HostActivity extends Activity {
             }
             listUser.add(us);
         }
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        JSONObject jsonObject = (JSONObject) args[0];
-                        User user = Enviroment.gson.fromJson(jsonObject.toString(), User.class);
-                        System.out.println(user.getUserId());
-                        if (user.getUserId().equals(Enviroment.user.getUserId()) == false) {
-                            AddUser(user);
-                            listUser.add(user);
-                            Enviroment.phong.getUsers().add(user);
-                            Enviroment.phong.setPeople(Enviroment.phong.getPeople() + 1);
-                        }
 
-
-                    }
-                });
-            }
-        };
-        Enviroment.socket.on("newuser", listener);
-//        reference = database.getReference();
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("listUser").addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//                User us = dataSnapshot.getValue(User.class);
-//                if (!us.getId().toString().equals(Enviroment.user.getUserId().toString())) {
-//                    AddUser(us);
-//                    listUser.add(us);
-//                    Enviroment.phong.setPeople(Enviroment.phong.getPeople()+1);
-//                    reference.child("Room").child(Enviroment.user.getUserId()).child("songuoi").setValue(Enviroment.phong.getPeople());
-//                    reference.child("Room").child(Enviroment.user.getUserId()).child("listUserReady").child(us.getId().toString()).setValue(false);
-//                    System.out.println("list UserActivity in lay list UserActivity" + listUser.size());
-//                } else {
-//                    listUser.add(us);
-//                }
-//                reference.child("Room").child(Enviroment.user.getUserId()).child("BangIdChon").child(us.getId().toString()).setValue("A");
-//                reference.child("Room").child(Enviroment.user.getUserId()).child("BangChonChucNang").child(us.getId().toString()).setValue("A");
-//                reference.child("Room").child(Enviroment.user.getUserId()).child("listUserSang").child(us.getId().toString()).setValue(false);
-//                reference.child("Room").child(Enviroment.user.getUserId()).child("BangBoPhieu").child(us.getId()).setValue(0);
-//                reference.child("Room").child(Enviroment.user.getUserId()).child("BangDie").child(us.getId()).setValue("A");
-//
-//
-//            }
-//
-//            @Override
-//            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-//                User us = dataSnapshot.getValue(User.class);
-//                RemoveUserList(us);
-//                Toast.makeText(HostActivity.this,"aaa"+listUser.size(),Toast.LENGTH_SHORT).show();
-//                RemoveUser(us);
-//                Enviroment.phong.setPeople(Enviroment.phong.getPeople()-1);
-//                reference.child("Room").child(Enviroment.user.getUserId()).child("songuoi").setValue(Enviroment.phong.getPeople());
-//                reference.child("Room").child(Enviroment.user.getUserId()).child("listUserReady").child(us.getId().toString()).removeValue();
-//                reference.child("Room").child(Enviroment.user.getUserId()).child("BangIdChon").child(us.getId().toString()).removeValue();
-//                reference.child("Room").child(Enviroment.user.getUserId()).child("listUserSang").child(us.getId().toString()).removeValue();
-//                reference.child("Room").child(Enviroment.user.getUserId()).child("BangBoPhieu").child(us.getId()).removeValue();
-//                reference.child("Room").child(Enviroment.user.getUserId()).child("BangDie").child(us.getId()).removeValue();
-//                reference.child("Room").child(Enviroment.user.getUserId()).child("BangChonChucNang").child(us.getId().toString()).removeValue();
-//            }
-//
-//            @Override
-//            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
+        roomPresenter.listenNewUserJoinRoom();
     }
 
     public void RemoveUserList(User user) {
@@ -794,35 +510,8 @@ public class HostActivity extends Activity {
     }
 
     public void taophong() {
-//        phong = new Phong();
-//        // System.out.println(Enviroment.UserActivity.getId());
-//        int soPhong = getIntent().getIntExtra("sophong",0);
-//        phong.setId(Enviroment.user.getUserId());
-//        phong.setRoomnumber(soPhong);
-//        phong.setName(Enviroment.user.getName());
-//        phong.setPeople(1);
-//
-//        phong.getUsers().add(Enviroment.user);
-//        Enviroment.phong = phong;
         txtTenPhong.setText(Enviroment.phong.getName());
         txtSoPhong.setText(Enviroment.phong.getRoomnumber() + "");
-//        reference.child("Room").child(phong.getId()).setValue(phong);
-//        reference.child("Room").child(phong.getId()).child("listUser").child(Enviroment.user.getUserId()).setValue(Enviroment.user);
-//        reference.child("Room").child(phong.getId()).child("listUserSang").child(Enviroment.user.getUserId()).setValue(false);
-//        reference.child("Room").child(phong.getId()).child("Luot").setValue(0);
-//        reference.child("Room").child(phong.getId()).child("AllChat").setValue(false);
-//        reference.child("Room").child(phong.getId()).child("AllManHinhChon").setValue(false);
-//        reference.child("Room").child(phong.getId()).child("BangIdChon").child(Enviroment.user.getUserId()).setValue("A");
-//        reference.child("Room").child(phong.getId()).child("IDBiBoPhieu").setValue("A");
-//        reference.child("Room").child(phong.getId()).child("BangBoPhieu").child(Enviroment.user.getUserId()).setValue(0);
-//        reference.child("Room").child(phong.getId()).child("BangDie").child(Enviroment.user.getUserId()).setValue("A");
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("OK").setValue(false);
-        //Chat chat = new Chat();
-        //chat.setUsername(Enviroment.user.getName());
-        //chat.setMesage(" ");
-        //reference.child("Chat").child(phong.getId()).push().setValue(chat);
-        //String jsonroom = Enviroment.gson.toJson(phong);
-        //Enviroment.socket.emit("createroom",jsonroom);
     }
 
     int dem;
@@ -847,19 +536,15 @@ public class HostActivity extends Activity {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-                //txtThoiGian.setText(dem + "");
                 Enviroment.socket.emit("time",dem);
                 if (dem < 0) {
-                    //handlerMaSoi.sendEmptyMessage(0);
                     if (flagchat == true) {
                         manv = 7;
                         handlerMaSoi.sendEmptyMessage(0);
                         flagchat = false;
                     }
                     if (flagxuli == true) {
-                        //reference.child("Room").child(Enviroment.user.getUserId()).child("listUserSang").child(IDBoPhieu).setValue(false);
-                        Enviroment.socket.emit("UserBoPhieuTat", IDBoPhieu);
-                        //setLuotDB(7);
+                        roomPresenter.emitUserBiBoPhieuTat(IDBoPhieu);
                         XuLyLuot(7, false);
                         if (die == false) {
                             if (Enviroment.user.getUserId().toString().trim().equals(IDBoPhieu) == false) {
@@ -873,120 +558,16 @@ public class HostActivity extends Activity {
                     }
                     timer.cancel();
                     txtThoiGian.setVisibility(View.INVISIBLE);
-                    //manv=8;
-
                 }
             }
         };
     }
-    public  void  LangNgheTime()
-    {
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-              HostActivity.this.runOnUiThread(new Runnable() {
-                  @Override
-                  public void run() {
-                      txtThoiGian.setText((Integer) args[0]+"");
-                  }
-              });
-            }
-        };
-        Enviroment.socket.on("time",listener);
-    }
-
-    public void LangNgheDie() {
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("BangDie").addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//                String id = dataSnapshot.getValue(String.class);
-//                if (!id.equals("A")) {
-//                    if (id.equals(Enviroment.user.getUserId())) {
-//                        die = true;
-//                    } else {
-//                        for (UserRoom text : userRoomList) {
-//                            if (text.getUseradd().getId().toString().equals(id)) {
-//                                setDieUser(text);
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//                String id = dataSnapshot.getValue(String.class);
-//                if (!id.equals("A")) {
-//                    if (id.equals(Enviroment.user.getUserId())) {
-//                        die = true;
-//                    } else {
-//                        for (UserRoom text : userRoomList) {
-//                            if (text.getUseradd().getId().toString().equals(id)) {
-//                                setDieUser(text);
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String id = (String) args[0];
-                        if (!id.equals("A")) {
-                            if (id.equals(Enviroment.user.getUserId())) {
-                                die = true;
-                            } else {
-                                for (UserRoom text : userRoomList) {
-                                    if(text.getUseradd()!=null)
-                                    {
-                                        if (text.getUseradd().getUserId().toString().equals(id)) {
-                                            setDieUser(text);
-                                            break;
-                                        }
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        };
-        Enviroment.socket.on("UserDie", listener);
-    }
-
 
     public void RanDom() {
         List<User> listUserRandom = new ArrayList<>();
         getlistUser(listUserRandom);
         getlistUser(listUserInGame);
-        System.out.println(listUserInGame.size() + "list UserActivity in game");
-        System.out.println(listUser.size() + "list UserActivity");
-        //listUserRandom.add(Enviroment.UserActivity);
         for (int i = 0; i < Enviroment.TOTAL_PEOPLE; i++) {
-            // System.out.println(listUserRandom.size()+ "Lisuserrandom");
             NhanVat nv = new NhanVat();
             int k;
             if (listUserRandom.size() > 1) {
@@ -1020,10 +601,8 @@ public class HostActivity extends Activity {
 
 
             }
-            // System.out.println(k);
             nv.setId(listUserRandom.get(k).getUserId());
             listUserRandom.remove(k);
-            //System.out.println(nv.getId());
             listNhanVat.add(nv);
 
         }
@@ -1044,8 +623,6 @@ public class HostActivity extends Activity {
             }
 
         }
-        // System.out.println(listNhanVat.size() + "list nhan vat");
-        // System.out.println(userRoomListDanThuong.size() + "list dan thuong");
     }
 
     public void getTextViewAddList() {
@@ -1057,21 +634,15 @@ public class HostActivity extends Activity {
     public void PushNhanVat() {
         JsonArray jsonArray = new JsonArray();
         for (NhanVat nv : listNhanVat) {
-            //reference.child("Room").child(Enviroment.user.getUserId()).child("BangNhanVat").child(nv.getId()).setValue(nv);
-            JSONObject jsonObject = new JSONObject();
+          JSONObject jsonObject = new JSONObject();
 
         }
-        String json = Enviroment.gson.toJson(jsonArray);
-
-        String jsonlist = Enviroment.gson.toJson(listNhanVat);
-        Enviroment.socket.emit("SendListNhanVat", jsonlist);
-        Enviroment.socket.emit("ListNhanVat", jsonlist);
+        roomPresenter.emitSendListNhanVat(listNhanVat);
 
 
     }
 
     public void setImageNhanVat(int ma) {
-        // imgNhanVat.setAlpha(1f);
         switch (ma) {
             case 1:
                 imgNhanVat.setImageResource(R.drawable.imgmasoi);
@@ -1095,67 +666,10 @@ public class HostActivity extends Activity {
         imgNhanVat.setVisibility(View.VISIBLE);
     }
 
-    public void pushNgay() {
-        // phong.setNgay(phong.getNgay() + 1);
-        // reference.child("Room").child(Enviroment.UserActivity.getId()).child("ngay").setValue(phong.getNgay());
-    }
-
     public void pushLuot(int t) {
-
-        //reference.child("Room").child(Enviroment.user.getUserId()).child("Luot").setValue(t);
-        Enviroment.socket.emit("Luot", t);
+        roomPresenter.emitLuot(t);
     }
 
-    public void getNhanVat() {
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("BangNhanVat").child(Enviroment.user.getUserId()).addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                nhanvat = dataSnapshot.getValue(NhanVat.class);
-//                setImageNhanVat(nhanvat.getManv());
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-//        System.out.println(listUserInGame.size() + "list UserActivity in game trong get nhan vat");
-//        System.out.println(listUser.size() + "list UserActivity trong get nhan vat");
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        System.out.println("json" + args[0]);
-                        String json = (String) args[0];
-                        JSONArray jsonArray = null;
-                        try {
-                            jsonArray = new JSONArray(json);
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                try {
-                                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                                    NhanVat nv = Enviroment.gson.fromJson(jsonObject.toString(), NhanVat.class);
-                                    if (nv.getId().toString().trim().equals(Enviroment.user.getUserId().trim())) {
-                                        nhanvat = nv;
-                                        System.out.println(nhanvat.getId());
-                                        setImageNhanVat(nhanvat.getManv());
-                                    }
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                });
-            }
-        };
-        Enviroment.socket.on("ListNhanVat", listener);
-    }
 
     public void removelistUserInGameID(String id) {
         for (User us : listUserInGame) {
@@ -1198,76 +712,9 @@ public class HostActivity extends Activity {
     }
 
     public void setLuotDB(int luot) {
-        //reference.child("Room").child(Enviroment.user.getUserId()).child("Luot").setValue(luot);
-        Enviroment.socket.emit("Luot", luot);
+        roomPresenter.emitLuotDB(luot);
     }
 
-    public void LangNgheLuotDB() {
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("Luot").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                int l = dataSnapshot.getValue(Integer.class);
-//                if (l != 0) {
-//                    if (l == 1) {
-//                        linearLayoutChat.setVisibility(View.INVISIBLE);
-//                        listChat.setVisibility(View.INVISIBLE);
-//                        linearLayoutKhungChat.setVisibility(View.INVISIBLE);
-//
-//                    }
-//                    if (l == 7) {
-//                        if (die == false) {
-//                            if (Enviroment.user.getUserId().toString().trim().equals(IDBoPhieu) == false) {
-//                                System.out.println("toi luot 7");
-//                                btnGiet.setVisibility(View.VISIBLE);
-//                                btnKhongGiet.setVisibility(View.VISIBLE);
-//                            }
-//                        }
-//                    }
-//                    HienThiLuot(l);
-//                } else {
-//                    txtLuot.setText("");
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        int l = (int) args[0];
-                        if (l != 0) {
-                            if (l == 1) {
-                                linearLayoutChat.setVisibility(View.INVISIBLE);
-                                listChat.setVisibility(View.INVISIBLE);
-                                linearLayoutKhungChat.setVisibility(View.INVISIBLE);
-
-                            }
-                            if (l == 7) {
-                                if (die == false) {
-                                    if (Enviroment.user.getUserId().toString().trim().equals(IDBoPhieu) == false) {
-                                        System.out.println("toi luot 7");
-                                        btnGiet.setVisibility(View.VISIBLE);
-                                        btnKhongGiet.setVisibility(View.VISIBLE);
-                                    }
-                                }
-                            }
-                            HienThiLuot(l);
-                        } else {
-                            txtLuot.setText("");
-                        }
-                    }
-                });
-            }
-        };
-        Enviroment.socket.on("Luot", listener);
-
-    }
 
     public void XuLyChon() {
         handlerMaSoi = new Handler() {
@@ -1278,18 +725,15 @@ public class HostActivity extends Activity {
                 if (manv == 1) {
                     if (listUserMaSoi.size() == listIdMaSoichon.size()) {
                         setLuotDB(2);
-                        //pushLuot(2);
                         XuLyLuot(1, false);
                         XuLyLuot(4, true);
                     }
                 } else if (manv == 4) {
                     setLuotDB(3);
-                    //pushLuot(3);
                     XuLyLuot(4, false);
                     XuLyLuot(3, true);
                 } else if (manv == 3) {
                     setLuotDB(4);
-                    //pushLuot(4);
                     XuLyLuot(3, false);
                     XuLyLuot(6, true);
                 } else if (manv == 6) {
@@ -1303,10 +747,8 @@ public class HostActivity extends Activity {
                 } else if (manv == 8) {
                     XuLyLuot(8, false);
                     IDBoPhieu = getIDBOPhieu();
-                    //reference.child("Room").child(Enviroment.user.getUserId()).child("IDBiBoPhieu").setValue(IDBoPhieu);
-                    Enviroment.socket.emit("IDBiBoPhieu", IDBoPhieu);
-                    //reference.child("Room").child(Enviroment.user.getUserId()).child("listUserSang").child(IDBoPhieu).setValue(true);
-                    Enviroment.socket.emit("UserBoPhieu", IDBoPhieu);
+                    roomPresenter.emitIDBiBoPhieu(IDBoPhieu);
+                    roomPresenter.emitUserBoPhieu(IDBoPhieu);
                     XuLiGiaiTrinh();
                 } else if (manv == 9) {
                     if (giet == true) {
@@ -1314,8 +756,7 @@ public class HostActivity extends Activity {
                         XoaNhanVat(IDBoPhieu);
                         XoaNhanVatChucNang(IDBoPhieu);
                         removelistUserInGameID(IDBoPhieu);
-                        //reference.child("Room").child(Enviroment.user.getUserId()).child("BangDie").child(IDBoPhieu).setValue(IDBoPhieu);
-                        Enviroment.socket.emit("UserDie", IDBoPhieu);
+                        roomPresenter.emitUserDie(IDBoPhieu);
                     }
 
                     linearLayoutListUser.setVisibility(View.VISIBLE);
@@ -1390,90 +831,6 @@ public class HostActivity extends Activity {
     private int countYes = 0, countNo = 0;
     boolean giet = false;
 
-    public void LangNgheKQBP() {
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("BangBoPhieu").addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//                int t = dataSnapshot.getValue(Integer.class);
-//                if (t != 0) {
-//                    if (t == 1) {
-//                        countYes++;
-//                    } else {
-//                        countNo++;
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//                int t = dataSnapshot.getValue(Integer.class);
-//                if (t != 0) {
-//                    if (t == 1) {
-//                        countYes++;
-//                    } else {
-//                        countNo++;
-//                    }
-//                }
-//                if (countNo + countYes == (listUserInGame.size() - 1)) {
-//                    if (countYes > countNo) {
-//                        giet = true;
-//                        countNo = 0;
-//                        countYes = 0;
-//                    }
-//                    manv = 9;
-//                    handlerMaSoi.sendEmptyMessage(0);
-//                }
-//                System.out.println(countYes + "Dong y");
-//                System.out.println(userRoomListSong.size() + "so nguoi con song");
-//
-//            }
-//
-//            @Override
-//            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        int t = (int) args[0];
-                        if (t != 0) {
-                            if (t == 1) {
-                                countYes++;
-                            } else {
-                                countNo++;
-                            }
-                        }
-                        if (countNo + countYes == (listUserInGame.size() - 1)) {
-                            if (countYes > countNo) {
-                                giet = true;
-                                countNo = 0;
-                                countYes = 0;
-                            }
-                            manv = 9;
-                            handlerMaSoi.sendEmptyMessage(0);
-                        }
-                    }
-                });
-            }
-        };
-        Enviroment.socket.on("BangBoPhieu", listener);
-
-    }
 
     public void XuLyLuot(int luot, boolean flag) {
 
@@ -1497,11 +854,10 @@ public class HostActivity extends Activity {
         if (luot == 1) {
             pushLuot(1);
             if (listUserMaSoi.size() > 0) {
-                //reference.child("Room").child(Enviroment.user.getUserId()).child("listUserSang").child(listUserMaSoi.get(0).getId().toString()).setValue(flag);
                 if (flag == true) {
-                    Enviroment.socket.emit("NhanVatsang", 1);
+                    roomPresenter.emitNhanvatSang(1);
                 } else {
-                    Enviroment.socket.emit("NhanVatTat", 1);
+                    roomPresenter.emitNhanvatTat(1);
                 }
 
             }
@@ -1509,371 +865,32 @@ public class HostActivity extends Activity {
         } else if (luot == 3) {
             pushLuot(3);
             if (flag == true) {
-                Enviroment.socket.emit("NhanVatsang", 3);
+                roomPresenter.emitNhanvatSang(3);
             } else {
-                Enviroment.socket.emit("NhanVatTat", 3);
+                roomPresenter.emitNhanvatTat(3);
             }
 
         } else if (luot == 4) {
             pushLuot(2);
             if (flag == true) {
-                Enviroment.socket.emit("NhanVatsang", 4);
+                roomPresenter.emitNhanvatSang(4);
             } else {
-                Enviroment.socket.emit("NhanVatTat", 4);
+                roomPresenter.emitNhanvatTat(4);
             }
 
         } else if (luot == 6) {
             pushLuot(4);
             if (flag == true) {
-                Enviroment.socket.emit("NhanVatsang", 6);
+                roomPresenter.emitNhanvatSang(6);
             } else {
-                Enviroment.socket.emit("NhanVatTat", 6);
+                roomPresenter.emitNhanvatTat(6);
             }
 
         } else if (luot == 7) {
-            //reference.child("Room").child(Enviroment.user.getUserId()).child("AllChat").setValue(flag);
-            Enviroment.socket.emit("AllChat", flag);
+            roomPresenter.emitAllChat(flag);
         } else if (luot == 8) {
-            //reference.child("Room").child(Enviroment.user.getUserId()).child("AllManHinhChon").setValue(flag);
-            Enviroment.socket.emit("AllManHinhChon", flag);
+            roomPresenter.emitAllManHinhChon(flag);
         }
-    }
-
-    public void ListenSuKien() {
-
-        //Bao ve
-//            reference.child("Room").child(Enviroment.user.getUserId()).child("BangChonChucNang").child(userBaoVe.getId().toString()).addValueEventListener(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                    String id = dataSnapshot.getValue(String.class);
-//                    if (!id.equals("A")) {
-//                        manv = 4;
-//                        idBaoVeChon = id;
-//                        handlerMaSoi.sendEmptyMessage(0);
-//                    }
-//
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                }
-//            });
-        Emitter.Listener listenerBaoVe = new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                manv = 4;
-                idBaoVeChon = (String) args[0];
-                handlerMaSoi.sendEmptyMessage(0);
-            }
-        };
-        Enviroment.socket.on("4", listenerBaoVe);
-
-        //Phu thuy
-//            reference.child("Room").child(Enviroment.user.getUserId()).child("BangChonChucNang").child(userTienTri.getId().toString()).addValueEventListener(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                    String id = dataSnapshot.getValue(String.class);
-//                    if (!id.equals("A")) {
-//                        manv = 6;
-//                        idTienTriChon = id;
-//                        handlerMaSoi.sendEmptyMessage(0);
-//                    }
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                }
-//            });
-        Emitter.Listener listenerTienTri = new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                manv = 6;
-                idBaoVeChon = (String) args[0];
-                handlerMaSoi.sendEmptyMessage(0);
-            }
-        };
-        Enviroment.socket.on("6", listenerTienTri);
-
-        //Tho San
-
-//            reference.child("Room").child(Enviroment.user.getUserId()).child("BangChonChucNang").child(userThoSan.getId().toString()).addValueEventListener(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                    String id = dataSnapshot.getValue(String.class);
-//                    if (!id.equals("A")) {
-//                        manv = 3;
-//                        idThoSanChon = id;
-//                        handlerMaSoi.sendEmptyMessage(0);
-//                    }
-//
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                }
-//            });
-
-        Emitter.Listener listenerThoSan = new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                manv = 3;
-                idThoSanChon = (String) args[0];
-                handlerMaSoi.sendEmptyMessage(0);
-            }
-        };
-        Enviroment.socket.on("3", listenerThoSan);
-
-        //Ma Soi
-//            reference.child("Room").child(Enviroment.user.getUserId()).child("BangChonChucNang").child(listUserMaSoi.get(0).getId().toString()).addValueEventListener(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                    String id = dataSnapshot.getValue(String.class);
-//                    if (!id.equals("A")) {
-//                        manv = 1;
-//                        listIdMaSoichon.add(id);
-//                        handlerMaSoi.sendEmptyMessage(0);
-//                    }
-//
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                }
-//            });
-//            reference.child("Room").child(Enviroment.user.getUserId()).child("BangChonChucNang").child(listUserMaSoi.get(1).getId().toString()).addValueEventListener(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                    String id = dataSnapshot.getValue(String.class);
-//                    if (!id.equals("A")) {
-//                        manv = 1;
-//                        listIdMaSoichon.add(id);
-//                        handlerMaSoi.sendEmptyMessage(0);
-//                    }
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                }
-//            });
-//
-//            reference.child("Room").child(Enviroment.user.getUserId()).child("BangChonChucNang").child(listUserMaSoi.get(2).getId().toString()).addValueEventListener(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                    String id = dataSnapshot.getValue(String.class);
-//                    if (!id.equals("A")) {
-//                        manv = 1;
-//                        listIdMaSoichon.add(id);
-//                        handlerMaSoi.sendEmptyMessage(0);
-//                    }
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                }
-//            });
-
-        Emitter.Listener listenerMaSoi = new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                manv = 1;
-                listIdMaSoichon.add((String) args[0]);
-                handlerMaSoi.sendEmptyMessage(0);
-            }
-        };
-        Enviroment.socket.on("1", listenerMaSoi);
-
-    }
-
-    public void ListenIdBiGiet() {
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("BangIdChon").addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//            }
-//
-//            @Override
-//            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//                String st = dataSnapshot.getValue(String.class);
-//                if (!st.equals("A")) {
-//                    listAllChon.add(st);
-//                    if (listAllChon.size() == listUserInGame.size()) {
-//                        manv = 8;
-//                        handlerMaSoi.sendEmptyMessage(0);
-//                    }
-//                    System.out.println(listAllChon.size() + "list all chon");
-//                    System.out.println(listUserInGame.size() + "List UserActivity game");
-//                }
-//            }
-//
-//            @Override
-//            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-        Emitter.Listener listenerBangIdChon = new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                listAllChon.add((String) args[0]);
-                if (listAllChon.size() == listUserInGame.size()) {
-                    manv = 8;
-                    handlerMaSoi.sendEmptyMessage(0);
-                }
-            }
-        };
-        Enviroment.socket.on("BangIdChon", listenerBangIdChon);
-    }
-
-    //client
-    public void LangNgheLuot() {
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("listUserSang").child(Enviroment.user.getUserId()).addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                boolean flag = dataSnapshot.getValue(Boolean.class);
-//                if (flag == true) {
-//                    txtThoiGian.setVisibility(View.VISIBLE);
-//                    DemGiay(30);
-//                    AddClickUser("BangChonChucNang");
-//                    if (nhanvat.getManv() == 1) {
-//
-//                        OntouchUser(userRoomListDanThuong);
-//                        //System.out.println("NhanVat ne");
-//                    } else {
-//                        OntouchUser(userRoomListSong);
-//                    }
-//                } else {
-//                    if (nhanvat.getManv() == 1 && flag == false) {
-//                        OffTouchUser(userRoomListDanThuong);
-//                        txtThoiGian.setVisibility(View.INVISIBLE);
-//                    } else {
-//                        OffTouchUser(userRoomListSong);
-//                        txtThoiGian.setVisibility(View.INVISIBLE);
-//                    }
-//
-//
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-        //user Sang
-        Emitter.Listener listener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (nhanvat.getManv() == (int) args[0]) {
-                            txtThoiGian.setVisibility(View.VISIBLE);
-                            DemGiay(30);
-                            AddClickUser("BangChonChucNang");
-                            if (nhanvat.getManv() == 1) {
-                                OntouchUser(userRoomListDanThuong);
-                                //System.out.println("NhanVat ne");
-                            } else {
-                                OntouchUser(userRoomListSong);
-                            }
-                        }
-                    }
-                });
-
-            }
-        };
-        Enviroment.socket.on("NhanVatsang", listener);
-        Emitter.Listener listenerTat = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (nhanvat.getManv() == (int) args[0]) {
-                            if (nhanvat.getManv() == 1) {
-                                OffTouchUser(userRoomListDanThuong);
-                                txtThoiGian.setVisibility(View.INVISIBLE);
-                            } else {
-                                OffTouchUser(userRoomListSong);
-                                txtThoiGian.setVisibility(View.INVISIBLE);
-                            }
-                        }
-                    }
-                });
-
-            }
-        };
-        Enviroment.socket.on("NhanVatTat", listenerTat);
-    }
-
-
-    public void LangNgheChat() {
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("AllChat").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                boolean flag = dataSnapshot.getValue(Boolean.class);
-//                if (flag == true && die == false) {
-//                    linearLayoutChat.setVisibility(View.VISIBLE);
-//                    findViewById(R.id.lnrkhungchat).setVisibility(View.VISIBLE);
-//                    listChat.setVisibility(View.VISIBLE);
-//                    txtThoiGian.setVisibility(View.VISIBLE);
-//                    DemGiay(10);
-//                    flagchat = true;
-//                } else {
-//                    linearLayoutChat.setVisibility(View.INVISIBLE);
-//                    findViewById(R.id.lnrkhungchat).setVisibility(View.INVISIBLE);
-//                    listChat.setVisibility(View.INVISIBLE);
-//                    txtThoiGian.setVisibility(View.INVISIBLE);
-//                    flagchat = false;
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-        Emitter.Listener listenerChat = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean flag = (boolean) args[0];
-                        if (flag == true && die == false) {
-                            linearLayoutChat.setVisibility(View.VISIBLE);
-                            findViewById(R.id.lnrkhungchat).setVisibility(View.VISIBLE);
-                            listChat.setVisibility(View.VISIBLE);
-                            txtThoiGian.setVisibility(View.VISIBLE);
-                            flagchat = true;
-                            DemGiay(30);
-                        } else {
-                            linearLayoutChat.setVisibility(View.INVISIBLE);
-                            findViewById(R.id.lnrkhungchat).setVisibility(View.INVISIBLE);
-                            listChat.setVisibility(View.INVISIBLE);
-                            txtThoiGian.setVisibility(View.INVISIBLE);
-                            flagchat = false;
-                        }
-                    }
-                });
-
-            }
-        };
-        Enviroment.socket.on("AllChat", listenerChat);
     }
 
     public void AddClickUser(final String st) {
@@ -1895,64 +912,13 @@ public class HostActivity extends Activity {
                             }
                         }
                     }
-                    //reference.child("Room").child(Enviroment.user.getUserId()).child(st).child(Enviroment.user.getUserId()).setValue(hashMap.get(text.getTxtuser().getText().toString()));
-                    JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty("manv", nhanvat.getManv() + "");
-                    jsonObject.addProperty("idchon", hashMap.get(text.getTxtuser().getText().toString()) + "");
-                    String json = Enviroment.gson.toJson(jsonObject);
-                    Enviroment.socket.emit(st, json);
+                    roomPresenter.emitChonUser(st,nhanvat.getManv(),hashMap.get(text.getTxtuser().getText().toString()) + "");
                     OffTouchUser(userRoomListSong);
                 }
             });
         }
     }
 
-    public void LangNgheAllManHinh() {
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("AllManHinhChon").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                boolean flag = dataSnapshot.getValue(Boolean.class);
-//                if (flag == true) {
-//                    if (die == false) {
-//                        OntouchUser(userRoomListSong);
-//                        AddClickUser("BangIdChon");
-//                    }
-//
-//                } else {
-//                    OffTouchUser(userRoomListSong);
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-        Emitter.Listener listenerAll = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean flag = (boolean) args[0];
-                        if (flag == true) {
-                            if (die == false) {
-                                OntouchUser(userRoomListSong);
-                                AddClickUser("BangIdChon");
-                            }
-
-                        } else {
-                            OffTouchUser(userRoomListSong);
-                        }
-                    }
-                });
-
-            }
-        };
-        Enviroment.socket.on("AllManHinhChon", listenerAll);
-
-    }
 
     public String getIdSoiChon() {
         String st = "";
@@ -2005,18 +971,15 @@ public class HostActivity extends Activity {
             removelistUserInGameID(idMaSoiChon);
             removelistUserInGameID(idThoSanChon);
             if (!idMaSoiChon.equals(IDBoPhieu)) {
-                //reference.child("Room").child(Enviroment.user.getUserId()).child("BangDie").child(idMaSoiChon).setValue(idMaSoiChon);
-                //reference.child("Room").child(Enviroment.user.getUserId()).child("BangDie").child(idThoSanChon).setValue(idThoSanChon);
-                Enviroment.socket.emit("UserDie", idMaSoiChon);
-                Enviroment.socket.emit("UserDie", idThoSanChon);
+                roomPresenter.emitUserDie(idMaSoiChon);
+                roomPresenter.emitUserDie(idThoSanChon);
             }
         } else {
 
             XoaNhanVat(idMaSoiChon);
             XoaNhanVatChucNang(idMaSoiChon);
             removelistUserInGameID(idMaSoiChon);
-            //reference.child("Room").child(Enviroment.user.getUserId()).child("BangDie").child(idMaSoiChon).setValue(idMaSoiChon);
-            Enviroment.socket.emit("UserDie", idMaSoiChon);
+            roomPresenter.emitUserDie(idMaSoiChon);
         }
         if (listUserMaSoi.size() < 1) {
             resetLaiGameMoi();
@@ -2027,8 +990,7 @@ public class HostActivity extends Activity {
     }
 
     public void resetLaiGameMoi() {
-        //reference.child("Room").child(Enviroment.user.getUserId()).child("OK").setValue(false);
-        Enviroment.socket.emit("OK", false);
+        roomPresenter.emitOk(false);
         listUserMaSoi.clear();
         listUserDanLang.clear();
         flagTienTri = false;
@@ -2041,8 +1003,6 @@ public class HostActivity extends Activity {
         idBaoVeChon = "";
         idThoSanChon = "";
         idTienTriChon = "";
-        resetAllBang();
-        resetLaiBangDie();
         userRoomListDanThuong.clear();
         userRoomListSong.clear();
         list.clear();
@@ -2056,130 +1016,24 @@ public class HostActivity extends Activity {
     public void XoaNhanVatChucNang(String id) {
 
 
-        if (flagTienTri == false && userTienTri.getUserId().toString().equals(id)) {
+        if (flagTienTri == false && userTienTri.getUserId().equals(id)) {
             flagTienTri = true;
         }
-        if (flagThoSan == false && userThoSan.getUserId().toString().equals(id)) {
+        if (flagThoSan == false && userThoSan.getUserId().equals(id)) {
             flagThoSan = true;
         }
-        if (flagBaoVe == false && userBaoVe.getUserId().toString().equals(id)) {
+        if (flagBaoVe == false && userBaoVe.getUserId().equals(id)) {
             flagBaoVe = true;
         }
     }
 
     public void ResetLaiNgayMoi() {
-        //pushNgay();
         XuLyLuot(1, true);
-        System.out.println("Toi Xu li luot 1 true");
         listIdMaSoichon.clear();
         listAllChon.clear();
         idBaoVeChon = "";
         idThoSanChon = "";
         idTienTriChon = "";
-        resetAllBang();
-
-    }
-
-    public void LangNgheBangIDChon() {
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("IDBiBoPhieu").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                String st = dataSnapshot.getValue(String.class);
-//                String name = "";
-//                if (st.equals(Enviroment.user.getUserId())) {
-//                    linearLayoutChat.setVisibility(View.VISIBLE);
-//                    findViewById(R.id.lnrkhungchat).setVisibility(View.VISIBLE);
-//                    listChat.setVisibility(View.VISIBLE);
-//                } else {
-//                    if (!st.equals("A")) {
-//                        findViewById(R.id.lnrkhungchat).setVisibility(View.INVISIBLE);
-//                        linearLayoutListUser.setVisibility(View.INVISIBLE);
-//                        btnKhongGiet.setVisibility(View.INVISIBLE);
-//                        btnGiet.setVisibility(View.INVISIBLE);
-//                        linearLayoutTreoCo.setVisibility(View.VISIBLE);
-//                        //.setVisibility(View.INVISIBLE);
-//                        // btnKhongGiet.setVisibility(View.INVISIBLE);
-//                        linearLayoutChat.setVisibility(View.VISIBLE);
-//                        listChat.setVisibility(View.VISIBLE);
-//
-//                        for (User user : listUser) {
-//                            if (user.getUserId().equals(st)) {
-//                                txtTreoCo.setText(user.getName());
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-        Emitter.Listener listenerIdChon = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                HostActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String st = (String) args[0];
-                        String name = "";
-                        if (st.equals(Enviroment.user.getUserId())) {
-                            linearLayoutListUser.setVisibility(View.INVISIBLE);
-                            linearLayoutChat.setVisibility(View.VISIBLE);
-                            findViewById(R.id.lnrkhungchat).setVisibility(View.VISIBLE);
-                            linearLayoutTreoCo.setVisibility(View.VISIBLE);
-                            btnGiet.setVisibility(View.INVISIBLE);
-                            btnKhongGiet.setVisibility(View.INVISIBLE);
-                            listChat.setVisibility(View.VISIBLE);
-                            txtTreoCo.setText(Enviroment.user.getName());
-                            flagBiBoPhieu=true;
-                        } else {
-                            if (!st.equals("A")) {
-                                findViewById(R.id.lnrkhungchat).setVisibility(View.INVISIBLE);
-                                linearLayoutListUser.setVisibility(View.INVISIBLE);
-                                btnKhongGiet.setVisibility(View.INVISIBLE);
-                                btnGiet.setVisibility(View.INVISIBLE);
-                                linearLayoutTreoCo.setVisibility(View.VISIBLE);
-                                linearLayoutChat.setVisibility(View.VISIBLE);
-                                listChat.setVisibility(View.VISIBLE);
-
-                                for (User user : listUser) {
-                                    if (user.getUserId().equals(st)) {
-                                        txtTreoCo.setText(user.getName());
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-
-            }
-        };
-        Enviroment.socket.on("IDBiBoPhieu", listenerIdChon);
-
-
-
-
-
-    }
-
-    public void resetAllBang() {
-//        for (User us : listUser) {
-//            reference.child("Room").child(Enviroment.user.getUserId()).child("BangIdChon").child(us.getId().toString()).setValue("A");
-//            reference.child("Room").child(Enviroment.user.getUserId()).child("BangChonChucNang").child(us.getId().toString()).setValue("A");
-//            reference.child("Room").child(Enviroment.user.getUserId()).child("BangBoPhieu").child(us.getId()).setValue(0);
-//        }
-//        reference.child("Room").child(Enviroment.user.getUserId()).child("IDBiBoPhieu").setValue("A");
-    }
-
-    public void resetLaiBangDie() {
-//        for (User us : listUser)
-//        {
-//            reference.child("Room").child(Enviroment.user.getUserId()).child("BangDie").child(us.getId()).setValue("A");
-//        }
     }
 
     public void ResetAnhUser() {
@@ -2224,12 +1078,280 @@ public class HostActivity extends Activity {
         mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
     }
 
-    /**
-     * Schedules a call to hide() in delay milliseconds, canceling any
-     * previously scheduled calls.
-     */
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
+    }
+
+    @Override
+    public void updateChatMessage(Chat chat) {
+        list.add(chat);
+        adapterChat.notifyDataSetChanged();
+    }
+
+    @Override
+    public void updateUserExit(String userId) {
+        if (!userId.trim().equals(Enviroment.user.getUserId().toString().trim())) {
+            for (User us : Enviroment.phong.getUsers()) {
+                if (us.getUserId().trim().equals(userId)) {
+                    System.out.println(us.getUserId() + "id ne");
+                    RemoveUserList(us);
+                    RemoveUser(us);
+                    break;
+                }
+
+
+            }
+        } else {
+            Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void updateUserReady(int number) {
+        if (number  == 1) {
+            //countUserReady=0;
+            btnBatDau.setAlpha(1);
+            btnBatDau.setEnabled(true);
+        } else {
+            //countUserReady=0;
+            btnBatDau.setAlpha(0.3f);
+            btnBatDau.setEnabled(false);
+        }
+    }
+
+    @Override
+    public void updateOK(boolean flag) {
+        if (flag == false) {
+            OntouchUser(userRoomList);
+            linearLayoutChat.setVisibility(View.INVISIBLE);
+            imgNhanVat.setVisibility(View.INVISIBLE);
+            txtThoiGian.setVisibility(View.INVISIBLE);
+            linearLayoutTreoCo.setVisibility(View.INVISIBLE);
+            linearLayoutListUser.setVisibility(View.VISIBLE);
+            resetLaiGameMoi();
+            if(host==true){
+                btnBatDau.setVisibility(View.VISIBLE);
+            }
+            else {
+                btnSS.setVisibility(View.VISIBLE);
+            }
+        } else {
+            XuLyLuot(1, true);
+            DemGiay(20);
+        }
+    }
+
+    @Override
+    public void updateNewUserJoinRoom(User user) {
+        if (user.getUserId().equals(Enviroment.user.getUserId()) == false) {
+            AddUser(user);
+            listUser.add(user);
+            Enviroment.phong.getUsers().add(user);
+            Enviroment.phong.setPeople(Enviroment.phong.getPeople() + 1);
+        }
+    }
+
+    @Override
+    public void updateTime(String time) {
+        txtThoiGian.setText(time);
+    }
+
+    @Override
+    public void updateUserDie(String userId) {
+            if (userId.equals(Enviroment.user.getUserId())) {
+                die = true;
+            } else {
+                for (UserRoom text : userRoomList) {
+                    if(text.getUseradd()!=null)
+                    {
+                        if (text.getUseradd().getUserId().toString().equals(userId)) {
+                            setDieUser(text);
+                            break;
+                        }
+                    }
+
+                }
+            }
+    }
+
+    @Override
+    public void updateNhanVat(NhanVat nhanVat) {
+        nhanvat = nhanVat;
+        System.out.println(nhanvat.getId());
+        setImageNhanVat(nhanvat.getManv());
+    }
+
+    @Override
+    public void updateLuotDB(int luot) {
+        if (luot != 0) {
+            if (luot == 1) {
+                linearLayoutChat.setVisibility(View.INVISIBLE);
+                listChat.setVisibility(View.INVISIBLE);
+                linearLayoutKhungChat.setVisibility(View.INVISIBLE);
+
+            }
+            if (luot == 7) {
+                if (die == false) {
+                    if (Enviroment.user.getUserId().toString().trim().equals(IDBoPhieu) == false) {
+                        System.out.println("toi luot 7");
+                        btnGiet.setVisibility(View.VISIBLE);
+                        btnKhongGiet.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+            HienThiLuot(luot);
+        } else {
+            txtLuot.setText("");
+        }
+    }
+
+    @Override
+    public void updateKetQuaBoPhieu(int kq) {
+        if (kq != 0) {
+            if (kq == 1) {
+                countYes++;
+            } else {
+                countNo++;
+            }
+        }
+        if (countNo + countYes == (listUserInGame.size() - 1)) {
+            if (countYes > countNo) {
+                giet = true;
+                countNo = 0;
+                countYes = 0;
+            }
+            manv = 9;
+            handlerMaSoi.sendEmptyMessage(0);
+        }
+
+    }
+
+    @Override
+    public void updateIdTientriChon(String id) {
+        manv = 6;
+        idTienTriChon = id;
+        handlerMaSoi.sendEmptyMessage(0);
+    }
+
+    @Override
+    public void updateIdMaSoiChon(String id) {
+        manv = 1;
+        listIdMaSoichon.add(id);
+        handlerMaSoi.sendEmptyMessage(0);
+    }
+
+    @Override
+    public void updateIdThoSanChon(String id) {
+        manv = 3;
+        idThoSanChon = id;
+        handlerMaSoi.sendEmptyMessage(0);
+    }
+
+    @Override
+    public void updateIdBaoVeChon(String id) {
+        manv = 4;
+        idBaoVeChon = id;
+        handlerMaSoi.sendEmptyMessage(0);
+    }
+
+    @Override
+    public void updateIdBiGiet(String id) {
+        listAllChon.add(id);
+        if (listAllChon.size() == listUserInGame.size()) {
+            manv = 8;
+            handlerMaSoi.sendEmptyMessage(0);
+        }
+    }
+
+    @Override
+    public void updateNhanVatSang(int nv) {
+        if (nhanvat.getManv() == nv) {
+            txtThoiGian.setVisibility(View.VISIBLE);
+            DemGiay(30);
+            AddClickUser("BangChonChucNang");
+            if (nhanvat.getManv() == 1) {
+                OntouchUser(userRoomListDanThuong);
+            } else {
+                OntouchUser(userRoomListSong);
+            }
+        }
+    }
+
+    @Override
+    public void updateNhanVatTat(int nv) {
+        if (nhanvat.getManv() == nv) {
+            if (nhanvat.getManv() == 1) {
+                OffTouchUser(userRoomListDanThuong);
+                txtThoiGian.setVisibility(View.INVISIBLE);
+            } else {
+                OffTouchUser(userRoomListSong);
+                txtThoiGian.setVisibility(View.INVISIBLE);
+            }
+        }
+    }
+
+    @Override
+    public void updateAllChat(boolean flag) {
+        if (flag == true && die == false) {
+            linearLayoutChat.setVisibility(View.VISIBLE);
+            findViewById(R.id.lnrkhungchat).setVisibility(View.VISIBLE);
+            listChat.setVisibility(View.VISIBLE);
+            txtThoiGian.setVisibility(View.VISIBLE);
+            flagchat = true;
+            DemGiay(30);
+        } else {
+            linearLayoutChat.setVisibility(View.INVISIBLE);
+            findViewById(R.id.lnrkhungchat).setVisibility(View.INVISIBLE);
+            listChat.setVisibility(View.INVISIBLE);
+            txtThoiGian.setVisibility(View.INVISIBLE);
+            flagchat = false;
+        }
+    }
+
+    @Override
+    public void updateAllManhinh(boolean flag) {
+        if (flag == true) {
+            if (die == false) {
+                OntouchUser(userRoomListSong);
+                AddClickUser("BangIdChon");
+            }
+
+        } else {
+            OffTouchUser(userRoomListSong);
+        }
+    }
+
+    @Override
+    public void updateBangIdChon(String id) {
+        if (id.equals(Enviroment.user.getUserId())) {
+            linearLayoutListUser.setVisibility(View.INVISIBLE);
+            linearLayoutChat.setVisibility(View.VISIBLE);
+            findViewById(R.id.lnrkhungchat).setVisibility(View.VISIBLE);
+            linearLayoutTreoCo.setVisibility(View.VISIBLE);
+            btnGiet.setVisibility(View.INVISIBLE);
+            btnKhongGiet.setVisibility(View.INVISIBLE);
+            listChat.setVisibility(View.VISIBLE);
+            txtTreoCo.setText(Enviroment.user.getName());
+            flagBiBoPhieu=true;
+        } else {
+            if (!id.equals("A")) {
+                findViewById(R.id.lnrkhungchat).setVisibility(View.INVISIBLE);
+                linearLayoutListUser.setVisibility(View.INVISIBLE);
+                btnKhongGiet.setVisibility(View.INVISIBLE);
+                btnGiet.setVisibility(View.INVISIBLE);
+                linearLayoutTreoCo.setVisibility(View.VISIBLE);
+                linearLayoutChat.setVisibility(View.VISIBLE);
+                listChat.setVisibility(View.VISIBLE);
+
+                for (User user : listUser) {
+                    if (user.getUserId().equals(id)) {
+                        txtTreoCo.setText(user.getName());
+                        break;
+                    }
+                }
+            }
+        }
     }
 }

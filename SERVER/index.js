@@ -261,10 +261,18 @@ io.on("connection", function (socket) {
         var json = JSON.parse(data);
         Room.findOne({ _id: json.id_room }, function (err, doc) {
             if(doc.users.length==7){
-                socket.emit("FullPeople",true);
+                var response = {
+                    flag : true,
+                    room : doc
+                }
+                socket.emit("FullPeople",response);
             }
             else{
-                socket.emit("FullPeople",false);
+                var response = {
+                    flag : false,
+                    room : doc
+                }
+                socket.emit("FullPeople",response);
                 var user = new User(
                     {
                         userId: json.userId,
