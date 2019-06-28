@@ -10,7 +10,7 @@ var mongoose = require("mongoose");
 let User = require('./models/UserModel');
 let Room = require('./models/RoomModel');
 let UserStore = require('./models/UserStore');
-let UserFriends=require('./models/UserFriends');
+let UserFriends = require('./models/UserFriends');
 let FeedBack = require('./models/FeedBackModel');
 var PORT = process.env.PORT || 3000
 const versionName = '1.0'
@@ -18,6 +18,7 @@ server.listen(PORT);
 var fs = require('fs');
 var http = require('http');
 var path = require('path');
+var roomarr = new Array();
 http.createServer(function (req, res) {
     if (req.url.match(/.jpg$/)) {
         var imgPath = path.join(__dirname, 'image', req.url);
@@ -32,7 +33,7 @@ io.on("connection", function (socket) {
     //join room cho web test
     socket.join("TPv1zwikUlbUR7zp8lYZoRnPTWl1");
     socket.Phong = "TPv1zwikUlbUR7zp8lYZoRnPTWl1";
-    socket.UserFriends="TPv1zwikUlbUR7zp8lYZoRnPTWl1";
+    socket.UserFriends = "TPv1zwikUlbUR7zp8lYZoRnPTWl1";
     console.log("co nguoi ket noi den server");
     socket.on("disconnect", function () {
         console.log("ngat ket noi toi server");
@@ -43,6 +44,7 @@ io.on("connection", function (socket) {
         console.log(data);
         socket.emit("CheckVersionName", versionName);
     })
+    socket.emit("updateversion", versionName);
 
 
     //signup
@@ -151,9 +153,8 @@ io.on("connection", function (socket) {
                     }
                 })
             }
-            else
-            {
-                socket.emit("LonginSuccess",data);
+            else {
+                socket.emit("LonginSuccess", data);
             }
         })
     })
@@ -171,12 +172,12 @@ io.on("connection", function (socket) {
             }
             else {
                 doc.name = json.name;
-                doc.save((err)=>{
+                doc.save((err) => {
                     console.log("Thanh cong");
                     console.log(doc);
                     socket.emit("Registnickname", doc);
                 })
-                
+
             }
         })
     })
@@ -219,6 +220,7 @@ io.on("connection", function (socket) {
                 }
             }
         );
+        //socket.emit("allroom", roomarr);
     });
 
     //create room
@@ -249,6 +251,7 @@ io.on("connection", function (socket) {
                         io.sockets.emit("newroom", data);
                         console.log(socket.Phong);
                         console.log("Them thanh cong");
+                        roomarr.push(data);
                     }
                 });
 
@@ -296,92 +299,114 @@ io.on("connection", function (socket) {
                     }
                 });
             }
-            
+
         });
+        // roomarr.forEach(element => {
+        //     if (element._id == json.id_room) {
+        //         if (element.users.length == 7) {
+        //             var response = {
+        //                 flag: true,
+        //                 room: element
+        //             }
+        //             socket.emit("FullPeople", response);
+        //         }
+        //         else {
+        //             var response = {
+        //                 flag: false,
+        //                 room: element
+        //             }
+        //             socket.emit("FullPeople", response);
+        //             var user = new User(
+        //                 {
+        //                     userId: json.userId,
+        //                     name: json.name,
+        //                     fullname: json.fullname,
+        //                     id_room: json.id_room
+        //                 }
+        //             );
+        //             element.users.push(user);
+        //             element.people = element.people + 1;
+        //             socket.join(json.id_room);
+        //             socket.Phong = json.id_room;
+        //             io.sockets.in(json.id_room).emit("newuser", user);
+        //             console.log(socket.Phong);
+        //             console.log("Thanh Cong!");
+        //         }
+        //     }
+        // });
     });
-        //all user
-    socket.on("alluser",function()
-    {
+    //all user
+    socket.on("alluser", function () {
         console.log("that all user");
         User.find(
-            (err,doc)=>
-            {
-                if(err)
-                {
+            (err, doc) => {
+                if (err) {
                     console.log("that bai");
                 }
-                else
-                {
-                    socket.emit("alluser",doc);
+                else {
+                    socket.emit("alluser", doc);
                     console.log("thanh cong");
                 }
             }
         );
     });
- //user friend
-    socket.on("alluserfriend",function()
-    {
+    //user friend
+    socket.on("alluserfriend", function () {
         console.log("that all user");
         UserFriends.find(
-            (err,doc)=>
-            {
-                if(err)
-                {
+            (err, doc) => {
+                if (err) {
                     console.log("that bai");
-                    
+
                 }
-                else
-                {
-                    socket.emit("alluserfriend",doc);
+                else {
+                    socket.emit("alluserfriend", doc);
                     console.log("thanh cong");
                 }
             }
         );
     });
-     //create user friends
-     socket.on("createUserFriend",function(data)
-     {
-         var ketqua =false;
-         console.log("create friend");
-         var json =JSON.parse(data);
-         var userfriend=new UserFriends({
-                 friend_no:json.friend_no,
-                 userId1:json.userId1,
-                 userId2:json.userId2,
-                 users :json.users,
-                 regist_dt:json.regist_dt
+    //create user friends
+    socket.on("createUserFriend", function (data) {
+        var ketqua = false;
+        console.log("create friend");
+        var json = JSON.parse(data);
+        var userfriend = new UserFriends({
+            friend_no: json.friend_no,
+            userId1: json.userId1,
+            userId2: json.userId2,
+            users: json.users,
+            regist_dt: json.regist_dt
 
-         });
-         userfriend.save((err)=>{
-                 if(err){
+        });
+        userfriend.save((err) => {
+            if (err) {
 
-                     console.log(" add user friends  fail");
-                 }else
-                 {
-                     UserFriends.findOne({friend_no:json.friend_no},function(err,data){
-                         if(err){
-                             console.log("fail ");
-                             ketqua=false;
-                         }else
-                         {
-                             console.log("tc ");
-                            
-                             callback(constants.success.msg_reg_success);
-                             socket.UserFriends="";
-                             socket.UserFriends=data.friend_no;
-                             ketqua=true;
-                         }
-                         socket.emit('ketquakb',{noidung: ketqua});
-                     });
+                console.log(" add user friends  fail");
+            } else {
+                UserFriends.findOne({ friend_no: json.friend_no }, function (err, data) {
+                    if (err) {
+                        console.log("fail ");
+                        ketqua = false;
+                    } else {
+                        console.log("tc ");
 
-                 }
-         })
-         
-     })
-     //chat user
-     socket.on("ChatUser",function(data){
-         io.sockets.in(socket.UserFriends).emit("ChatUser",data);
-     });
+                        callback(constants.success.msg_reg_success);
+                        socket.UserFriends = "";
+                        socket.UserFriends = data.friend_no;
+                        ketqua = true;
+                    }
+                    socket.emit('ketquakb', { noidung: ketqua });
+                });
+
+            }
+        })
+
+    })
+    //chat user
+    socket.on("ChatUser", function (data) {
+        io.sockets.in(socket.UserFriends).emit("ChatUser", data);
+    });
     //user ready
     socket.on("ready", function (data) {
         io.sockets.in(socket.Phong).emit("ready", data);
@@ -528,7 +553,7 @@ io.on("connection", function (socket) {
                         console.log("That bai! 1");
                     }
                     else {
-                        id = doc.users[0].userId;
+                        id = doc.users[1].userId;
                         console.log("thanh cong!");
                         if (doc.users.length == 1) {
                             Room.deleteOne({ _id: socket.Phong }, function (err) {
@@ -537,14 +562,14 @@ io.on("connection", function (socket) {
                                 }
                                 else {
                                     console.log("Thanh cong!");
-                                    io.sockets.emit("DeleteRoom",socket.Phong);
+                                    io.sockets.emit("DeleteRoom", socket.Phong);
                                     socket.leave(socket.Phong);
-                                    
-        
+
+
                                 }
                             });
-        
-        
+
+
                         }
                         else {
                             Room.update(
@@ -559,6 +584,7 @@ io.on("connection", function (socket) {
                                         console.log("Thanh cong !");
                                         io.sockets.in(socket.Phong).emit("userexit", data);
                                         io.sockets.in(socket.Phong).emit("useruphost", id);
+                                        console.log(id);
                                         socket.leave(socket.Phong);
                                         // socket.Phong="";
                                     }
@@ -567,21 +593,21 @@ io.on("connection", function (socket) {
                         }
                     }
                 });
-                
+
 
 
             }
         });
     });
 
-    socket.on("feedback",function(data){
+    socket.on("feedback", function (data) {
         var json = JSON.parse(data);
         var feedback = new FeedBack({
-            email : json.email,
-            message : json.message
+            email: json.email,
+            message: json.message
         });
-        feedback.save((err)=>{
-            if(err){
+        feedback.save((err) => {
+            if (err) {
                 console.log("Failfull");
             }
             else {
@@ -590,22 +616,22 @@ io.on("connection", function (socket) {
         })
     });
 
-    socket.on("updateuserinfo",function(data){
+    socket.on("updateuserinfo", function (data) {
         var json = JSON.parse(data);
-        User.findOne({userId : json.userId},(err,doc)=>{
-            if(err){
+        User.findOne({ userId: json.userId }, (err, doc) => {
+            if (err) {
                 console.log("Fail!");
             }
-            else{
+            else {
                 doc.address = json.address;
                 doc.birthday = json.birthday;
                 doc.fullname = json.fullname;
                 doc.email = json.email;
                 doc.phone_number = json.phone_number;
-                doc.save((err)=>{
-                    if(err){
+                doc.save((err) => {
+                    if (err) {
                         console.log("Fail");
-                    }else{
+                    } else {
                         console.log("Success");
                     }
                 });
@@ -690,7 +716,7 @@ let options = {
     pass: 'admin'
 };
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/MasoiDB',options).then(
+mongoose.connect('mongodb://localhost:27017/MasoiDB', options).then(
     () => {
         console.log("connect Db Succes");
     },

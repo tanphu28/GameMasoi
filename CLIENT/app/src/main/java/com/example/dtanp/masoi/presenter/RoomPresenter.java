@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
 
+import com.example.dtanp.masoi.BanActivity;
 import com.example.dtanp.masoi.ChooseRoomActivity;
 import com.example.dtanp.masoi.HostActivity;
 import com.example.dtanp.masoi.R;
@@ -22,6 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RoomPresenter {
@@ -103,7 +105,11 @@ public class RoomPresenter {
     }
 
     public void emitUserHostExit(String userId){
-        this.socket.emit("userhostexit", Enviroment.user.getUserId());
+        this.socket.emit("userhostexit", userId);
+    }
+
+    public void emitUserExit(String userId){
+        this.socket.emit("userexit", userId);
     }
 
     public void emitKickUser(String userId){
@@ -151,6 +157,10 @@ public class RoomPresenter {
         this.socket.on("time",listener);
     }
 
+    public void emitTime(int time){
+        this.socket.emit("time",time+"");
+    }
+
     public void listenUserDie(){
         Emitter.Listener listener = new Emitter.Listener() {
             @Override
@@ -187,19 +197,21 @@ public class RoomPresenter {
                         String json = (String) args[0];
                         JSONArray jsonArray = null;
                         try {
+                            ArrayList<NhanVat> list = new ArrayList<>();
                             jsonArray = new JSONArray(json);
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 try {
                                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                                     NhanVat nv = Enviroment.gson.fromJson(jsonObject.toString(), NhanVat.class);
+                                    list.add(nv);
                                     if (nv.getId().toString().trim().equals(Enviroment.user.getUserId().trim())) {
                                         roomView.updateNhanVat(nv);
                                     }
-
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
+                            roomView.updateListNhanVat(list);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -419,7 +431,7 @@ public class RoomPresenter {
                     @Override
                     public void run() {
                         boolean flag = (boolean) args[0];
-
+                        roomView.updateOK(flag);
                     }
                 });
 
@@ -431,5 +443,46 @@ public class RoomPresenter {
     public void emitReady(int number){
         this.socket.emit("ready", number);
     }
+
+    public void listenKickUser() {
+        Emitter.Listener listener = new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String id = (String) args[0];
+                        if (Enviroment.user.getUserId().trim().equals(id)) {
+                            socket.emit("userexit", Enviroment.user.getUserId() + "");
+                            Enviroment.phong.getUsers().clear();
+                            Enviroment.phong = null;
+                            Enviroment.user.setId_room("");
+                            roomView.updateLeaveRoom();
+                        }
+                    }
+                });
+            }
+        };
+        this.socket.on("leaveroom", listener);
+    }
+
+    public void listenUserUpHost(){
+        Emitter.Listener listener= new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String id = (String) args[0];
+                        if (Enviroment.user.getUserId().equals(id)){
+                            roomView.updateHost();
+                        }
+                    }
+                });
+            }
+        };
+        this.socket.on("useruphost",listener);
+    }
+
 
 }

@@ -4,6 +4,8 @@ import com.example.dtanp.masoi.model.Chat;
 import com.example.dtanp.masoi.model.NhanVat;
 import com.example.dtanp.masoi.model.User;
 
+import java.util.ArrayList;
+
 public interface RoomView {
     public void updateChatMessage(Chat chat);
     public void updateUserExit(String userId);
@@ -25,4 +27,7 @@ public interface RoomView {
     public void updateAllChat(boolean flag);
     public void updateAllManhinh(boolean flag);
     public void updateBangIdChon(String id);
+    public void updateLeaveRoom();
+    public void updateHost();
+    public  void updateListNhanVat(ArrayList<NhanVat> list);
 }

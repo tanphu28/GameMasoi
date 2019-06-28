@@ -8,12 +8,12 @@ import java.net.URISyntaxException;
 
 public class SocketSingleton {
     private static Socket instance;
-    private static String HOST = "http://192.168.1.6:3000" ;
+    public static String HOST="192.168.1.8"; ;
 
     public static Socket getInstance() {
         if (instance==null){
             try {
-                instance = IO.socket(HOST);
+                instance = IO.socket("http://"+HOST.trim()+":3000");
                 instance.connect();
             } catch (URISyntaxException e) {
                 e.printStackTrace();

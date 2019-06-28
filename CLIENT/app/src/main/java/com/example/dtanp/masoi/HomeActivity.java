@@ -5,6 +5,8 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.DataSetObserver;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -37,6 +39,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,6 +116,7 @@ public class HomeActivity extends Activity implements HomeView {
     ImageButton imgsearch;
     Emitter.Listener eListenerAllUser;
     private HomePresenter homePresenter;
+    private TextView txtPing;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,7 +130,7 @@ public class HomeActivity extends Activity implements HomeView {
         AddConTrols();
         homePresenter.listenAllChat();
         txtUser.setText(Enviroment.user.getName());
-
+        inSomeWhere();
     }
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -187,44 +193,10 @@ public class HomeActivity extends Activity implements HomeView {
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
         this.recyclerView.setAdapter(mRcvAdapter);
-
-
-        //updatelisuserfreinds
-//        eListenerAllUser = new Emitter.Listener() {
-//            @Override
-//            public void call(final Object... args) {
-//                HomeActivity.this.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        JSONArray jsonObject = (JSONArray) args[0];
-//                        System.out.println(jsonObject.toString());
-//                        for (int i =0;i<jsonObject.length();i++)
-//                        {
-//                            try {
-//
-//                                JSONObject jsonObject1 = jsonObject.getJSONObject(i);
-//                                System.out.println(jsonObject1.toString());
-//                                UserFriends user = Enviroment.gson.fromJson(jsonObject1.toString(),UserFriends.class);
-//                                if(Enviroment.user.getUserId().equals(user.getUserId1())){
-//                                    list.add(user);
-//                                }
-//
-//                            } catch (JSONException e) {
-//                                e.printStackTrace();
-//                            }
-//
-//                        }
-//                        mRcvAdapter.notifyDataSetChanged();
-//
-//                    }
-//
-//                });
-//            }
-//        };
-//        Enviroment.socket.on("alluserfriend",eListenerAllUser);
         homePresenter.listenGetAllUserFreinds();;
 
         homePresenter.emitGetAllUserFreinds();
+        txtPing = findViewById(R.id.txtPing);
     }
 
     private void AddConTrols() {
@@ -395,5 +367,52 @@ public class HomeActivity extends Activity implements HomeView {
     public void addChatMessage(Chat chat) {
         listChat.add(chat);
         adapterChat.notifyDataSetChanged();
+    }
+
+    public void inSomeWhere() {
+        new AsyncTask<Void, String, String>() {
+            @Override
+            protected String doInBackground(Void... voids) {
+                while (1==1) {
+                    String ip = "www.google.com";
+                    String pingResult = "  ";
+                    String pingCmd = "ping" + ip;
+
+                    Runtime r = Runtime.getRuntime();
+                    Process p = null;
+                    try {
+                        p = r.exec(new String[]{"ping", "-c 3", ip});
+                        BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                        String inputLine = null;
+                        while (true) {
+                            try {
+                                if (!((inputLine = in.readLine()) != null))
+                                    break;
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            pingResult = inputLine;
+                        }
+                        in.close();
+                        publishProgress(pingResult);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            protected void onProgressUpdate(String... values) {
+                super.onProgressUpdate(values);
+                String[] s = values[0].split("/");
+                int ping  = (int) Double.parseDouble(s[4]);;
+                txtPing.setText(ping + "ms");
+                if (ping>35){
+                    txtPing.setTextColor(Color.RED);
+                }else {
+                    txtPing.setTextColor(Color.GREEN);
+                }
+            }
+        }.execute();
     }
 }

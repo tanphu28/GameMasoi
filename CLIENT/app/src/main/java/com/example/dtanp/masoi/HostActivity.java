@@ -153,6 +153,8 @@ public class HostActivity extends Activity implements RoomView {
         else
         {
             btnSS.setVisibility(View.VISIBLE);
+            roomPresenter.listenKickUser();
+            roomPresenter.listenUserUpHost();
         }
 
     }
@@ -268,7 +270,12 @@ public class HostActivity extends Activity implements RoomView {
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                roomPresenter.emitUserHostExit(Enviroment.user.getUserId());
+                if(host==true){
+                    roomPresenter.emitUserHostExit(Enviroment.user.getUserId());
+                }
+                else{
+                    roomPresenter.emitUserExit(Enviroment.user.getUserId());
+                }
                 Enviroment.phong.getUsers().clear();
                 Enviroment.phong = null;
                 Enviroment.user.setId_room("");
@@ -536,7 +543,7 @@ public class HostActivity extends Activity implements RoomView {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-                Enviroment.socket.emit("time",dem);
+                roomPresenter.emitTime(dem);
                 if (dem < 0) {
                     if (flagchat == true) {
                         manv = 7;
@@ -594,8 +601,8 @@ public class HostActivity extends Activity implements RoomView {
                 nv.setManv(4);
                 nv.setResource(R.drawable.imgbaove);
             } else if (i == 6) {
-                userTienTri = listUserRandom.get(k);
-                listUserDanLang.add(listUserRandom.get(k));
+                userTienTri = listUserRandom.get(0);
+                listUserDanLang.add(listUserRandom.get(0));
                 nv.setManv(6);
                 nv.setResource(R.drawable.imgtientri);
 
@@ -1120,6 +1127,8 @@ public class HostActivity extends Activity implements RoomView {
             btnBatDau.setEnabled(false);
         }
     }
+   boolean flagStart = false;
+
 
     @Override
     public void updateOK(boolean flag) {
@@ -1138,10 +1147,20 @@ public class HostActivity extends Activity implements RoomView {
                 btnSS.setVisibility(View.VISIBLE);
             }
         } else {
-            XuLyLuot(1, true);
-            DemGiay(20);
+            if(host==true){
+                btnBatDau.setVisibility(View.INVISIBLE);
+                XuLyLuot(1, true);
+                DemGiay(20);
+            }
+            else {
+                OffTouchUser(userRoomList);
+                flagStart = true;
+                btnSS.setVisibility(View.INVISIBLE);
+            }
+
         }
     }
+
 
     @Override
     public void updateNewUserJoinRoom(User user) {
@@ -1353,5 +1372,30 @@ public class HostActivity extends Activity implements RoomView {
                 }
             }
         }
+    }
+
+    @Override
+    public void updateLeaveRoom() {
+        Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
+        startActivity(intent);
+        finishAffinity();
+    }
+
+    @Override
+    public void updateHost() {
+        host=true;
+        getHost();
+        btnSS.setVisibility(View.INVISIBLE);
+        btnBatDau.setVisibility(View.VISIBLE);
+        Toast.makeText(this,"talahost",Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void updateListNhanVat(ArrayList<NhanVat> list) {
+        for (NhanVat nv : list){
+            listNhanVat.add(nv);
+        }
+        getListXuLy();
+        getTextViewAddList();
     }
 }

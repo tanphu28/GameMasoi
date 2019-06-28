@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -29,6 +30,7 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.example.dtanp.masoi.appinterface.LoginView;
 import com.example.dtanp.masoi.appinterface.API;
+import com.example.dtanp.masoi.appservice.UpdateService;
 import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.presenter.LoginPresenter;
 import com.facebook.AccessToken;
@@ -55,12 +57,17 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
+
 import io.fabric.sdk.android.Fabric;
+
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 
@@ -76,7 +83,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private LinearLayout Prof_section;
     private Button SignOut;
     private SignInButton SignIn;
-    private TextView Name,Email;
+    private TextView Name, Email;
     private ImageView Prof_pic;
     private GoogleSignInClient mGoogleSignInClient;
     private GoogleApiClient googleApiClient;
@@ -146,15 +153,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     boolean isOK = false;
     AlertDialog dialog;
     String userId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_login);
-        loginPresenter = new LoginPresenter(MainActivity.this,MainActivity.this);
+        loginPresenter = new LoginPresenter(MainActivity.this, MainActivity.this);
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
-        SignIn=findViewById(R.id.btn_login);
+        SignIn = findViewById(R.id.btn_login);
         SignIn.setOnClickListener(this);
 
         //fb login
@@ -178,12 +186,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                                     @Override
                                     public void onCompleted(JSONObject me, GraphResponse response) {
                                         if (response.getError() != null) {
-                                            Toast.makeText(MainActivity.this,"Login Fail!",Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(MainActivity.this, "Login Fail!", Toast.LENGTH_SHORT).show();
                                         } else {
                                             userId = me.optString("id");
-                                            String name =me.optString("name");
-                                            loginPresenter.emitLoginFB(userId,name);
-                                            Toast.makeText(MainActivity.this,"Login Success!",Toast.LENGTH_SHORT).show();
+                                            String name = me.optString("name");
+                                            loginPresenter.emitLoginFB(userId, name);
+                                            Toast.makeText(MainActivity.this, "Login Success!", Toast.LENGTH_SHORT).show();
                                             Enviroment.METHOD_LOGIN = 2;
                                         }
                                     }
@@ -202,16 +210,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     }
                 });
         //google
-        GoogleSignInOptions signInOptions =new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
 
-        mGoogleSignInClient= GoogleSignIn.getClient(this, signInOptions);
-        googleApiClient=new GoogleApiClient.Builder(this).enableAutoManage(this,this).addApi(
-                Auth.GOOGLE_SIGN_IN_API,signInOptions
+        mGoogleSignInClient = GoogleSignIn.getClient(this, signInOptions);
+        googleApiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, this).addApi(
+                Auth.GOOGLE_SIGN_IN_API, signInOptions
         ).build();
 
         database = FirebaseDatabase.getInstance();
         auth = FirebaseAuth.getInstance();
-        Enviroment.gson=new Gson();
+        Enviroment.gson = new Gson();
         createDialogUpdate();
         try {
             PackageInfo pInfo = MainActivity.this.getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -227,28 +235,28 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         loginPresenter.listenLogin();
         loginPresenter.listenRegister();
         loginPresenter.emitCheckVersionName();
+        startService(new Intent(this, UpdateService.class));
 
     }
+
     private static TextView textCheck;
-    public  void  AddDialog(){
+
+    public void AddDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         LayoutInflater layoutInflater = getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.dialog_nickname,null);
+        View view = layoutInflater.inflate(R.layout.dialog_nickname, null);
         builder.setView(view);
         Button btnCheck = view.findViewById(R.id.btnCheck);
-        Button btnOK = view . findViewById(R.id.btnApply);
+        Button btnOK = view.findViewById(R.id.btnApply);
         final EditText edtNickname = view.findViewById(R.id.nickName);
         textCheck = view.findViewById(R.id.textCheck);
         btnCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!edtNickname.getText().toString().trim().equals(""))
-                {
+                if (!edtNickname.getText().toString().trim().equals("")) {
                     loginPresenter.emitCheckUser(edtNickname.getText().toString().trim());
-                }
-                else
-                {
-                    Toast.makeText(MainActivity.this,"nick name is not empty !",Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "nick name is not empty !", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -256,13 +264,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isOK && !edtNickname.getText().toString().trim().equals(""))
-                {
-                    loginPresenter.registNicknameLoginFb(userId,edtNickname.getText().toString().trim());
-                }
-                else
-                {
-                    Toast.makeText(MainActivity.this,"Unsuccessful!",Toast.LENGTH_SHORT).show();
+                if (isOK && !edtNickname.getText().toString().trim().equals("")) {
+                    loginPresenter.registNicknameLoginFb(userId, edtNickname.getText().toString().trim());
+                } else {
+                    Toast.makeText(MainActivity.this, "Unsuccessful!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -275,15 +280,15 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private void signIn() {
         Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
-        startActivityForResult(intent,REC_CODE);
+        startActivityForResult(intent, REC_CODE);
         googleApiClient.connect();
     }
-    private void updateUI(boolean isLogin){
-        if(isLogin){
+
+    private void updateUI(boolean isLogin) {
+        if (isLogin) {
             Prof_section.setVisibility(View.VISIBLE);
             SignIn.setVisibility(View.GONE);
-        }else
-        {
+        } else {
             Prof_section.setVisibility(View.GONE);
             SignIn.setVisibility(View.VISIBLE);
         }
@@ -293,25 +298,26 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         callbackManager.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==REC_CODE){
-            GoogleSignInResult result= Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            Toast.makeText(MainActivity.this,result.getStatus().toString()+"",Toast.LENGTH_SHORT).show();
+        if (requestCode == REC_CODE) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            Toast.makeText(MainActivity.this, result.getStatus().toString() + "", Toast.LENGTH_SHORT).show();
             handleSignInResult(result);
 
         }
 
 
     }
+
     private void handleSignInResult(GoogleSignInResult result) {
-        Toast.makeText(MainActivity.this,result.isSuccess()+"",Toast.LENGTH_SHORT).show();
-        if(result.isSuccess()){
-            GoogleSignInAccount account=result.getSignInAccount();
-            String name =account.getDisplayName();
-            String email=account.getEmail();
-            userId =email;
-            loginPresenter.emitLoginFB(email,name);
-            Toast.makeText(MainActivity.this,"Login Success!",Toast.LENGTH_SHORT).show();
-        }else{
+        Toast.makeText(MainActivity.this, result.isSuccess() + "", Toast.LENGTH_SHORT).show();
+        if (result.isSuccess()) {
+            GoogleSignInAccount account = result.getSignInAccount();
+            String name = account.getDisplayName();
+            String email = account.getEmail();
+            userId = email;
+            loginPresenter.emitLoginFB(email, name);
+            Toast.makeText(MainActivity.this, "Login Success!", Toast.LENGTH_SHORT).show();
+        } else {
             updateUI(false);
         }
 
@@ -320,7 +326,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     @Override
     public void onClick(View v) {
 
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.btn_login:
                 signIn();
                 Enviroment.METHOD_LOGIN = 3;
@@ -331,12 +337,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         if (id == R.id.btnlogin) {
             String username = edtuser.getText().toString().trim();
             String pass = edtpassworld.getText().toString().trim();
-            loginPresenter.login(username,pass);
+            loginPresenter.login(username, pass);
         }
     }
 
 
-    public void  createDialogUpdate(){
+    public void createDialogUpdate() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Update Version Android");
         builder.setMessage("You must update version app!");
@@ -346,10 +352,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 downloadfile();
             }
         });
+        builder.setCancelable(false);
         dialogUpdate = builder.create();
     }
 
-    public  void downloadfile(){
+    public void downloadfile() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://192.168.1.9:3000/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -363,15 +370,15 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     boolean writtenToDisk = writeResponseBodyToDisk(response.body());
-                    Toast.makeText(MainActivity.this,"Download Successfully",Toast.LENGTH_SHORT).show();
-                    if(writtenToDisk){
+                    Toast.makeText(MainActivity.this, "Download Successfully", Toast.LENGTH_SHORT).show();
+                    if (writtenToDisk) {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         intent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/app.apk")), "application/vnd.android.package-archive");
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
                     }
                 } else {
-                    Toast.makeText(MainActivity.this,"Fail!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Fail!", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -417,7 +424,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
                 return true;
             } catch (IOException e) {
-                Log.d("CHIMERR",e.getMessage().toString());
+                Log.d("CHIMERR", e.getMessage().toString());
                 return false;
             } finally {
                 if (inputStream != null) {
@@ -429,7 +436,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 }
             }
         } catch (IOException e) {
-            Log.d("CHIMERR",e.getMessage().toString());
+            Log.d("CHIMERR", e.getMessage().toString());
             return false;
         }
     }
@@ -469,14 +476,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     }
 
-    public void startmhsignup()
-    {
-        Intent intent = new Intent(this,SignupActivity.class);
+    public void startmhsignup() {
+        Intent intent = new Intent(this, SignupActivity.class);
         startActivity(intent);
     }
-
-
-
 
 
     public void startmh() {
@@ -512,6 +515,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         super.onPostCreate(savedInstanceState);
         delayedHide(100);
     }
+
     private void hide() {
         // Hide UI first
         ActionBar actionBar = getActionBar();
@@ -561,12 +565,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     @Override
     public void checkUser(boolean flag) {
-        if(flag==true)
-        {
+        if (flag == true) {
             textCheck.setText("Nickname is use");
             isOK = true;
-        }
-        else {
+        } else {
             textCheck.setText("Nickname is Exists");
         }
     }
@@ -585,13 +587,15 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     @Override
     public void userLoginSuccess(boolean flag) {
-        if(flag==false)
-        {
-            Toast.makeText(MainActivity.this,"Username or PassWord incorrect",Toast.LENGTH_SHORT).show();
-        }
-        else {
+        if (flag == false) {
+            Toast.makeText(MainActivity.this, "Username or PassWord incorrect", Toast.LENGTH_SHORT).show();
+        } else {
             startmh();
             finish();
         }
     }
+
+
+
+
 }
