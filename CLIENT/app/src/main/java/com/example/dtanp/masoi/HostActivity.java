@@ -484,9 +484,12 @@ public class HostActivity extends Activity implements RoomView {
     }
 
     public void setDieUser(UserRoom text) {
-        text.getUser().setEnabled(false);
-        text.getUser().setImageResource(R.drawable.die);
-        text.getUser().setAlpha(0.3f);
+        if(text.getUser()!=null)
+        {text.getUser().setEnabled(false);
+            text.getUser().setImageResource(R.drawable.die);
+            text.getUser().setAlpha(0.3f);
+        }
+
     }
 
 
@@ -905,7 +908,10 @@ public class HostActivity extends Activity implements RoomView {
             text.getUser().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    timer.cancel();
+                    if (host==true)
+                    {
+                        timer.cancel();
+                    }
                     if (nhanvat.getManv() == 6) {
                         for (NhanVat nv : listNhanVat) {
                             if (text.getUseradd().getUserId().toString().equals(nv.getId().toString())) {
@@ -988,7 +994,7 @@ public class HostActivity extends Activity implements RoomView {
             removelistUserInGameID(idMaSoiChon);
             roomPresenter.emitUserDie(idMaSoiChon);
         }
-        if (listUserMaSoi.size() < 1) {
+        if (listUserMaSoi.size() == 0) {
             resetLaiGameMoi();
         } else if (listUserMaSoi.size() >= listUserDanLang.size()) {
             resetLaiGameMoi();
@@ -1206,6 +1212,8 @@ public class HostActivity extends Activity implements RoomView {
     public void updateLuotDB(int luot) {
         if (luot != 0) {
             if (luot == 1) {
+                linearLayoutKhungChat.setVisibility(View.INVISIBLE);
+
                 linearLayoutListUser.setVisibility(View.VISIBLE);
                 linearLayoutTreoCo.setVisibility(View.INVISIBLE);
                 linearLayoutChat.setVisibility(View.INVISIBLE);
