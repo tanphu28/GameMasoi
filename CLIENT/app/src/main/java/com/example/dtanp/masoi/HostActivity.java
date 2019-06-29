@@ -1210,6 +1210,10 @@ public class HostActivity extends Activity implements RoomView {
                 listChat.setVisibility(View.INVISIBLE);
                 linearLayoutKhungChat.setVisibility(View.INVISIBLE);
 
+                linearLayoutListUser.setVisibility(View.VISIBLE);
+                linearLayoutTreoCo.setVisibility(View.INVISIBLE);
+                linearLayoutChat.setVisibility(View.INVISIBLE);
+
             }
             if (luot == 7) {
                 if (die == false) {
@@ -1278,6 +1282,7 @@ public class HostActivity extends Activity implements RoomView {
     @Override
     public void updateIdBiGiet(String id) {
         listAllChon.add(id);
+        System.out.println(listAllChon.size() + " size " + listUserInGame.size());
         if (listAllChon.size() == listUserInGame.size()) {
             manv = 8;
             handlerMaSoi.sendEmptyMessage(0);
