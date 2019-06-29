@@ -1206,10 +1206,6 @@ public class HostActivity extends Activity implements RoomView {
     public void updateLuotDB(int luot) {
         if (luot != 0) {
             if (luot == 1) {
-                linearLayoutChat.setVisibility(View.INVISIBLE);
-                listChat.setVisibility(View.INVISIBLE);
-                linearLayoutKhungChat.setVisibility(View.INVISIBLE);
-
                 linearLayoutListUser.setVisibility(View.VISIBLE);
                 linearLayoutTreoCo.setVisibility(View.INVISIBLE);
                 linearLayoutChat.setVisibility(View.INVISIBLE);
@@ -1293,7 +1289,10 @@ public class HostActivity extends Activity implements RoomView {
     public void updateNhanVatSang(int nv) {
         if (nhanvat.getManv() == nv) {
             txtThoiGian.setVisibility(View.VISIBLE);
-            DemGiay(30);
+            if(host==true)
+            {
+                DemGiay(30);
+            }
             AddClickUser("BangChonChucNang");
             if (nhanvat.getManv() == 1) {
                 OntouchUser(userRoomListDanThuong);
@@ -1324,7 +1323,9 @@ public class HostActivity extends Activity implements RoomView {
             listChat.setVisibility(View.VISIBLE);
             txtThoiGian.setVisibility(View.VISIBLE);
             flagchat = true;
-            DemGiay(30);
+            if(host==true){
+                DemGiay(30);
+            }
         } else {
             linearLayoutChat.setVisibility(View.INVISIBLE);
             findViewById(R.id.lnrkhungchat).setVisibility(View.INVISIBLE);
