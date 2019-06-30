@@ -14,7 +14,7 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="60dp">
+            android:layout_height="55dp">
 
             <ImageButton
                 android:id="@+id/btnBack"
@@ -47,7 +47,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="230dp"
+            android:layout_height="205dp"
             android:orientation="horizontal">
 
 
@@ -66,7 +66,7 @@
                     <ListView
                         android:id="@+id/listChat"
                         android:layout_width="match_parent"
-                        android:layout_height="190dp"
+                        android:layout_height="180dp"
                         android:background="#FFF"
                         ></ListView>
 
@@ -115,7 +115,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="95dp"
 
             android:orientation="horizontal">
 
@@ -180,7 +180,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="360dp">
+            android:layout_height="337dp">
             <LinearLayout
                 android:id="@+id/lnrtreoco"
                 android:layout_width="match_parent"
@@ -220,15 +220,15 @@
             <LinearLayout
                 android:id="@+id/lnrlistUser"
                 android:layout_width="match_parent"
-                android:layout_height="360dp"
+                android:layout_height="345dp"
                 android:orientation="vertical"
 
                 >
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_marginTop="20dp"
-                    android:layout_height="120dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_height="110dp"
                     android:orientation="horizontal">
 
                     <LinearLayout
@@ -239,10 +239,10 @@
                         >
                     <ImageButton
                         android:id="@+id/btnUser1"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/image_user" />
 
@@ -252,7 +252,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:text=""
-                            android:textSize="20dp" />
+                            android:textSize="18dp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -263,10 +263,10 @@
                         >
                     <ImageButton
                         android:id="@+id/btnUser2"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/image_user" />
 
@@ -276,7 +276,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:text=""
-                        android:textSize="20dp" />
+                        android:textSize="18dp" />
                     </LinearLayout>
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -287,10 +287,10 @@
 
                     <ImageButton
                         android:id="@+id/btnUser3"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/image_user" />
 
@@ -300,13 +300,13 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:text=""
-                        android:textSize="20dp" />
+                        android:textSize="18dp" />
                     </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="120dp"
+                    android:layout_height="110dp"
 
                     android:orientation="horizontal">
                     <LinearLayout
@@ -318,10 +318,10 @@
 
                     <ImageButton
                         android:id="@+id/btnUser4"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/image_user" />
 
@@ -331,7 +331,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:text=""
-                            android:textSize="20dp" />
+                            android:textSize="18dp" />
                     </LinearLayout>
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -342,10 +342,10 @@
 
                     <ImageButton
                         android:id="@+id/btnUser5"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/image_user" />
 
@@ -355,7 +355,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:text=""
-                        android:textSize="20dp" />
+                        android:textSize="18dp" />
                     </LinearLayout>
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -366,10 +366,10 @@
 
                     <ImageButton
                         android:id="@+id/btnUser6"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
+                        android:layout_width="75dp"
+                        android:layout_height="75dp"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="5dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/image_user" />
 
@@ -379,7 +379,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:text=""
-                        android:textSize="20dp" />
+                        android:textSize="18dp" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -392,8 +392,8 @@
 
                     <ImageView
                         android:id="@+id/imgNhanVat"
-                        android:layout_width="140dp"
-                        android:layout_height="100dp"
+                        android:layout_width="130dp"
+                        android:layout_height="90dp"
                         android:layout_centerInParent="true"
 
                         android:src="@drawable/imgbaove" />
