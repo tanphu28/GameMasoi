@@ -973,9 +973,9 @@ public class HostActivity extends Activity implements RoomView {
     public void XuLiCuoiNgay() {
         String idMaSoiChon = getIdSoiChon();
         if (idMaSoiChon.equals(idBaoVeChon)) {
-            return;
+            System.out.println("a");
         } else if (idMaSoiChon.equals(IDBoPhieu))
-            return;
+            System.out.println("a");
         else if (idMaSoiChon.equals(userThoSan.getUserId().toString())) {
             XoaNhanVat(idMaSoiChon);
             XoaNhanVat(idThoSanChon);
@@ -995,14 +995,17 @@ public class HostActivity extends Activity implements RoomView {
             roomPresenter.emitUserDie(idMaSoiChon);
         }
         if (listUserMaSoi.size() == 0) {
-            resetLaiGameMoi();
+            resetLaiGameMoi(2);
         } else if (listUserMaSoi.size() >= listUserDanLang.size()) {
-            resetLaiGameMoi();
+            resetLaiGameMoi(1);
         }
         ResetLaiNgayMoi();
     }
 
-    public void resetLaiGameMoi() {
+    public void resetLaiGameMoi(int win) {
+        if(win!=0){
+            roomPresenter.emitFinishGame(listNhanVat,win);
+        }
         roomPresenter.emitOk(false);
         listUserMaSoi.clear();
         listUserDanLang.clear();
@@ -1145,7 +1148,7 @@ public class HostActivity extends Activity implements RoomView {
             txtThoiGian.setVisibility(View.INVISIBLE);
             linearLayoutTreoCo.setVisibility(View.INVISIBLE);
             linearLayoutListUser.setVisibility(View.VISIBLE);
-            resetLaiGameMoi();
+            resetLaiGameMoi(0);
             if(host==true){
                 btnBatDau.setVisibility(View.VISIBLE);
             }

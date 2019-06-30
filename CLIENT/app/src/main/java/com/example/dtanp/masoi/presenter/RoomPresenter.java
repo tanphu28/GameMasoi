@@ -484,5 +484,12 @@ public class RoomPresenter {
         this.socket.on("useruphost",listener);
     }
 
+    public void emitFinishGame(List<NhanVat> list, int win){
+        String json = Enviroment.gson.toJson(list);
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("list",json);
+        jsonObject.addProperty("win",win);
+        this.socket.emit("finishgame",jsonObject.toString());
+    }
 
 }

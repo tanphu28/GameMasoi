@@ -553,7 +553,6 @@ io.on("connection", function (socket) {
                         console.log("That bai! 1");
                     }
                     else {
-                        id = doc.users[1].userId;
                         console.log("thanh cong!");
                         if (doc.users.length == 1) {
                             Room.deleteOne({ _id: socket.Phong }, function (err) {
@@ -572,6 +571,7 @@ io.on("connection", function (socket) {
 
                         }
                         else {
+                            id = doc.users[1].userId;
                             Room.update(
                                 { _id: socket.Phong },
                                 {
