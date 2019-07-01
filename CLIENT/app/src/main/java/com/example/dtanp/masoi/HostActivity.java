@@ -167,6 +167,7 @@ public class HostActivity extends Activity implements RoomView {
         AlertDialog.Builder builder = new AlertDialog.Builder(HostActivity.this);
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_finish,null);
+        builder.setView(view);
         txtTitle =view.findViewById(R.id.txtTitle);
         txtSoi = view.findViewById(R.id.txtSoi);
         txtDan = view.findViewById(R.id.txtDan);
@@ -815,6 +816,7 @@ public class HostActivity extends Activity implements RoomView {
                 if (text.getUseradd().getUserId().toString().equals(id)) {
                     userRoom = text;
                     userRoomListSong.remove(text);
+                    System.out.println("Xoa list song"+ userRoomListSong.size());
                     break;
                 }
             }
