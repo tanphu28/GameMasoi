@@ -1030,7 +1030,8 @@ public class HostActivity extends Activity implements RoomView {
 
     public void resetLaiGameMoi(int win) {
         if(win!=0 && host == true){
-            roomPresenter.emitFinishGame(listNhanVat,win);
+            //roomPresenter.emitFinishGame(listNhanVat,win);
+            roomPresenter.emitFinishToClient(win);
             roomPresenter.emitOk(false);
 
         }
@@ -1474,7 +1475,7 @@ public class HostActivity extends Activity implements RoomView {
                 txtTienTri.setText(txtTienTri.getText().toString() + nhanVat.getName());
             }
         }
-        dialog.show();
+        dialogFinish.show();
     }
 
 
