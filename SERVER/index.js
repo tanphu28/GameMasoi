@@ -639,6 +639,48 @@ io.on("connection", function (socket) {
         })
     });
 
+    socket.on("finishgame",function(data){
+        var json = JSON.parse(data);
+        var win = json.win;
+        var list  = new Array();
+        list =JSON.parse(json.list);
+        if(win=='1'){
+            list.forEach(element => {
+                if(element.manv=='1'){
+                    User.findOne({ userId: json.id },(err,doc)=>{
+                        doc.win = doc.win + 1;
+                        doc.save();
+                    });
+                }
+                else{
+                    User.findOne({ userId: json.id },(err,doc)=>{
+                        doc.lose = doc.lose + 1;
+                        doc.save();
+                    });
+                }
+            }); 
+        }
+        else{
+            if(element.manv!='1'){
+                User.findOne({ userId: json.id },(err,doc)=>{
+                    doc.win = doc.win + 1;
+                    doc.save();
+                });
+            }
+            else{
+                User.findOne({ userId: json.id },(err,doc)=>{
+                    doc.lose = doc.lose + 1;
+                    doc.save();
+                });
+            }
+        }
+              
+    })
+
+    socket.on("win",function(data){
+        io.sockets.in(socket.Phong).emit("win",data);
+    });
+
     // socket.on(
     // "click",function(data)
     // {

@@ -30,4 +30,5 @@ public interface RoomView {
     public void updateLeaveRoom();
     public void updateHost();
     public  void updateListNhanVat(ArrayList<NhanVat> list);
+    public void updateFinish(int win);
 }

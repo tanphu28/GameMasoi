@@ -4,14 +4,16 @@ public class NhanVat {
     private String id;
     private int manv;
     private int resource;
+    private String name;
 
-    public NhanVat(String id, int manv, int resource) {
+    public NhanVat() {
+    }
+
+    public NhanVat(String id, int manv, int resource, String name) {
         this.id = id;
         this.manv = manv;
         this.resource = resource;
-    }
-
-    public NhanVat() {
+        this.name = name;
     }
 
     public String getId() {
@@ -36,6 +38,14 @@ public class NhanVat {
 
     public void setResource(int resource) {
         this.resource = resource;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

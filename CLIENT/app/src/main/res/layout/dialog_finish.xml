@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bgmasoi"
+    android:orientation="vertical"
+    android:gravity="center"
+    >
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Win"
+        android:textSize="30dp"
+        android:id="@+id/txtTitle"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sói : "
+        android:textSize="20dp"
+        android:id="@+id/txtSoi"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dân thường : "
+        android:textSize="20dp"
+        android:id="@+id/txtDan"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bảo vệ : "
+        android:textSize="20dp"
+        android:id="@+id/txtBaove"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Thợ Săn : "
+        android:textSize="20dp"
+        android:id="@+id/txtThoSan"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tiên Tri : "
+        android:textSize="20dp"
+        android:id="@+id/txtTienTri"
+        />
+
+</LinearLayout>

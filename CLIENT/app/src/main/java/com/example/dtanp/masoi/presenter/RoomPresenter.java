@@ -492,4 +492,24 @@ public class RoomPresenter {
         this.socket.emit("finishgame",jsonObject.toString());
     }
 
+    public void emitFinishToClient(int win){
+        this.socket.emit("win",win);
+    }
+
+    public void listenFinish(){
+        Emitter.Listener listener = new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        int win = (int) args[0];
+                        roomView.updateFinish(win);
+                    }
+                });
+            }
+        };
+        this.socket.on("win",listener);
+    }
+
 }

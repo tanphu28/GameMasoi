@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.DataSetObserver;
@@ -143,6 +144,7 @@ public class HostActivity extends Activity implements RoomView {
         roomPresenter.listenUserDie();
         roomPresenter.listenOK();
         roomPresenter.listenTime();
+        roomPresenter.listenFinish();
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
         roomPresenter.listenBangIDChon();
@@ -156,6 +158,28 @@ public class HostActivity extends Activity implements RoomView {
             roomPresenter.listenKickUser();
             roomPresenter.listenUserUpHost();
         }
+        addDialogFinish();
+    }
+    private TextView txtTitle ,txtSoi ,txtDan ,txtBaove ,txtThoSan ,txtTienTri;
+    private Dialog dialogFinish;
+
+    public void addDialogFinish(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(HostActivity.this);
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_finish,null);
+        txtTitle =view.findViewById(R.id.txtTitle);
+        txtSoi = view.findViewById(R.id.txtSoi);
+        txtDan = view.findViewById(R.id.txtDan);
+        txtBaove = view.findViewById(R.id.txtBaove);
+        txtTienTri = view.findViewById(R.id.txtTienTri);
+        txtThoSan = view.findViewById(R.id.txtThoSan);
+        builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        dialogFinish = builder.create();
 
     }
 
@@ -574,6 +598,7 @@ public class HostActivity extends Activity implements RoomView {
     }
 
     public void RanDom() {
+        listNhanVat.clear();
         List<User> listUserRandom = new ArrayList<>();
         getlistUser(listUserRandom);
         getlistUser(listUserInGame);
@@ -612,6 +637,7 @@ public class HostActivity extends Activity implements RoomView {
 
             }
             nv.setId(listUserRandom.get(k).getUserId());
+            nv.setName(listUserRandom.get(k).getName());
             listUserRandom.remove(k);
             listNhanVat.add(nv);
 
@@ -1003,10 +1029,11 @@ public class HostActivity extends Activity implements RoomView {
     }
 
     public void resetLaiGameMoi(int win) {
-        if(win!=0){
+        if(win!=0 && host == true){
             roomPresenter.emitFinishGame(listNhanVat,win);
+            roomPresenter.emitOk(false);
+
         }
-        roomPresenter.emitOk(false);
         listUserMaSoi.clear();
         listUserDanLang.clear();
         flagTienTri = false;
@@ -1015,7 +1042,7 @@ public class HostActivity extends Activity implements RoomView {
 
         listIdMaSoichon.clear();
         listAllChon.clear();
-        listNhanVat.clear();
+        //listNhanVat.clear();
         idBaoVeChon = "";
         idThoSanChon = "";
         idTienTriChon = "";
@@ -1024,6 +1051,7 @@ public class HostActivity extends Activity implements RoomView {
         list.clear();
         listUserInGame.clear();
         die = false;
+        flagStart=false;
         ResetAnhUser();
 
     }
@@ -1328,11 +1356,13 @@ public class HostActivity extends Activity implements RoomView {
 
     @Override
     public void updateAllChat(boolean flag) {
-        if (flag == true && die == false) {
-            linearLayoutChat.setVisibility(View.VISIBLE);
-            findViewById(R.id.lnrkhungchat).setVisibility(View.VISIBLE);
-            listChat.setVisibility(View.VISIBLE);
-            txtThoiGian.setVisibility(View.VISIBLE);
+        if (flag == true) {
+            if (die ==false){
+                linearLayoutChat.setVisibility(View.VISIBLE);
+                findViewById(R.id.lnrkhungchat).setVisibility(View.VISIBLE);
+                listChat.setVisibility(View.VISIBLE);
+                txtThoiGian.setVisibility(View.VISIBLE);
+            }
             flagchat = true;
             if(host==true){
                 DemGiay(30);
@@ -1409,10 +1439,43 @@ public class HostActivity extends Activity implements RoomView {
 
     @Override
     public void updateListNhanVat(ArrayList<NhanVat> list) {
+        listNhanVat.clear();
         for (NhanVat nv : list){
             listNhanVat.add(nv);
         }
         getListXuLy();
         getTextViewAddList();
     }
+
+    @Override
+    public void updateFinish(int win) {
+        if(win == 1){
+            txtTitle.setText("Sói Thắng !");
+        }
+        else
+        {
+            txtTitle.setText("Dân Làng Thắng !");
+        }
+        txtSoi.setText("Sói : ");
+        txtDan.setText("Dân Thường : ");
+        txtBaove.setText("Bảo Vệ : ");
+        txtThoSan.setText("Thợ Săn : ");
+        txtTienTri.setText("Tiên Tri : ");
+        for (NhanVat nhanVat : listNhanVat){
+            if(nhanVat.getManv()==1){
+                txtSoi.setText(txtSoi.getText().toString() + nhanVat.getName() + ", ");
+            }else if(nhanVat.getManv() == 2){
+                txtDan.setText(txtDan.getText().toString() + nhanVat.getName() + ", ");
+            } else if (nhanVat.getManv() == 3){
+                txtThoSan.setText(txtThoSan.getText().toString() + nhanVat.getName());
+            } else if (nhanVat.getManv() == 4){
+                txtBaove.setText(txtBaove.getText().toString() + nhanVat.getName());
+            }else if (nhanVat.getManv() == 6){
+                txtTienTri.setText(txtTienTri.getText().toString() + nhanVat.getName());
+            }
+        }
+        dialog.show();
+    }
+
+
 }
