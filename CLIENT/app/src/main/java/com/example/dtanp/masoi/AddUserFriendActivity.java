@@ -20,9 +20,11 @@ import android.widget.Toast;
 
 import com.example.dtanp.masoi.adapter.CustomAdapterChat;
 import com.example.dtanp.masoi.adapter.CustomListUser;
+import com.example.dtanp.masoi.appinterface.UserFriendView;
 import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Chat;
 import com.example.dtanp.masoi.model.User;
+import com.example.dtanp.masoi.presenter.UserFriendPresenter;
 import com.github.nkzawa.emitter.Emitter;
 
 import org.json.JSONArray;
@@ -32,13 +34,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddUserFriendActivity extends Activity {
+public class AddUserFriendActivity extends Activity  implements UserFriendView {
 
     private RecyclerView recyclerView;
-    CustomListUser mRcvAdapter, mRcvAdapterSearch;
+    CustomListUser mRcvAdapter;
     List<User> list,filterdList;
-    // private ArrayList<User> filterdList;
-    EditText edtsearch ,edtUser;
+    EditText edtsearch;
     Emitter.Listener eListenerAllUser;
     int textlength=0;
     ImageButton btnback;
@@ -52,17 +53,22 @@ public class AddUserFriendActivity extends Activity {
     RelativeLayout relativeLayoutChat;
     ImageButton imgChat,imgCancleChat;
     boolean flagChat = false;
+    private UserFriendPresenter userFriendPresenter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_user_friend);
+        userFriendPresenter = new UserFriendPresenter(AddUserFriendActivity.this,AddUserFriendActivity.this);
+        userFriendPresenter.listenAllChat();
+        userFriendPresenter.listenGetAllUser();
+        userFriendPresenter.emitGetAllUser();
         recyclerView=findViewById(R.id.recycler_view1);
         recyclerView.setHasFixedSize(true);
         edtsearch = findViewById(R.id.search1);
         btnback = findViewById(R.id.btnBack1);
         list=new ArrayList<>();
         filterdList=new ArrayList<>();
-        LangNgheAllChat();
+
         mRcvAdapter = new CustomListUser(list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -99,7 +105,7 @@ public class AddUserFriendActivity extends Activity {
                 if (edt.getText().toString() != "") {
                     chat.setUsername(Enviroment.user.getName());
                     chat.setMesage(edt.getText().toString());
-                    sendUser(chat);
+                    userFriendPresenter.emitChat(chat);
                     edt.setText("");
                     System.out.println("aaaa");
 
@@ -137,7 +143,6 @@ public class AddUserFriendActivity extends Activity {
             }
         });
 
-        Enviroment.socket.emit("alluser");
         btnback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,7 +166,7 @@ public class AddUserFriendActivity extends Activity {
                                 list.add(user);
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                            }
+                           }
 
                         }
                         mRcvAdapter.notifyDataSetChanged();
@@ -178,7 +183,7 @@ public class AddUserFriendActivity extends Activity {
                 return false;
             }
         });
-        Enviroment.socket.on("alluser",eListenerAllUser);
+
         edtsearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -188,28 +193,23 @@ public class AddUserFriendActivity extends Activity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
 
-
                 if(s.length()>0){
 
 
                     textlength = edtsearch.getText().length();
                     for(int i=0;i< list.size();i++){
-                        //   final String text =list.get(i).getName().toString();
-                        if(textlength<=list.get(i).getName().toLowerCase().length()){
+                            if(textlength<=list.get(i).getName().toLowerCase().length()){
                             if(list.get(i).getName().toLowerCase().trim().contains(edtsearch.getText().toString().toLowerCase().trim())){
                                 filterdList.add(list.get(i));
 
                             }
                         }
-
-
                     }
                     mRcvAdapter=new CustomListUser(filterdList);
                     recyclerView.setAdapter(mRcvAdapter);
                     mRcvAdapter.notifyDataSetChanged();
 
                 }
-
             }
 
             @Override
@@ -217,39 +217,6 @@ public class AddUserFriendActivity extends Activity {
                 filter(s.toString());
             }
         });
-    }
-    public void sendUser(Chat chat){
-        String json = Enviroment.gson.toJson(chat);
-        Enviroment.socket.emit("ChatUser", json);
-    }
-    public void LangNgheAllChat()
-    {
-        Emitter.Listener listenerChatMes = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                AddUserFriendActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String json = (String) args[0];
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = new JSONObject(json);
-                            Chat chat = Enviroment.gson.fromJson(jsonObject.toString(), Chat.class);
-
-                            if (!chat.getMesage().equals(" ")) {
-                                listChat.add(chat);
-                                adapterChat.notifyDataSetChanged();
-                            }
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-            }
-        };
-        Enviroment.socket.on("ChatUser", listenerChatMes);
     }
 
     public void startmhhome()
@@ -265,8 +232,19 @@ public class AddUserFriendActivity extends Activity {
                 filterName.add(s);
             }
         }
-
-
     }
 
+    @Override
+    public void updateListUser(ArrayList<User> list) {
+        for (User us : list){
+            this.list.add(us);
+        }
+        mRcvAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void addChatMessage(Chat chat) {
+        listChat.add(chat);
+        adapterChat.notifyDataSetChanged();
+    }
 }
