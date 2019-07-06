@@ -626,12 +626,13 @@ public class HostActivity extends Activity implements RoomView {
                         }
                         setLuotDB(7);
                         manv = 9;
-                        DemGiay(30);
+                        //DemGiay(30);
                         flagxuli = false;
-                        roomPresenter.emitSync(flagchat,flagxuli,manv);
-                    }else{
-                        handlerMaSoi.sendEmptyMessage(0);
+                        roomPresenter.emitSync(flagchat, flagxuli, manv);
                     }
+//                    }else{
+//                        handlerMaSoi.sendEmptyMessage(0);
+//                    }
                     timer.cancel();
                     txtThoiGian.setText("");
                 }
@@ -799,8 +800,8 @@ public class HostActivity extends Activity implements RoomView {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-                timer.cancel();
-                dem=0;
+                //timer.cancel();
+                //dem=0;
                 if (manv == 1) {
                     setLuotDB(2);
                     XuLyLuot(1, false);
@@ -926,7 +927,7 @@ public class HostActivity extends Activity implements RoomView {
                 if (flag == true) {
                     manv=1;
                     roomPresenter.emitSync(flagchat,flagxuli,manv);
-                    DemGiay(30);
+                    //DemGiay(30);
                     roomPresenter.emitNhanvatSang(1);
                 } else {
                     roomPresenter.emitNhanvatTat(1);
@@ -939,7 +940,7 @@ public class HostActivity extends Activity implements RoomView {
             if (flag == true) {
                 manv=3;
                 roomPresenter.emitSync(flagchat,flagxuli,manv);
-                DemGiay(30);
+                //DemGiay(30);
                 roomPresenter.emitNhanvatSang(3);
             } else {
                 roomPresenter.emitNhanvatTat(3);
@@ -950,7 +951,7 @@ public class HostActivity extends Activity implements RoomView {
             if (flag == true) {
                 manv=4;
                 roomPresenter.emitSync(flagchat,flagxuli,manv);
-                DemGiay(30);
+                //DemGiay(30);
                 roomPresenter.emitNhanvatSang(4);
             } else {
                 roomPresenter.emitNhanvatTat(4);
@@ -961,7 +962,7 @@ public class HostActivity extends Activity implements RoomView {
             if (flag == true) {
                 manv=6;
                 roomPresenter.emitSync(flagchat,flagxuli,manv);
-                DemGiay(30);
+                //DemGiay(30);
                 roomPresenter.emitNhanvatSang(6);
             } else {
                 roomPresenter.emitNhanvatTat(6);
@@ -972,7 +973,7 @@ public class HostActivity extends Activity implements RoomView {
         } else if (luot == 8) {
             roomPresenter.emitAllManHinhChon(flag);
             if(flag==true){
-                DemGiay(30);
+                //DemGiay(30);
                 manv=8;
                 roomPresenter.emitSync(flagchat,flagxuli,manv);
             }
@@ -984,10 +985,6 @@ public class HostActivity extends Activity implements RoomView {
             text.getUser().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (host==true)
-                    {
-                        timer.cancel();
-                    }
                     if (nhanvat.getManv() == 6) {
                         for (NhanVat nv : listNhanVat) {
                             if (text.getUseradd().getUserId().toString().equals(nv.getId().toString())) {
@@ -1290,7 +1287,7 @@ public class HostActivity extends Activity implements RoomView {
             if(host==true){
                 btnBatDau.setVisibility(View.INVISIBLE);
                 XuLyLuot(1, true);
-                DemGiay(20);
+                //DemGiay(20);
             }
             else {
                 OffTouchUser(userRoomList);
@@ -1441,10 +1438,10 @@ public class HostActivity extends Activity implements RoomView {
     public void updateNhanVatSang(int nv) {
         if (nhanvat.getManv() == nv) {
             txtThoiGian.setVisibility(View.VISIBLE);
-            if(host==true)
-            {
-                DemGiay(30);
-            }
+//            if(host==true)
+//            {
+//                DemGiay(30);
+//            }
             AddClickUser("BangChonChucNang");
             if (nhanvat.getManv() == 1) {
                 OntouchUser(userRoomListDanThuong);

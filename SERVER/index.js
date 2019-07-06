@@ -20,7 +20,6 @@ var fs = require('fs');
 var http = require('http');
 var path = require('path');
 var roomarr = new Array();
-var arrCacheProc = new Array();
 http.createServer(function (req, res) {
     if (req.url.match(/.jpg$/)) {
         var imgPath = path.join(__dirname, 'image', req.url);
@@ -29,25 +28,27 @@ http.createServer(function (req, res) {
         imgStream.pipe(res);
     }
 }).listen(4000);
-// roomarr[1] = new RoomCache();
-// roomarr[1]._id="1";
-// roomarr[1].idBOPHIEU="2";
-// roomarr[1].idUserDie="3";
-// roomarr[1].idBaoVeChon="4";
-// roomarr[1].idThoSanChon="5";
-// for(let i=0;i<7;i++){
-//     roomarr[1].arrAll.push(i);
-//     roomarr[1].arrMaSoiChon.push(i);
-//     roomarr[1].arrBoPhieu.push(i);
-//     roomarr[1].arrKetQuaBoPhieu.push(i);
-//     roomarr[1].arrReady.push(i);
-//     roomarr[1].arrUserDie.push(i);
-// }
+var room = new RoomCache();
+room._id="bb";
+roomarr["aa"] = room;
+roomarr["aa"]._id="1";
+roomarr["aa"].idBOPHIEU="2";
+roomarr["aa"].idUserDie="3";
+roomarr["aa"].idBaoVeChon="4";
+roomarr["aa"].idThoSanChon="5";
+for(let i=0;i<7;i++){
+    roomarr["aa"].arrAll.push(i);
+    roomarr["aa"].arrMaSoiChon.push(i);
+    roomarr["aa"].arrBoPhieu.push(i);
+    roomarr["aa"].arrKetQuaBoPhieu.push(i);
+    roomarr["aa"].arrReady.push(i);
+    roomarr["aa"].arrUserDie.push(i);
+}
 
 io.on("connection", function (socket) {
-    // socket.on("room",function(){
-    //     socket.emit("room",roomarr[1].arrAll);
-    // });
+    socket.on("room",function(){
+        socket.emit("room",roomarr["aa"]);
+    });
     //join room cho web test
     socket.Phong="";
     socket.host=0;
@@ -579,13 +580,13 @@ io.on("connection", function (socket) {
 
     //Host
     socket.on("OK", function (data) {
-        arrCacheProc[socket.Phong]=new Array();
-        roomarr[socket.Phong].OK=data;
+        io.sockets.in(socket.Phong).emit("OK", data);
+        //roomarr[socket.Phong].OK=data;
     });
     socket.on("ListNhanVat", function (data) {
         console.log(data);
         io.sockets.in(socket.Phong).emit("ListNhanVat", data);
-        roomarr[socket.Phong].arrNhanVat = data;
+        //roomarr[socket.Phong].arrNhanVat = data;
     });
     socket.on("Luot", function (data) {
         io.sockets.in(socket.Phong).emit("Luot", data);
@@ -649,6 +650,11 @@ io.on("connection", function (socket) {
 
     socket.on("resetngaymoi",function(){
         roomarr[socket.Phong] = new RoomCache();
+    });
+    
+    
+    socket.on("listdanlangchon",function(){
+        socket.emit("listdanlangchon",roomarr[socket.Phong].arrAll);
     });
 
     socket.on("sync",function(data){

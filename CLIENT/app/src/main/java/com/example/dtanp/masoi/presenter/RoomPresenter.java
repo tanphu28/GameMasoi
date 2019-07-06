@@ -621,12 +621,12 @@ public class RoomPresenter {
     }
 
     public void emitSync(boolean flagChat, boolean flagXuLi,int manv ){
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("flagchat",flagChat);
-        jsonObject.addProperty("flagxuli",flagXuLi);
-        jsonObject.addProperty("manv",manv);
-        String json = Enviroment.gson.toJson(jsonObject);
-        this.socket.emit("sync",json);
+//        JsonObject jsonObject = new JsonObject();
+//        jsonObject.addProperty("flagchat",flagChat);
+//        jsonObject.addProperty("flagxuli",flagXuLi);
+//        jsonObject.addProperty("manv",manv);
+//        String json = Enviroment.gson.toJson(jsonObject);
+//        this.socket.emit("sync",json);
     }
 
     public void listenSync(){
