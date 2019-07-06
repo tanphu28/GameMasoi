@@ -11,9 +11,15 @@ public class Phong {
     private int totalpeople;
     private int roomnumber;
     private int host;
+    private int money;
     private ArrayList<User> users;
 
-    public Phong(String _id, String id, String name, int people, int totalpeople, int roomnumber, int host, ArrayList<User> users) {
+
+    public Phong() {
+        this.users = new ArrayList<>();
+    }
+
+    public Phong(String _id, String id, String name, int people, int totalpeople, int roomnumber, int host, int money, ArrayList<User> users) {
         this._id = _id;
         this.id = id;
         this.name = name;
@@ -21,12 +27,8 @@ public class Phong {
         this.totalpeople = totalpeople;
         this.roomnumber = roomnumber;
         this.host = host;
+        this.money = money;
         this.users = users;
-
-    }
-
-    public Phong() {
-        this.users = new ArrayList<>();
     }
 
     public String get_id() {
@@ -83,6 +85,14 @@ public class Phong {
 
     public void setHost(int host) {
         this.host = host;
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    public void setMoney(int money) {
+        this.money = money;
     }
 
     public ArrayList<User> getUsers() {

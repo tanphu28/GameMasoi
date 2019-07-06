@@ -17,13 +17,10 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.example.dtanp.masoi.appinterface.SignupView;
-import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.UserStore;
 import com.example.dtanp.masoi.presenter.SignupPresenter;
-import com.example.dtanp.masoi.utils.MD5Util;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.example.dtanp.masoi.utils.CommonFunction;
+
 import io.fabric.sdk.android.Fabric;
 
 public class SignupActivity extends Activity implements SignupView {
@@ -202,7 +199,7 @@ public class SignupActivity extends Activity implements SignupView {
                     if(!pass.trim().equals(passAgain.trim())){
                         Toast.makeText(SignupActivity.this,"Two different passwords",Toast.LENGTH_SHORT).show();
                     }else{
-                        pass = MD5Util.getMD5(pass);
+                        pass = CommonFunction.getMD5(pass);
                         UserStore userStore = new UserStore(userId,pass);
                        signupPresenter.emitRegister(userStore);
                     }

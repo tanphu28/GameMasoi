@@ -12,10 +12,10 @@ public class User {
     private int win;
     private int lose;
     private int cancle;
-    private Float monney;
+    private int money;
     private String id_room;
 
-    public User(String userId, String fullname, String name, String phone_number, String birthday, String address, String email, int level, int win, int lose, int cancle, Float monney, String id_room) {
+    public User(String userId, String fullname, String name, String phone_number, String birthday, String address, String email, int level, int win, int lose, int cancle, int money, String id_room) {
         this.userId = userId;
         this.fullname = fullname;
         this.name = name;
@@ -27,7 +27,7 @@ public class User {
         this.win = win;
         this.lose = lose;
         this.cancle = cancle;
-        this.monney = monney;
+        this.money = money;
         this.id_room = id_room;
     }
 
@@ -128,12 +128,12 @@ public class User {
         this.cancle = cancle;
     }
 
-    public Float getMonney() {
-        return monney;
+    public int getMoney() {
+        return money;
     }
 
-    public void setMonney(Float monney) {
-        this.monney = monney;
+    public void setMonney(int money) {
+        this.money = money;
     }
 
     public String getId_room() {

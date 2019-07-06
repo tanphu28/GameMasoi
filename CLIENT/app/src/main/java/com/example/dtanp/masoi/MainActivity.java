@@ -1,5 +1,6 @@
 package com.example.dtanp.masoi;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -14,6 +15,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,7 +34,9 @@ import com.example.dtanp.masoi.appinterface.LoginView;
 import com.example.dtanp.masoi.appinterface.API;
 import com.example.dtanp.masoi.appservice.UpdateService;
 import com.example.dtanp.masoi.environment.Enviroment;
+import com.example.dtanp.masoi.model.NhanVat;
 import com.example.dtanp.masoi.presenter.LoginPresenter;
+import com.example.dtanp.masoi.presenter.RoomPresenter;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -70,6 +74,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -92,7 +98,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private LoginPresenter loginPresenter;
 
     public static final int REC_CODE = 9001;
-
+    int REQUEST_CODE = 113;
     public static final int RC_SIGN_IN = 123;
     public static final String TAG = "abc";
     private EditText edtuser, edtpassworld;
@@ -236,9 +242,26 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         loginPresenter.listenRegister();
         loginPresenter.emitCheckVersionName();
         startService(new Intent(this, UpdateService.class));
+        if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            Log.v("CONCHIM","Permission is granted");
+        }
+        else
+        {
+            Log.v("CONCHIM","Permission DEO!");
+        }
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE);
+
+        //emitFinishgame();
 
     }
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode,  String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            Log.v("CHIM","Permission: "+permissions[0]+ "was "+grantResults[0]);
+            //resume tasks needing this permission
+        }
+    }
     private static TextView textCheck;
 
     public void AddDialog() {
@@ -358,12 +381,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     public void downloadfile() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.9:3000/")
+                .baseUrl("http://192.168.43.87:3000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         API downloadService = retrofit.create(API.class);
 
-        Call<ResponseBody> call = downloadService.downloadApk("http://192.168.1.9:3000/apk");
+        Call<ResponseBody> call = downloadService.downloadApk("http://192.168.43.87:3000/apk");
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -373,7 +396,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     Toast.makeText(MainActivity.this, "Download Successfully", Toast.LENGTH_SHORT).show();
                     if (writtenToDisk) {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/app.apk")), "application/vnd.android.package-archive");
+                        intent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/app-debug.apk")), "application/vnd.android.package-archive");
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
                     }
@@ -392,7 +415,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public boolean writeResponseBodyToDisk(ResponseBody body) {
         try {
             // todo change the file location/name according to your needs
-            File futureStudioIconFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "app.apk");
+            File futureStudioIconFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "/app-debug.apk");
 
             InputStream inputStream = null;
             OutputStream outputStream = null;
@@ -593,6 +616,49 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             startmh();
             finish();
         }
+    }
+
+    public void emitFinishgame(){
+        NhanVat nv = new NhanVat();
+        nv.setId("bhai2");
+        nv.setManv(1);
+
+        NhanVat nv2 = new NhanVat();
+        nv2.setId("bhai1");
+        nv2.setManv(1);
+
+        NhanVat nv3 = new NhanVat();
+        nv3.setId("bhai");
+        nv3.setManv(2);
+
+        NhanVat nv4 = new NhanVat();
+        nv4.setId("haia");
+        nv4.setManv(2);
+
+        NhanVat nv5 = new NhanVat();
+        nv5.setId("u7");
+        nv5.setManv(3);
+
+        NhanVat nv6 = new NhanVat();
+        nv6.setId("u6");
+        nv6.setManv(4);
+
+        NhanVat nv7 = new NhanVat();
+        nv7.setId("u3");
+        nv7.setManv(6);
+        List<NhanVat> list= new ArrayList<>();
+
+        list.add(nv);
+        list.add(nv2);
+        list.add(nv3);
+        list.add(nv4);
+        list.add(nv5);
+        list.add(nv6);
+        list.add(nv7);
+
+        loginPresenter.emitFinishGame(list,1);
+
+
     }
 
 

@@ -1,21 +1,21 @@
 package com.example.dtanp.masoi.presenter;
 
 import android.app.Activity;
-import android.content.Context;
-import android.widget.Toast;
 
-import com.example.dtanp.masoi.MainActivity;
 import com.example.dtanp.masoi.appinterface.LoginView;
 import com.example.dtanp.masoi.environment.Enviroment;
+import com.example.dtanp.masoi.model.NhanVat;
 import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.model.UserStore;
 import com.example.dtanp.masoi.singleton.SocketSingleton;
-import com.example.dtanp.masoi.utils.MD5Util;
+import com.example.dtanp.masoi.utils.CommonFunction;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.JsonObject;
 
 import org.json.JSONObject;
+
+import java.util.List;
 
 public class LoginPresenter {
     private Socket socket;
@@ -115,7 +115,7 @@ public class LoginPresenter {
 
      public void login(String username, String pass){
          Enviroment.METHOD_LOGIN = 1;
-         pass = MD5Util.getMD5(pass);
+         pass = CommonFunction.getMD5(pass);
          UserStore userStore = new UserStore(username,pass);
          String json = Enviroment.gson.toJson(userStore);
          socket.emit("login",json);
@@ -170,5 +170,13 @@ public class LoginPresenter {
      public void emitCheckVersionName(){
         socket.emit("CheckVersionName",1);
      }
+    public void emitFinishGame(List<NhanVat> list, int win){
+        String json = Enviroment.gson.toJson(list);
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("list",json);
+        jsonObject.addProperty("win",win);
+        this.socket.emit("finishgame",jsonObject.toString());
+    }
+
 
 }

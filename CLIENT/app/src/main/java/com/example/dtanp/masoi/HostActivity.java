@@ -34,6 +34,7 @@ import com.example.dtanp.masoi.model.NhanVat;
 import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.model.UserRoom;
 import com.example.dtanp.masoi.presenter.RoomPresenter;
+import com.example.dtanp.masoi.utils.CommonFunction;
 import com.google.gson.JsonArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class HostActivity extends Activity implements RoomView {
     List<Chat> list;
     EditText edtChat;
     public List<User> listUser, listUserInGame;
-    TextView user1, user2, user3, user4, user5, user6, txtTenUser, txtSoPhong, txtTenPhong, txtThoiGian, txtLuot, txtTreoCo;
+    TextView user1, user2, user3, user4, user5, user6, txtTenUser, txtSoPhong, txtTenPhong, txtThoiGian, txtLuot, txtTreoCo,txtGold;
     LinearLayout linearLayoutChat, linearLayoutListUser, linearLayoutTreoCo, linearLayoutKhungChat;
     private Timer timer;
     private Handler handler, handlerMaSoi;
@@ -116,7 +117,7 @@ public class HostActivity extends Activity implements RoomView {
         }
     };
     private RoomPresenter roomPresenter;
-    private boolean host, ready = false;
+    private boolean host, ready = false,registLeaveRoom=false;
     private Button btnSS;
 
 
@@ -145,7 +146,10 @@ public class HostActivity extends Activity implements RoomView {
         roomPresenter.listenOK();
         roomPresenter.listenTime();
         roomPresenter.listenFinish();
+        roomPresenter.listenNhanVatChucNangDie();
+
         mVisible = true;
+
         mContentView = findViewById(R.id.fullscreen_content);
         roomPresenter.listenBangIDChon();
         if(host==true){
@@ -154,11 +158,13 @@ public class HostActivity extends Activity implements RoomView {
         }
         else
         {
+            roomPresenter.listenSync();
             btnSS.setVisibility(View.VISIBLE);
             roomPresenter.listenKickUser();
             roomPresenter.listenUserUpHost();
         }
         addDialogFinish();
+        roomPresenter.listenDisconect();
     }
     private TextView txtTitle ,txtSoi ,txtDan ,txtBaove ,txtThoSan ,txtTienTri;
     private Dialog dialogFinish;
@@ -177,19 +183,35 @@ public class HostActivity extends Activity implements RoomView {
         builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                if(registLeaveRoom == true){
+                    if(host==true){
+                        roomPresenter.emitUserHostExit(Enviroment.user.getUserId());
+                    }
+                    else{
+                        roomPresenter.emitUserExit(Enviroment.user.getUserId());
+                    }
+                    Enviroment.phong.getUsers().clear();
+                    Enviroment.phong = null;
+                    Enviroment.user.setId_room("");
+                    Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
         dialogFinish = builder.create();
+        dialogFinish.setCanceledOnTouchOutside(false);
 
     }
 
     public void getHost(){
         XuLyChon();
+        roomPresenter.listenListDanLangChon();
         roomPresenter.listenUserReady();
         roomPresenter.listenSuKien();
         roomPresenter.listenKetQuaBoPhieu();
         roomPresenter.listenUserIdBiGiet();
+        roomPresenter.listenXuLyCuoiNgay();
     }
 
     @Override
@@ -295,18 +317,30 @@ public class HostActivity extends Activity implements RoomView {
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(host==true){
-                    roomPresenter.emitUserHostExit(Enviroment.user.getUserId());
+                if(flagStart == true){
+                    if (registLeaveRoom == false){
+                        Toast.makeText(HostActivity.this,"Bạn đã đăng kí tời phòng",Toast.LENGTH_SHORT).show();
+                        registLeaveRoom = true;
+                    } else {
+                        Toast.makeText(HostActivity.this,"Bạn đã hủy đăng kí tời phòng",Toast.LENGTH_SHORT).show();
+                        registLeaveRoom = false;
+                    }
                 }
                 else{
-                    roomPresenter.emitUserExit(Enviroment.user.getUserId());
+                    if(host==true){
+                        roomPresenter.emitUserHostExit(Enviroment.user.getUserId());
+                    }
+                    else{
+                        roomPresenter.emitUserExit(Enviroment.user.getUserId());
+                    }
+                    Enviroment.phong.getUsers().clear();
+                    Enviroment.phong = null;
+                    Enviroment.user.setId_room("");
+                    Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
-                Enviroment.phong.getUsers().clear();
-                Enviroment.phong = null;
-                Enviroment.user.setId_room("");
-                Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
-                startActivity(intent);
-                finish();
+
 
             }
         });
@@ -320,6 +354,9 @@ public class HostActivity extends Activity implements RoomView {
     }
 
     public void AnhXa() {
+
+        txtGold = findViewById(R.id.txtGold);
+        txtGold.setText(CommonFunction.formatGold(Enviroment.user.getMoney()));
         user1 = findViewById(R.id.txtuser1);
         user2 = findViewById(R.id.txtuser2);
         user3 = findViewById(R.id.txtuser3);
@@ -395,7 +432,7 @@ public class HostActivity extends Activity implements RoomView {
         userRoomListDanThuong = new ArrayList<>();
         userRoomListSong = new ArrayList<>();
 
-        txtThoiGian.setVisibility(View.INVISIBLE);
+        txtThoiGian.setText("");
 
         linearLayoutListUser = findViewById(R.id.lnrlistUser);
         linearLayoutTreoCo = findViewById(R.id.lnrtreoco);
@@ -577,8 +614,8 @@ public class HostActivity extends Activity implements RoomView {
                         manv = 7;
                         handlerMaSoi.sendEmptyMessage(0);
                         flagchat = false;
-                    }
-                    if (flagxuli == true) {
+                        roomPresenter.emitSync(flagchat,flagxuli,manv);
+                    } else if (flagxuli == true) {
                         roomPresenter.emitUserBiBoPhieuTat(IDBoPhieu);
                         XuLyLuot(7, false);
                         if (die == false) {
@@ -589,10 +626,14 @@ public class HostActivity extends Activity implements RoomView {
                         }
                         setLuotDB(7);
                         manv = 9;
+                        DemGiay(30);
                         flagxuli = false;
+                        roomPresenter.emitSync(flagchat,flagxuli,manv);
+                    }else{
+                        handlerMaSoi.sendEmptyMessage(0);
                     }
                     timer.cancel();
-                    txtThoiGian.setVisibility(View.INVISIBLE);
+                    txtThoiGian.setText("");
                 }
             }
         };
@@ -758,13 +799,13 @@ public class HostActivity extends Activity implements RoomView {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-
+                timer.cancel();
+                dem=0;
                 if (manv == 1) {
-                    if (listUserMaSoi.size() == listIdMaSoichon.size()) {
-                        setLuotDB(2);
-                        XuLyLuot(1, false);
-                        XuLyLuot(4, true);
-                    }
+                    setLuotDB(2);
+                    XuLyLuot(1, false);
+                    XuLyLuot(4, true);
+
                 } else if (manv == 4) {
                     setLuotDB(3);
                     XuLyLuot(4, false);
@@ -783,24 +824,13 @@ public class HostActivity extends Activity implements RoomView {
                     setLuotDB(5);
                 } else if (manv == 8) {
                     XuLyLuot(8, false);
-                    IDBoPhieu = getIDBOPhieu();
-                    roomPresenter.emitIDBiBoPhieu(IDBoPhieu);
-                    roomPresenter.emitUserBoPhieu(IDBoPhieu);
-                    XuLiGiaiTrinh();
+                    roomPresenter.emitListDanLangChon();
+//                    IDBoPhieu = getIDBOPhieu();
+//                    roomPresenter.emitIDBiBoPhieu(IDBoPhieu);
+//                    roomPresenter.emitUserBoPhieu(IDBoPhieu);
+//                    XuLiGiaiTrinh();
                 } else if (manv == 9) {
-                    if (giet == true) {
-                        giet = false;
-                        XoaNhanVat(IDBoPhieu);
-                        XoaNhanVatChucNang(IDBoPhieu);
-                        removelistUserInGameID(IDBoPhieu);
-                        roomPresenter.emitUserDie(IDBoPhieu);
-                    }
-
-                    linearLayoutListUser.setVisibility(View.VISIBLE);
-                    linearLayoutTreoCo.setVisibility(View.INVISIBLE);
-                    linearLayoutChat.setVisibility(View.INVISIBLE);
                     XuLiCuoiNgay();
-
                 }
 
             }
@@ -861,6 +891,7 @@ public class HostActivity extends Activity implements RoomView {
         setLuotDB(6);
         flagchat = false;
         flagxuli = true;
+        roomPresenter.emitSync(flagchat,flagxuli,manv);
         txtThoiGian.setVisibility(View.VISIBLE);
         DemGiay(30);
 
@@ -893,6 +924,9 @@ public class HostActivity extends Activity implements RoomView {
             pushLuot(1);
             if (listUserMaSoi.size() > 0) {
                 if (flag == true) {
+                    manv=1;
+                    roomPresenter.emitSync(flagchat,flagxuli,manv);
+                    DemGiay(30);
                     roomPresenter.emitNhanvatSang(1);
                 } else {
                     roomPresenter.emitNhanvatTat(1);
@@ -903,6 +937,9 @@ public class HostActivity extends Activity implements RoomView {
         } else if (luot == 3) {
             pushLuot(3);
             if (flag == true) {
+                manv=3;
+                roomPresenter.emitSync(flagchat,flagxuli,manv);
+                DemGiay(30);
                 roomPresenter.emitNhanvatSang(3);
             } else {
                 roomPresenter.emitNhanvatTat(3);
@@ -911,6 +948,9 @@ public class HostActivity extends Activity implements RoomView {
         } else if (luot == 4) {
             pushLuot(2);
             if (flag == true) {
+                manv=4;
+                roomPresenter.emitSync(flagchat,flagxuli,manv);
+                DemGiay(30);
                 roomPresenter.emitNhanvatSang(4);
             } else {
                 roomPresenter.emitNhanvatTat(4);
@@ -919,6 +959,9 @@ public class HostActivity extends Activity implements RoomView {
         } else if (luot == 6) {
             pushLuot(4);
             if (flag == true) {
+                manv=6;
+                roomPresenter.emitSync(flagchat,flagxuli,manv);
+                DemGiay(30);
                 roomPresenter.emitNhanvatSang(6);
             } else {
                 roomPresenter.emitNhanvatTat(6);
@@ -928,6 +971,11 @@ public class HostActivity extends Activity implements RoomView {
             roomPresenter.emitAllChat(flag);
         } else if (luot == 8) {
             roomPresenter.emitAllManHinhChon(flag);
+            if(flag==true){
+                DemGiay(30);
+                manv=8;
+                roomPresenter.emitSync(flagchat,flagxuli,manv);
+            }
         }
     }
 
@@ -999,40 +1047,53 @@ public class HostActivity extends Activity implements RoomView {
 
 
     public void XuLiCuoiNgay() {
-        String idMaSoiChon = getIdSoiChon();
-        if (idMaSoiChon.equals(idBaoVeChon)) {
-            System.out.println("a");
-        } else if (idMaSoiChon.equals(IDBoPhieu))
-            System.out.println("a");
-        else if (idMaSoiChon.equals(userThoSan.getUserId().toString())) {
-            XoaNhanVat(idMaSoiChon);
-            XoaNhanVat(idThoSanChon);
-            XoaNhanVatChucNang(idMaSoiChon);
-            XoaNhanVatChucNang(idThoSanChon);
-            removelistUserInGameID(idMaSoiChon);
-            removelistUserInGameID(idThoSanChon);
-            if (!idMaSoiChon.equals(IDBoPhieu)) {
-                roomPresenter.emitUserDie(idMaSoiChon);
-                roomPresenter.emitUserDie(idThoSanChon);
-            }
-        } else {
+//        String idMaSoiChon = getIdSoiChon();
+//        if (idMaSoiChon.equals(idBaoVeChon)) {
+//            System.out.println("a");
+//        } else if (idMaSoiChon.equals(IDBoPhieu))
+//            System.out.println("a");
+//        else if (idMaSoiChon.equals(userThoSan.getUserId().toString())) {
+//            XoaNhanVat(idMaSoiChon);
+//            XoaNhanVat(idThoSanChon);
+//            XoaNhanVatChucNang(idMaSoiChon);
+//            XoaNhanVatChucNang(idThoSanChon);
+//            removelistUserInGameID(idMaSoiChon);
+//            removelistUserInGameID(idThoSanChon);
+//            if (!idMaSoiChon.equals(IDBoPhieu)) {
+//                roomPresenter.emitUserDie(idMaSoiChon);
+//                roomPresenter.emitUserDie(idThoSanChon);
+//            }
+//        } else {
+//
+//            XoaNhanVat(idMaSoiChon);
+//            XoaNhanVatChucNang(idMaSoiChon);
+//            removelistUserInGameID(idMaSoiChon);
+//            roomPresenter.emitUserDie(idMaSoiChon);
+//        }
+//        if (listUserMaSoi.size() == 0) {
+//            resetLaiGameMoi(2);
+//        } else if (listUserMaSoi.size() >= listUserDanLang.size()) {
+//            resetLaiGameMoi(1);
+//        }
+//        ResetLaiNgayMoi();
+//        if (giet == true) {
+//            giet = false;
+//            XoaNhanVat(IDBoPhieu);
+//            XoaNhanVatChucNang(IDBoPhieu);
+//            removelistUserInGameID(IDBoPhieu);
+//            roomPresenter.emitUserDie(IDBoPhieu);
+//        }
+//
+//        linearLayoutListUser.setVisibility(View.VISIBLE);
+//        linearLayoutTreoCo.setVisibility(View.INVISIBLE);
+//        linearLayoutChat.setVisibility(View.INVISIBLE);
+            roomPresenter.emitXuLyCuoiNgay();
 
-            XoaNhanVat(idMaSoiChon);
-            XoaNhanVatChucNang(idMaSoiChon);
-            removelistUserInGameID(idMaSoiChon);
-            roomPresenter.emitUserDie(idMaSoiChon);
-        }
-        if (listUserMaSoi.size() == 0) {
-            resetLaiGameMoi(2);
-        } else if (listUserMaSoi.size() >= listUserDanLang.size()) {
-            resetLaiGameMoi(1);
-        }
-        ResetLaiNgayMoi();
     }
 
     public void resetLaiGameMoi(int win) {
         if(win!=0 && host == true){
-            //roomPresenter.emitFinishGame(listNhanVat,win);
+            roomPresenter.emitFinishGame(listNhanVat,win,Enviroment.phong.getMoney());
             roomPresenter.emitFinishToClient(win);
             roomPresenter.emitOk(false);
 
@@ -1042,6 +1103,9 @@ public class HostActivity extends Activity implements RoomView {
         flagTienTri = false;
         flagBaoVe = false;
         flagThoSan = false;
+        flagxuli=false;
+        flagchat=false;
+        roomPresenter.emitSync(flagchat,flagxuli,manv);
 
         listIdMaSoichon.clear();
         listAllChon.clear();
@@ -1065,22 +1129,29 @@ public class HostActivity extends Activity implements RoomView {
 
         if (flagTienTri == false && userTienTri.getUserId().equals(id)) {
             flagTienTri = true;
+            roomPresenter.emitNhanVatChucNangDie(1);
         }
         if (flagThoSan == false && userThoSan.getUserId().equals(id)) {
             flagThoSan = true;
+            roomPresenter.emitNhanVatChucNangDie(2);
         }
         if (flagBaoVe == false && userBaoVe.getUserId().equals(id)) {
             flagBaoVe = true;
+            roomPresenter.emitNhanVatChucNangDie(3);
         }
     }
 
     public void ResetLaiNgayMoi() {
         XuLyLuot(1, true);
+        roomPresenter.emitResetNgayMoi();
         listIdMaSoichon.clear();
         listAllChon.clear();
         idBaoVeChon = "";
         idThoSanChon = "";
         idTienTriChon = "";
+        flagchat=false;
+        flagxuli=false;
+        roomPresenter.emitSync(flagchat,flagxuli,manv);
     }
 
     public void ResetAnhUser() {
@@ -1146,13 +1217,42 @@ public class HostActivity extends Activity implements RoomView {
                     RemoveUser(us);
                     break;
                 }
+            }
 
-
+            if (flagStart==true){
+                removelistUserInGameID(userId);
             }
         } else {
             Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
             startActivity(intent);
         }
+    }
+
+    public void removeUserInPlayGame(String id){
+            for (User us : listUserInGame){
+                if(us.getUserId().equals(id)){
+                    listUserInGame.remove(us);
+                    break;
+                }
+            }
+            for (User us : listUserDanLang){
+                if(us.getUserId().equals(id)){
+                    listUserDanLang.remove(us);
+                    break;
+                }
+            }
+            for (User us : listUserMaSoi){
+                if(us.getUserId().equals(id)){
+                    listUserMaSoi.remove(us);
+                    break;
+                }
+            }
+            for (UserRoom us : userRoomListDanThuong){
+                if (us.getUseradd().getUserId().equals(id)){
+                    userRoomListDanThuong.remove(us);
+                    break;
+                }
+            }
     }
 
     @Override
@@ -1176,7 +1276,7 @@ public class HostActivity extends Activity implements RoomView {
             OntouchUser(userRoomList);
             linearLayoutChat.setVisibility(View.INVISIBLE);
             imgNhanVat.setVisibility(View.INVISIBLE);
-            txtThoiGian.setVisibility(View.INVISIBLE);
+            txtThoiGian.setText("");
             linearLayoutTreoCo.setVisibility(View.INVISIBLE);
             linearLayoutListUser.setVisibility(View.VISIBLE);
             resetLaiGameMoi(0);
@@ -1194,9 +1294,9 @@ public class HostActivity extends Activity implements RoomView {
             }
             else {
                 OffTouchUser(userRoomList);
-                flagStart = true;
                 btnSS.setVisibility(View.INVISIBLE);
             }
+            flagStart = true;
 
         }
     }
@@ -1214,6 +1314,7 @@ public class HostActivity extends Activity implements RoomView {
 
     @Override
     public void updateTime(String time) {
+        dem = Integer.parseInt(time);
         txtThoiGian.setText(time);
     }
 
@@ -1244,6 +1345,7 @@ public class HostActivity extends Activity implements RoomView {
 
     @Override
     public void updateLuotDB(int luot) {
+        txtLuot.setText("");
         if (luot != 0) {
             if (luot == 1) {
                 linearLayoutKhungChat.setVisibility(View.INVISIBLE);
@@ -1284,6 +1386,7 @@ public class HostActivity extends Activity implements RoomView {
                 countYes = 0;
             }
             manv = 9;
+            roomPresenter.emitSync(flagchat,flagxuli,manv);
             handlerMaSoi.sendEmptyMessage(0);
         }
 
@@ -1292,6 +1395,7 @@ public class HostActivity extends Activity implements RoomView {
     @Override
     public void updateIdTientriChon(String id) {
         manv = 6;
+        roomPresenter.emitSync(flagchat,flagxuli,manv);
         idTienTriChon = id;
         handlerMaSoi.sendEmptyMessage(0);
     }
@@ -1299,13 +1403,17 @@ public class HostActivity extends Activity implements RoomView {
     @Override
     public void updateIdMaSoiChon(String id) {
         manv = 1;
+        roomPresenter.emitSync(flagchat,flagxuli,manv);
         listIdMaSoichon.add(id);
-        handlerMaSoi.sendEmptyMessage(0);
+        if (listUserMaSoi.size() == listIdMaSoichon.size()){
+            handlerMaSoi.sendEmptyMessage(0);
+        }
     }
 
     @Override
     public void updateIdThoSanChon(String id) {
         manv = 3;
+        roomPresenter.emitSync(flagchat,flagxuli,manv);
         idThoSanChon = id;
         handlerMaSoi.sendEmptyMessage(0);
     }
@@ -1313,6 +1421,7 @@ public class HostActivity extends Activity implements RoomView {
     @Override
     public void updateIdBaoVeChon(String id) {
         manv = 4;
+        roomPresenter.emitSync(flagchat,flagxuli,manv);
         idBaoVeChon = id;
         handlerMaSoi.sendEmptyMessage(0);
     }
@@ -1323,6 +1432,7 @@ public class HostActivity extends Activity implements RoomView {
         System.out.println(listAllChon.size() + " size " + listUserInGame.size());
         if (listAllChon.size() == listUserInGame.size()) {
             manv = 8;
+            roomPresenter.emitSync(flagchat,flagxuli,manv);
             handlerMaSoi.sendEmptyMessage(0);
         }
     }
@@ -1349,10 +1459,10 @@ public class HostActivity extends Activity implements RoomView {
         if (nhanvat.getManv() == nv) {
             if (nhanvat.getManv() == 1) {
                 OffTouchUser(userRoomListDanThuong);
-                txtThoiGian.setVisibility(View.INVISIBLE);
+                txtThoiGian.setText("");
             } else {
                 OffTouchUser(userRoomListSong);
-                txtThoiGian.setVisibility(View.INVISIBLE);
+                txtThoiGian.setText("");
             }
         }
     }
@@ -1367,6 +1477,7 @@ public class HostActivity extends Activity implements RoomView {
                 txtThoiGian.setVisibility(View.VISIBLE);
             }
             flagchat = true;
+            roomPresenter.emitSync(flagchat,flagxuli,manv);
             if(host==true){
                 DemGiay(30);
             }
@@ -1374,8 +1485,9 @@ public class HostActivity extends Activity implements RoomView {
             linearLayoutChat.setVisibility(View.INVISIBLE);
             findViewById(R.id.lnrkhungchat).setVisibility(View.INVISIBLE);
             listChat.setVisibility(View.INVISIBLE);
-            txtThoiGian.setVisibility(View.INVISIBLE);
+            txtThoiGian.setText("");
             flagchat = false;
+            roomPresenter.emitSync(flagchat,flagxuli,manv);
         }
     }
 
@@ -1435,9 +1547,15 @@ public class HostActivity extends Activity implements RoomView {
     public void updateHost() {
         host=true;
         getHost();
-        btnSS.setVisibility(View.INVISIBLE);
-        btnBatDau.setVisibility(View.VISIBLE);
-        Toast.makeText(this,"talahost",Toast.LENGTH_SHORT).show();
+        roomPresenter.emitUpdateHost();
+        if (flagStart == false)
+        {
+            btnSS.setVisibility(View.INVISIBLE);
+            btnBatDau.setVisibility(View.VISIBLE);
+        }else {
+            DemGiay(dem);
+        }
+
     }
 
     @Override
@@ -1480,5 +1598,149 @@ public class HostActivity extends Activity implements RoomView {
         dialogFinish.show();
     }
 
+    @Override
+    public void updateNhanVatChucNangDie(int number) {
+        if(number==1){
+           flagTienTri=true;
+        }else if (number==2){
+            flagThoSan=true;
+        }else {
+            flagBaoVe=true;
+        }
+
+    }
+
+    @Override
+    public void updateCuoiNgay(String idBV, String idTS, List<String> listMaSoiChon, List<Integer> kqBP, String idBoPhieu) {
+        idBaoVeChon=idBV;
+        idThoSanChon=idTS;
+        IDBoPhieu=idBoPhieu;
+        int count = 0;
+        for (int i:kqBP){
+            if(i==1){
+                count++;
+            }
+        }
+        if(count>=userRoomListSong.size()/2){
+            giet=true;
+        }else{
+            giet=false;
+        }
+        if (giet == true) {
+            giet = false;
+            XoaNhanVat(IDBoPhieu);
+            XoaNhanVatChucNang(IDBoPhieu);
+            removelistUserInGameID(IDBoPhieu);
+            roomPresenter.emitUserDie(IDBoPhieu);
+        }
+
+        linearLayoutListUser.setVisibility(View.VISIBLE);
+        linearLayoutTreoCo.setVisibility(View.INVISIBLE);
+        linearLayoutChat.setVisibility(View.INVISIBLE);
+        String idMaSoiChon = "";
+        if(listMaSoiChon.size()>0){
+             idMaSoiChon = listMaSoiChon.get(0);
+        }
+
+        if (idMaSoiChon.equals(idBaoVeChon)) {
+            System.out.println("a");
+        } else if (idMaSoiChon.equals(IDBoPhieu))
+            System.out.println("a");
+        else if (idMaSoiChon.equals(userThoSan.getUserId().toString())) {
+            XoaNhanVat(idMaSoiChon);
+            XoaNhanVat(idThoSanChon);
+            XoaNhanVatChucNang(idMaSoiChon);
+            XoaNhanVatChucNang(idThoSanChon);
+            removelistUserInGameID(idMaSoiChon);
+            removelistUserInGameID(idThoSanChon);
+            if (!idMaSoiChon.equals(IDBoPhieu)) {
+                roomPresenter.emitUserDie(idMaSoiChon);
+                roomPresenter.emitUserDie(idThoSanChon);
+            }
+        } else {
+
+            XoaNhanVat(idMaSoiChon);
+            XoaNhanVatChucNang(idMaSoiChon);
+            removelistUserInGameID(idMaSoiChon);
+            roomPresenter.emitUserDie(idMaSoiChon);
+        }
+        if (listUserMaSoi.size() == 0) {
+            resetLaiGameMoi(2);
+        } else if (listUserMaSoi.size() >= listUserDanLang.size()) {
+            resetLaiGameMoi(1);
+        }
+        ResetLaiNgayMoi();
+
+    }
+
+    @Override
+    public void updateListDanLangChon(List<String> list) {
+        listAllChon.clear();
+        for (String st : list){
+            listAllChon.add(st);
+        }
+        IDBoPhieu = getIDBOPhieu();
+        roomPresenter.emitIDBiBoPhieu(IDBoPhieu);
+        roomPresenter.emitUserBoPhieu(IDBoPhieu);
+        XuLiGiaiTrinh();
+    }
+
+    @Override
+    public void updateSync(boolean flagChat, boolean flagXuLi, int manv) {
+        this.flagchat=flagChat;
+        this.flagxuli = flagXuLi;
+        this.manv =manv;
+    }
+
+    @Override
+    public void onBackPressed() {
+       // super.onBackPressed();
+        if(flagStart == true){
+            if (registLeaveRoom == false){
+                Toast.makeText(HostActivity.this,"Bạn đã đăng kí tời phòng",Toast.LENGTH_SHORT).show();
+                registLeaveRoom = true;
+            } else {
+                Toast.makeText(HostActivity.this,"Bạn đã hủy đăng kí tời phòng",Toast.LENGTH_SHORT).show();
+                registLeaveRoom = false;
+            }
+        }
+        else{
+            if(host==true){
+                roomPresenter.emitUserHostExit(Enviroment.user.getUserId());
+            }
+            else{
+                roomPresenter.emitUserExit(Enviroment.user.getUserId());
+            }
+            Enviroment.phong.getUsers().clear();
+            Enviroment.phong = null;
+            Enviroment.user.setId_room("");
+            Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+//        if(host==true){
+//            roomPresenter.emitUserHostExit(Enviroment.user.getUserId());
+//            if(flagStart == true){
+//
+//            }else
+//            {
+//
+//            }
+//        }
+//        else{
+//            roomPresenter.emitUserExit(Enviroment.user.getUserId());
+//            if(flagStart == true){
+//
+//            }else
+//            {
+//
+//            }
+//        }
+    }
 
 }

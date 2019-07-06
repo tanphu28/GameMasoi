@@ -1,10 +1,13 @@
 package com.example.dtanp.masoi;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +27,7 @@ import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Phong;
 import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.presenter.ChooseRoomPresenter;
+import com.example.dtanp.masoi.utils.CommonFunction;
 import com.github.nkzawa.emitter.Emitter;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -52,10 +57,11 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
     CustomAdapter adapter, adapterSearch;
     EditText edtsearch;
     ImageButton imgsearch;
-    TextView txtTenUser;
+    TextView txtTenUser,txtGold;
     Emitter.Listener eListenerAllRoom;
     List<String> listString;
     private ChooseRoomPresenter chooseRoomPresenter;
+    private boolean flagChoiNgay = false;
 //    private static final boolean AUTO_HIDE = true;
 //
 //
@@ -104,7 +110,8 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
 //        }
 //    };
 
-
+    private ArrayList<String> listCuoc;
+    private AlertDialog dialogCreate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,7 +166,56 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
         //LangNgheJoinRoom();
         //LangNgheXoaPhong();
         chooseRoomPresenter.listenRemoveRoom();
+        addDialogCreateRoom();
     }
+
+    public void addDialogCreateRoom(){
+        listCuoc = new ArrayList<>();
+        listCuoc.add("1000");
+        listCuoc.add("2000");
+        listCuoc.add("3000");
+        listCuoc.add("5000");
+        listCuoc.add("10000");
+        listCuoc.add("20000");
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter(this,android.R.layout.select_dialog_item,listCuoc);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_createroom,null);
+        builder.setView(view);
+        final Spinner spinner = view.findViewById(R.id.sltCuoc);
+        spinner.setAdapter(arrayAdapter);
+        Button btnCreate = view.findViewById(R.id.btnCreate);
+        final TextView txtErr = view.findViewById(R.id.txtErr);
+        btnCreate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Enviroment.user.getMoney()<Integer.parseInt(listCuoc.get((int) spinner.getSelectedItemId()))){
+                    txtErr.setText("Bạn Không Đủ Tiền!");
+                }
+                else
+                {
+                    Phong phong = new Phong();
+                    phong.setId(Enviroment.user.getUserId());
+                    phong.setRoomnumber(list.size() + 1);
+                    phong.setName(Enviroment.user.getName());
+                    phong.setPeople(1);
+                    phong.getUsers().add(Enviroment.user);
+                    phong.setHost(1);
+                    phong.setMoney(Integer.parseInt(listCuoc.get((int) spinner.getSelectedItemId())));
+                    Enviroment.phong = phong;
+                    chooseRoomPresenter.emitCreateRoom(phong);
+                    startmhhost(true);
+                    finish();
+                    dialogCreate.cancel();
+                }
+
+
+            }
+        });
+
+        dialogCreate = builder.create();
+    }
+
 
 //    public void LangNgheXoaPhong(){
 //        Emitter.Listener listener = new Emitter.Listener() {
@@ -274,7 +330,7 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
                     }
                     if (flag==false)
                     {
-                        Toast.makeText(ChooseRoomActivity.this,"Khong Tìm Thấy Phong Số " + sophong +" !",LENGTH_SHORT).show();
+                        Toast.makeText(ChooseRoomActivity.this,"Không Tìm Thấy Phong Số " + sophong +" !",LENGTH_SHORT).show();
                     }
                 }else{
                     listSearch.clear();
@@ -287,39 +343,14 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
         btnChoiNgay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Phong phong = getPhongChoiNgay();
-                if (phong != null) {
-                    User us = new User();
-                    String s = phong.getId();
-                    us.setId_room(s);
-                    Enviroment.userHost = us;
-                    startmhban();
-                    finish();
-                } else {
-                    startmhhost(true);
-                    finish();
-                }
+                flagChoiNgay = true;
+                chooseRoomPresenter.emitAllRoom();
             }
         });
         btnnew.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Phong phong = new Phong();
-                // System.out.println(Enviroment.UserActivity.getId());
-                //int soPhong = getIntent().getIntExtra("sophong",0);
-                phong.setId(Enviroment.user.getUserId());
-                phong.setRoomnumber(list.size() + 1);
-                phong.setName(Enviroment.user.getName());
-                phong.setPeople(1);
-                phong.getUsers().add(Enviroment.user);
-                phong.setHost(1);
-                Enviroment.phong = phong;
-                //
-                chooseRoomPresenter.emitCreateRoom(phong);
-//                String jsonroom = Enviroment.gson.toJson(phong);
-//                Enviroment.socket.emit("createroom", jsonroom);
-                startmhhost(true);
-                finish();
+                dialogCreate.show();
             }
         });
 
@@ -327,9 +358,11 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                if (list.get(i).getPeople() >= 10) {
-                    Toast.makeText(ChooseRoomActivity.this, "Phong Day!", LENGTH_SHORT).show();
-                } else {
+                if (list.get(i).getPeople() >= 7) {
+                    Toast.makeText(ChooseRoomActivity.this, "Phòng Đầy!", LENGTH_SHORT).show();
+                }else if (list.get(i).getMoney()>Enviroment.user.getMoney()){
+                    Toast.makeText(ChooseRoomActivity.this, "Bạn Không Đủ Tiền!", LENGTH_SHORT).show();
+                }else {
 
                    Enviroment.phong = (Phong) listroom.getAdapter().getItem(i);
                     Enviroment.user.setId_room(Enviroment.phong.get_id());
@@ -354,6 +387,8 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
     }
 
     private void AddConTrols() {
+        txtGold = findViewById(R.id.txtGold);
+        txtGold.setText(CommonFunction.formatGold(Enviroment.user.getMoney()));
         txtTenUser = findViewById(R.id.txtTenUser);
         txtTenUser.setText(Enviroment.user.getName());
         listroom = findViewById(R.id.listroom);
@@ -388,11 +423,32 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
 
     @Override
     public void updateListView(ArrayList<Phong> list) {
+        this.list.clear();
+        System.out.println(this.list.size());
+        System.out.println(list.size());
         for (Phong p : list)
         {
             this.list.add(p);
         }
+        adapter.notifyDataSetInvalidated();
         adapter.notifyDataSetChanged();
+        if(flagChoiNgay==true){
+            for (Phong p : this.list){
+                if(p.getUsers().size()<7 && Enviroment.user.getMoney()>p.getMoney()){
+
+                    Enviroment.phong = p;
+                    System.out.println(Enviroment.phong.get_id() + "id");
+                    Enviroment.user.setId_room(Enviroment.phong.get_id());
+                    chooseRoomPresenter.emitJoinRoom(Enviroment.user);
+                    flagChoiNgay=false;
+                    break;
+                }
+            }
+            if(flagChoiNgay==true){
+                flagChoiNgay=false;
+                Toast.makeText(ChooseRoomActivity.this, "Không tồn tại phòng phù hợp!",LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override

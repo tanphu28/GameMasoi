@@ -27,6 +27,9 @@ var RoomSchema  = new Schema({
         type:Number
     },
 
+    money:{
+        type:Number
+    },
     create_date:{
         type:Date,
         default:Date.now

@@ -270,6 +270,23 @@ public class RoomPresenter {
         };
         this.socket.on("BangBoPhieu", listener);
     }
+    public void emitNhanVatChucNangDie(int number){
+        this.socket.emit("NhanVatChucNangDie",number);
+    }
+
+    public void listenNhanVatChucNangDie(){
+        this.socket.on("NhanVatChucNangDie", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        roomView.updateNhanVatChucNangDie((int) args[0]);
+                    }
+                });
+            }
+        });
+    }
 
     public void emitNhanvatSang(int number){
         this.socket.emit("NhanVatsang", number);
@@ -484,9 +501,10 @@ public class RoomPresenter {
         this.socket.on("useruphost",listener);
     }
 
-    public void emitFinishGame(List<NhanVat> list, int win){
+    public void emitFinishGame(List<NhanVat> list, int win, int gold){
         String json = Enviroment.gson.toJson(list);
         JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("gold",gold);
         jsonObject.addProperty("list",json);
         jsonObject.addProperty("win",win);
         this.socket.emit("finishgame",jsonObject.toString());
@@ -510,6 +528,132 @@ public class RoomPresenter {
             }
         };
         this.socket.on("win",listener);
+    }
+
+    public void  listenDisconect(){
+        this.socket.on("disconnect", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+            context.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println("disconnect");
+                }
+            });
+            }
+        });
+    }
+
+    public void emitXuLyCuoiNgay(){
+        this.socket.emit("cuoingay");
+    }
+
+    public void listenXuLyCuoiNgay(){
+        this.socket.on("cuoingay", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject jsonObject = (JSONObject) args[0];
+                        System.out.println(jsonObject.toString());
+                        try {
+                            String idBoPhieu = jsonObject.getString("idBOPHIEU");
+                            String idUserDie = jsonObject.getString("idUserDie");
+                            String idBaoVeChon = jsonObject.getString("idBaoVeChon");
+                            String idThoSanChon = jsonObject.getString("idThoSanChon");
+                            List<String> listAll = new ArrayList<>();
+                            List<Integer> listKQBP = new ArrayList<>();
+                            List<String> listMaSoiChon = new ArrayList<>();
+
+                            JSONArray jsonArray = jsonObject.getJSONArray("arrAll");
+                            JSONArray jsonArray2 = jsonObject.getJSONArray("arrKetQuaBoPhieu");
+                            JSONArray jsonArray3 = jsonObject.getJSONArray("arrMaSoiChon");
+
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                listAll.add(jsonArray.getString(i));
+                            }
+                            for (int i = 0; i < jsonArray2.length(); i++) {
+                                listKQBP.add(jsonArray2.getInt(i));
+                            }
+                            for (int i = 0; i < jsonArray3.length(); i++) {
+                                listMaSoiChon.add(jsonArray3.getString(i));
+                            }
+                            roomView.updateCuoiNgay(idBaoVeChon,idThoSanChon,listMaSoiChon,listKQBP,idBoPhieu);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    public void emitResetNgayMoi(){
+        this.socket.emit("resetngaymoi");
+    }
+
+    public void emitListDanLangChon(){
+        this.socket.emit("listdanlangchon");
+    }
+
+    public void listenListDanLangChon(){
+        this.socket.on("listdanlangchon", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<String> listAll = new ArrayList<>();
+                        JSONArray jsonArray = (JSONArray) args[0];
+                        for (int i=0; i<jsonArray.length();i++){
+                            try {
+                                listAll.add(jsonArray.getString(i));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        roomView.updateListDanLangChon(listAll);
+                    }
+                });
+            }
+        });
+    }
+
+    public void emitSync(boolean flagChat, boolean flagXuLi,int manv ){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("flagchat",flagChat);
+        jsonObject.addProperty("flagxuli",flagXuLi);
+        jsonObject.addProperty("manv",manv);
+        String json = Enviroment.gson.toJson(jsonObject);
+        this.socket.emit("sync",json);
+    }
+
+    public void listenSync(){
+        this.socket.on("sync", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+             context.runOnUiThread(new Runnable() {
+                 @Override
+                 public void run() {
+                     JSONObject jsonObject = (JSONObject) args[0];
+                     try {
+                         boolean flagChat = jsonObject.getBoolean("flagchat");
+                         boolean flagXuLi = jsonObject.getBoolean("flagxuli");
+                         int manv = jsonObject.getInt("manv");
+                         roomView.updateSync(flagChat,flagXuLi,manv);
+                     } catch (JSONException e) {
+                         e.printStackTrace();
+                     }
+
+                 }
+             });
+            }
+        });
+    }
+
+    public void emitUpdateHost(){
+        this.socket.emit("updatehost");
     }
 
 }

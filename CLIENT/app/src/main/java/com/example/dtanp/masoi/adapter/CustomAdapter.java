@@ -49,7 +49,7 @@ public class CustomAdapter extends ArrayAdapter<Phong> {
         holder = (ViewHolder) view.getTag();
         holder.txtban.setText(list.get(position).getRoomnumber()+"");
         holder.txttenban.setText(list.get(position).getName()+"");
-        holder.txtcuoc.setText(3000+"");
+        holder.txtcuoc.setText(list.get(position).getMoney()+"");
         holder.txtsonguoi.setText(list.get(position).getPeople()+"");
         return view;
     }

@@ -32,6 +32,7 @@ import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Chat;
 import com.example.dtanp.masoi.model.UserFriends;
 import com.example.dtanp.masoi.presenter.HomePresenter;
+import com.example.dtanp.masoi.utils.CommonFunction;
 import com.facebook.login.widget.LoginButton;
 import com.github.nkzawa.emitter.Emitter;
 
@@ -44,6 +45,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -104,7 +107,7 @@ public class HomeActivity extends Activity implements HomeView {
     RelativeLayout relativeLayoutChat;
     ImageButton imgChat,imgCancleChat;
     boolean flagChat = false;
-    TextView txtUser;
+    TextView txtUser,txtGold;
     LoginButton loginButton;
     ImageButton btnUserinfo;
 
@@ -130,7 +133,9 @@ public class HomeActivity extends Activity implements HomeView {
         AddConTrols();
         homePresenter.listenAllChat();
         txtUser.setText(Enviroment.user.getName());
+        homePresenter.litenPingtoServer();
         inSomeWhere();
+        //pingToServer();
     }
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -197,6 +202,8 @@ public class HomeActivity extends Activity implements HomeView {
 
         homePresenter.emitGetAllUserFreinds();
         txtPing = findViewById(R.id.txtPing);
+        txtGold = findViewById(R.id.txtgold);
+        txtGold.setText(CommonFunction.formatGold(Enviroment.user.getMoney()));
     }
 
     private void AddConTrols() {
@@ -381,7 +388,7 @@ public class HomeActivity extends Activity implements HomeView {
                     Runtime r = Runtime.getRuntime();
                     Process p = null;
                     try {
-                        p = r.exec(new String[]{"ping", "-c 3", ip});
+                        p = r.exec(new String[]{"ping", "-c 2", ip});
                         BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
                         String inputLine = null;
                         while (true) {
@@ -412,6 +419,23 @@ public class HomeActivity extends Activity implements HomeView {
                 }else {
                     txtPing.setTextColor(Color.GREEN);
                 }
+            }
+        }.execute();
+    }
+
+    public  void pingToServer(){
+        new AsyncTask<Void,String ,String >(){
+
+            @Override
+            protected String doInBackground(Void... voids) {
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        homePresenter.emitPingtoServer();
+                    }
+                },0,2500);
+                return null;
             }
         }.execute();
     }

@@ -1,6 +1,9 @@
 package com.example.dtanp.masoi.presenter;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 import com.example.dtanp.masoi.HomeActivity;
 import com.example.dtanp.masoi.appinterface.HomeView;
@@ -16,7 +19,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class HomePresenter {
     private Socket socket;
@@ -97,6 +103,28 @@ public class HomePresenter {
             }
         };
         this.socket.on("ChatAll", listenerChatMes);
+    }
+
+    public void emitPingtoServer(){
+        Date date = new Date();
+        this.socket.emit("ping", date.toString());
+    }
+
+    public void litenPingtoServer(){
+        Emitter.Listener listener = new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //long mm = (long) args[0];
+                        System.out.println(args[0]);
+                    }
+                });
+            }
+        };
+
+        this.socket.on("ping",listener);
     }
 
 

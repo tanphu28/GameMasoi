@@ -43,6 +43,7 @@ public class ChooseRoomPresenter {
                     public void run() {
                         JSONArray jsonObject = (JSONArray) args[0];
                         System.out.println(jsonObject.toString());
+                        list.clear();
                         for (int i = 0; i < jsonObject.length(); i++) {
                             try {
                                 JSONObject jsonObject1 = jsonObject.getJSONObject(i);
