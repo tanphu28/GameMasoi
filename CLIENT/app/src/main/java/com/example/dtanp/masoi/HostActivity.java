@@ -622,6 +622,7 @@ public class HostActivity extends Activity implements RoomView {
                         flagchat = false;
                         roomPresenter.emitSync(flagchat,flagxuli,manv);
                     } else if (flagxuli == true) {
+                        timer.cancel();
                         roomPresenter.emitUserBiBoPhieuTat(IDBoPhieu);
                         XuLyLuot(7, false);
                         if (die == false) {
@@ -634,10 +635,10 @@ public class HostActivity extends Activity implements RoomView {
                         manv = 9;
                         flagxuli = false;
                         roomPresenter.emitSync(flagchat, flagxuli, manv);
-                  } else{
+
+                    } else{
                         handlerMaSoi.sendEmptyMessage(0);
                     }
-                    timer.cancel();
                     txtThoiGian.setText("");
                 }
             }
@@ -704,6 +705,18 @@ public class HostActivity extends Activity implements RoomView {
                         }
                     }
 
+                }
+                if(host==false){
+                    if(nv.getManv()==3){
+                        userThoSan = new User();
+                        userThoSan.setUserId(nv.getId());
+                    }else if (nv.getManv()==4){
+                        userBaoVe=new User();
+                        userBaoVe.setUserId(nv.getId());
+                    }else if (nv.getManv()==6){
+                        userTienTri = new User();
+                        userTienTri.setUserId(nv.getId());
+                    }
                 }
             }
 
@@ -1498,11 +1511,13 @@ public class HostActivity extends Activity implements RoomView {
     public void updateNhanVatSang(int nv) {
         if (nhanvat.getManv() == nv) {
             txtThoiGian.setVisibility(View.VISIBLE);
-            AddClickUser("BangChonChucNang");
-            if (nhanvat.getManv() == 1) {
-                OntouchUser(userRoomListDanThuong);
-            } else {
-                OntouchUser(userRoomListSong);
+            if (die == false){
+                AddClickUser("BangChonChucNang");
+                if (nhanvat.getManv() == 1) {
+                    OntouchUser(userRoomListDanThuong);
+                } else {
+                    OntouchUser(userRoomListSong);
+                }
             }
         }
         if (host==true){
@@ -1704,17 +1719,20 @@ public class HostActivity extends Activity implements RoomView {
             System.out.println("a");
         } else if (idMaSoiChon.equals(IDBoPhieu))
             System.out.println("a");
-        else if (idMaSoiChon.equals(userThoSan.getUserId().toString())) {
-            XoaNhanVat(idMaSoiChon);
-            XoaNhanVat(idThoSanChon);
-            XoaNhanVatChucNang(idMaSoiChon);
-            XoaNhanVatChucNang(idThoSanChon);
-            removelistUserInGameID(idMaSoiChon);
-            removelistUserInGameID(idThoSanChon);
-            if (!idMaSoiChon.equals(IDBoPhieu)) {
-                roomPresenter.emitUserDie(idMaSoiChon);
-                roomPresenter.emitUserDie(idThoSanChon);
+        else if (userThoSan!=null) {
+            if(idMaSoiChon.equals(userThoSan.getUserId().toString())){
+                XoaNhanVat(idMaSoiChon);
+                XoaNhanVat(idThoSanChon);
+                XoaNhanVatChucNang(idMaSoiChon);
+                XoaNhanVatChucNang(idThoSanChon);
+                removelistUserInGameID(idMaSoiChon);
+                removelistUserInGameID(idThoSanChon);
+                if (!idMaSoiChon.equals(IDBoPhieu)) {
+                    roomPresenter.emitUserDie(idMaSoiChon);
+                    roomPresenter.emitUserDie(idThoSanChon);
+                }
             }
+
         } else {
 
             XoaNhanVat(idMaSoiChon);

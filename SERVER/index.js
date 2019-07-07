@@ -44,11 +44,14 @@ for(let i=0;i<7;i++){
     roomarr["aa"].arrReady.push(i);
     roomarr["aa"].arrUserDie.push(i);
 }
-
 io.on("connection", function (socket) {
-    socket.on("room",function(){
-        socket.emit("room",roomarr["aa"]);
-    });
+    // socket.on("room",function(){
+    //     socket.emit("room",roomarr["aa"].arrAll);
+    // });
+    // socket.on("rs",function(){
+    //     roomarr["aa"] = new RoomCache();
+    //     roomarr["aa"].arrAll.push("1");
+    // })
     //join room cho web test
     socket.Phong="";
     socket.host=0;
@@ -814,33 +817,37 @@ io.on("connection", function (socket) {
             });
         }
         else {
-            if (element.manv != '1') {
-                User.findOne({ userId: element.id }, (err, doc) => {
-                    if (err) {
-                        console.log("That Bai!");
-                    }
-                    else {
-                        doc.win = doc.win + 1;
-                        doc.money = doc.money+gold;
-                        doc.save();
-                    }
+            list.forEach(element => {
+                if (element.manv != '1') {
+                    User.findOne({ userId: element.id }, (err, doc) => {
+                        if (err) {
+                            console.log("That Bai!");
+                        }
+                        else {
+                            doc.win = doc.win + 1;
+                            doc.money = doc.money+gold;
+                            doc.save();
+                        }
 
-                });
-            }
-            else {
-                User.findOne({ userId: element.id }, (err, doc) => {
-                    if (err) {
-                        console.log("That Bai!");
-                    }
-                    else {
-                        doc.lose = doc.lose + 1;
-                        doc.money = doc.money-gold;
-                    doc.save();
-                    }
-                    
-                });
-            }
+                    });
+                }
+                else {
+                    User.findOne({ userId: element.id }, (err, doc) => {
+                        if (err) {
+                            console.log("That Bai!");
+                        }
+                        else {
+                            doc.lose = doc.lose + 1;
+                            doc.money = doc.money-gold;
+                        doc.save();
+                        }
+                        
+                    });
+                }
+            });
+        
         }
+        
 
     })
 
