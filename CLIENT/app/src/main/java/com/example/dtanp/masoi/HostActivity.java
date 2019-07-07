@@ -921,12 +921,12 @@ public class HostActivity extends Activity implements RoomView {
 
         if (luot == 4) {
             if (flagBaoVe == true) {
-                luot = 6;
+                luot = 3;
             }
         }
         if (luot == 3) {
             if (flagThoSan == true) {
-                luot = 4;
+                luot = 6;
             }
         }
         if (luot == 6) {
@@ -1132,18 +1132,24 @@ public class HostActivity extends Activity implements RoomView {
 
     public void XoaNhanVatChucNang(String id) {
 
+        if (flagTienTri == false && userTienTri!=null) {
+            if(userTienTri.getUserId().equals(id)){
+                flagTienTri = true;
+                roomPresenter.emitNhanVatChucNangDie(1);
+            }
 
-        if (flagTienTri == false && userTienTri.getUserId().equals(id)) {
-            flagTienTri = true;
-            roomPresenter.emitNhanVatChucNangDie(1);
         }
-        if (flagThoSan == false && userThoSan.getUserId().equals(id)) {
-            flagThoSan = true;
-            roomPresenter.emitNhanVatChucNangDie(2);
+        if (flagThoSan == false && userThoSan!=null) {
+            if (userThoSan.getUserId().equals(id)){
+                flagThoSan = true;
+                roomPresenter.emitNhanVatChucNangDie(2);
+            }
         }
-        if (flagBaoVe == false && userBaoVe.getUserId().equals(id)) {
-            flagBaoVe = true;
-            roomPresenter.emitNhanVatChucNangDie(3);
+        if (flagBaoVe == false && userBaoVe!=null) {
+            if(userBaoVe.getUserId().equals(id)){
+                flagBaoVe = true;
+                roomPresenter.emitNhanVatChucNangDie(3);
+            }
         }
     }
 
@@ -1162,6 +1168,7 @@ public class HostActivity extends Activity implements RoomView {
 
     public void ResetAnhUser() {
         for (UserRoom text : userRoomList) {
+            text.setFlag(true);
             text.getUser().setImageResource(R.drawable.image_user);
         }
     }
@@ -1286,13 +1293,13 @@ public class HostActivity extends Activity implements RoomView {
     @Override
     public void updateOK(boolean flag) {
         if (flag == false) {
-            OntouchUser(userRoomList);
             linearLayoutChat.setVisibility(View.INVISIBLE);
             imgNhanVat.setVisibility(View.INVISIBLE);
             txtThoiGian.setText("");
             linearLayoutTreoCo.setVisibility(View.INVISIBLE);
             linearLayoutListUser.setVisibility(View.VISIBLE);
             resetLaiGameMoi(0);
+            OntouchUser(userRoomList);
             if(host==true){
                 btnBatDau.setVisibility(View.VISIBLE);
             }
@@ -1412,6 +1419,7 @@ public class HostActivity extends Activity implements RoomView {
                 }
 
                 if(host==true){
+                    manv=9;
                     DemGiay(30);
                 }
             }
@@ -1549,6 +1557,7 @@ public class HostActivity extends Activity implements RoomView {
                 AddClickUser("BangIdChon");
             }
             if(host==true){
+                manv=8;
                 DemGiay(30);
             }
 
@@ -1559,6 +1568,7 @@ public class HostActivity extends Activity implements RoomView {
 
     @Override
     public void updateBangIdChon(String id) {
+        IDBoPhieu=id;
         if (id.equals(Enviroment.user.getUserId())) {
             linearLayoutListUser.setVisibility(View.INVISIBLE);
             linearLayoutChat.setVisibility(View.VISIBLE);
@@ -1570,7 +1580,6 @@ public class HostActivity extends Activity implements RoomView {
             txtTreoCo.setText(Enviroment.user.getName());
             flagBiBoPhieu=true;
         } else {
-            if (!id.equals("A")) {
                 findViewById(R.id.lnrkhungchat).setVisibility(View.INVISIBLE);
                 linearLayoutListUser.setVisibility(View.INVISIBLE);
                 btnKhongGiet.setVisibility(View.INVISIBLE);
@@ -1578,14 +1587,12 @@ public class HostActivity extends Activity implements RoomView {
                 linearLayoutTreoCo.setVisibility(View.VISIBLE);
                 linearLayoutChat.setVisibility(View.VISIBLE);
                 listChat.setVisibility(View.VISIBLE);
-
                 for (User user : listUser) {
                     if (user.getUserId().equals(id)) {
                         txtTreoCo.setText(user.getName());
                         break;
                     }
                 }
-            }
         }
     }
 
@@ -1740,9 +1747,11 @@ public class HostActivity extends Activity implements RoomView {
 
     @Override
     public void updateSync(boolean flagChat, boolean flagXuLi, int manv) {
-        this.flagchat=flagChat;
-        this.flagxuli = flagXuLi;
-        this.manv =manv;
+        if (host==false){
+            this.flagchat=flagChat;
+            this.flagxuli = flagXuLi;
+            this.manv =manv;
+        }
     }
 
     @Override
