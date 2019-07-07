@@ -34,14 +34,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:textColor="#fff"
-                    android:textSize="10pt" />
+                    android:textSize="15dp" />
                 <TextView
                     android:id="@+id/txtTenPhong"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:textColor="#fff"
-                    android:textSize="10pt" />
+                    android:textSize="15dp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -140,7 +140,7 @@
                     android:layout_gravity="center"
                     android:text="Phu"
                     android:textColor="#fff"
-                    android:textSize="40dp"
+                    android:textSize="30dp"
 
                     />
 
@@ -162,7 +162,7 @@
                         android:layout_marginLeft="10dp"
                         android:text="5000"
                         android:textColor="#fff"
-                        android:textSize="30dp" />
+                        android:textSize="25dp" />
 
                 </LinearLayout>
 
@@ -420,7 +420,7 @@
                 android:layout_marginLeft="20dp"
                 android:text="1"
                 android:textColor="#ffcd17"
-                android:textSize="20dp" />
+                android:textSize="18dp" />
 
             <TextView
                 android:id="@+id/txtLuot"
@@ -429,7 +429,7 @@
                 android:layout_marginLeft="50dp"
                 android:text="aa"
                 android:textColor="#ffcd17"
-                android:textSize="20dp" />
+                android:textSize="18dp" />
 
         </LinearLayout>
 
