@@ -354,7 +354,7 @@ public class HostActivity extends Activity implements RoomView {
     }
 
     public void AnhXa() {
-
+        timer = new Timer();
         txtGold = findViewById(R.id.txtGold);
         txtGold.setText(CommonFunction.formatGold(Enviroment.user.getMoney()));
         user1 = findViewById(R.id.txtuser1);
@@ -591,7 +591,6 @@ public class HostActivity extends Activity implements RoomView {
 
     public void DemGiay(int giay) {
         dem = giay;
-        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -626,13 +625,12 @@ public class HostActivity extends Activity implements RoomView {
                         }
                         setLuotDB(7);
                         manv = 9;
-                        //DemGiay(30);
+//                        DemGiay(30);
                         flagxuli = false;
                         roomPresenter.emitSync(flagchat, flagxuli, manv);
+                  } else{
+                        handlerMaSoi.sendEmptyMessage(0);
                     }
-//                    }else{
-//                        handlerMaSoi.sendEmptyMessage(0);
-//                    }
                     timer.cancel();
                     txtThoiGian.setText("");
                 }
@@ -705,6 +703,7 @@ public class HostActivity extends Activity implements RoomView {
     }
 
     public void getTextViewAddList() {
+        userRoomListSong.clear();
         for (UserRoom text : userRoomList) {
             userRoomListSong.add(text);
         }
@@ -800,8 +799,13 @@ public class HostActivity extends Activity implements RoomView {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-                //timer.cancel();
-                //dem=0;
+                try{
+                    timer.cancel();
+                    dem=0;
+                }
+                catch (Exception e){
+                    System.out.println(e.getMessage().toString());
+                }
                 if (manv == 1) {
                     setLuotDB(2);
                     XuLyLuot(1, false);
@@ -927,7 +931,6 @@ public class HostActivity extends Activity implements RoomView {
                 if (flag == true) {
                     manv=1;
                     roomPresenter.emitSync(flagchat,flagxuli,manv);
-                    //DemGiay(30);
                     roomPresenter.emitNhanvatSang(1);
                 } else {
                     roomPresenter.emitNhanvatTat(1);
@@ -940,7 +943,6 @@ public class HostActivity extends Activity implements RoomView {
             if (flag == true) {
                 manv=3;
                 roomPresenter.emitSync(flagchat,flagxuli,manv);
-                //DemGiay(30);
                 roomPresenter.emitNhanvatSang(3);
             } else {
                 roomPresenter.emitNhanvatTat(3);
@@ -951,7 +953,6 @@ public class HostActivity extends Activity implements RoomView {
             if (flag == true) {
                 manv=4;
                 roomPresenter.emitSync(flagchat,flagxuli,manv);
-                //DemGiay(30);
                 roomPresenter.emitNhanvatSang(4);
             } else {
                 roomPresenter.emitNhanvatTat(4);
@@ -962,7 +963,6 @@ public class HostActivity extends Activity implements RoomView {
             if (flag == true) {
                 manv=6;
                 roomPresenter.emitSync(flagchat,flagxuli,manv);
-                //DemGiay(30);
                 roomPresenter.emitNhanvatSang(6);
             } else {
                 roomPresenter.emitNhanvatTat(6);
@@ -973,7 +973,6 @@ public class HostActivity extends Activity implements RoomView {
         } else if (luot == 8) {
             roomPresenter.emitAllManHinhChon(flag);
             if(flag==true){
-                //DemGiay(30);
                 manv=8;
                 roomPresenter.emitSync(flagchat,flagxuli,manv);
             }
@@ -1250,6 +1249,13 @@ public class HostActivity extends Activity implements RoomView {
                     break;
                 }
             }
+
+            for (UserRoom us : userRoomListSong){
+                if(us.getUseradd().getUserId().equals(id)){
+                    userRoomListSong.remove(us);
+                    break;
+                }
+            }
     }
 
     @Override
@@ -1311,7 +1317,9 @@ public class HostActivity extends Activity implements RoomView {
 
     @Override
     public void updateTime(String time) {
-        dem = Integer.parseInt(time);
+        if(host==false){
+            dem = Integer.parseInt(time);
+        }
         txtThoiGian.setText(time);
     }
 
@@ -1330,6 +1338,24 @@ public class HostActivity extends Activity implements RoomView {
                     }
 
                 }
+
+
+                for(UserRoom us : userRoomListSong){
+                    if(us.getUseradd()!=null){
+                        if(us.getUseradd().getUserId().equals(userId)){
+                            userRoomListSong.remove(us);
+                        }
+                    }
+                }
+
+                for(UserRoom us : userRoomListDanThuong){
+                    if(us.getUseradd()!=null){
+                        if(us.getUseradd().getUserId().equals(userId)){
+                            userRoomListDanThuong.remove(us);
+                        }
+                    }
+                }
+
             }
     }
 
@@ -1359,6 +1385,20 @@ public class HostActivity extends Activity implements RoomView {
                         btnGiet.setVisibility(View.VISIBLE);
                         btnKhongGiet.setVisibility(View.VISIBLE);
                     }
+                    else
+                    {
+                        btnGiet.setVisibility(View.INVISIBLE);
+                        btnKhongGiet.setVisibility(View.INVISIBLE);
+                    }
+                }
+                else
+                {
+                    btnGiet.setVisibility(View.INVISIBLE);
+                    btnKhongGiet.setVisibility(View.INVISIBLE);
+                }
+
+                if(host==true){
+                    DemGiay(30);
                 }
             }
             HienThiLuot(luot);
@@ -1438,16 +1478,15 @@ public class HostActivity extends Activity implements RoomView {
     public void updateNhanVatSang(int nv) {
         if (nhanvat.getManv() == nv) {
             txtThoiGian.setVisibility(View.VISIBLE);
-//            if(host==true)
-//            {
-//                DemGiay(30);
-//            }
             AddClickUser("BangChonChucNang");
             if (nhanvat.getManv() == 1) {
                 OntouchUser(userRoomListDanThuong);
             } else {
                 OntouchUser(userRoomListSong);
             }
+        }
+        if (host==true){
+            DemGiay(30);
         }
     }
 
@@ -1494,6 +1533,9 @@ public class HostActivity extends Activity implements RoomView {
             if (die == false) {
                 OntouchUser(userRoomListSong);
                 AddClickUser("BangIdChon");
+            }
+            if(host==true){
+                DemGiay(30);
             }
 
         } else {
