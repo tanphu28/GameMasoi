@@ -354,7 +354,7 @@ public class HostActivity extends Activity implements RoomView {
     }
 
     public void AnhXa() {
-        timer = new Timer();
+
         txtGold = findViewById(R.id.txtGold);
         txtGold.setText(CommonFunction.formatGold(Enviroment.user.getMoney()));
         user1 = findViewById(R.id.txtuser1);
@@ -533,15 +533,21 @@ public class HostActivity extends Activity implements RoomView {
 
     public void OffTouchUser(List<UserRoom> list) {
         for (UserRoom text : list) {
-            text.getUser().setEnabled(false);
-            text.getUser().setAlpha(0.8f);
+            if (text.isFlag()==true){
+                text.getUser().setEnabled(false);
+                text.getUser().setAlpha(0.8f);
+            }
+
         }
     }
 
     public void OntouchUser(List<UserRoom> list) {
         for (UserRoom text : list) {
-            text.getUser().setEnabled(true);
-            text.getUser().setAlpha(1f);
+            if(text.isFlag()==true){
+                text.getUser().setEnabled(true);
+                text.getUser().setAlpha(1f);
+            }
+
         }
     }
 
@@ -591,6 +597,7 @@ public class HostActivity extends Activity implements RoomView {
 
     public void DemGiay(int giay) {
         dem = giay;
+        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -686,11 +693,13 @@ public class HostActivity extends Activity implements RoomView {
     }
 
     public void getListXuLy() {
+        userRoomListDanThuong.clear();
         for (NhanVat nv : listNhanVat) {
             if (nv.getManv() != 1) {
                 for (UserRoom text : userRoomList) {
                     if (text.getUseradd() != null) {
                         if (text.getUseradd().getUserId().toString().equals(nv.getId().toString())) {
+                            text.setFlag(true);
                             userRoomListDanThuong.add(text);
                             break;
                         }
@@ -705,6 +714,7 @@ public class HostActivity extends Activity implements RoomView {
     public void getTextViewAddList() {
         userRoomListSong.clear();
         for (UserRoom text : userRoomList) {
+            text.setFlag(true);
             userRoomListSong.add(text);
         }
     }
@@ -850,7 +860,7 @@ public class HostActivity extends Activity implements RoomView {
             {
                 if (text.getUseradd().getUserId().toString().equals(id)) {
                     userRoom = text;
-                    userRoomListSong.remove(text);
+                    text.setFlag(false);
                     System.out.println("Xoa list song"+ userRoomListSong.size());
                     break;
                 }
@@ -862,7 +872,7 @@ public class HostActivity extends Activity implements RoomView {
             {
                 if (text.getUseradd().getUserId().toString().equals(id)) {
                     userRoom = text;
-                    userRoomListDanThuong.remove(text);
+                    text.setFlag(false);
                     break;
                 }
             }
@@ -1245,14 +1255,14 @@ public class HostActivity extends Activity implements RoomView {
             }
             for (UserRoom us : userRoomListDanThuong){
                 if (us.getUseradd().getUserId().equals(id)){
-                    userRoomListDanThuong.remove(us);
+                    us.setFlag(false);
                     break;
                 }
             }
 
             for (UserRoom us : userRoomListSong){
                 if(us.getUseradd().getUserId().equals(id)){
-                    userRoomListSong.remove(us);
+                    us.setFlag(false);
                     break;
                 }
             }
@@ -1340,18 +1350,22 @@ public class HostActivity extends Activity implements RoomView {
                 }
 
 
-                for(UserRoom us : userRoomListSong){
-                    if(us.getUseradd()!=null){
-                        if(us.getUseradd().getUserId().equals(userId)){
-                            userRoomListSong.remove(us);
+                if(host==false){
+                    for(UserRoom us : userRoomListSong){
+                        if(us.getUseradd()!=null){
+                            if(us.getUseradd().getUserId().equals(userId)){
+                                us.setFlag(false);
+                                break;
+                            }
                         }
                     }
-                }
 
-                for(UserRoom us : userRoomListDanThuong){
-                    if(us.getUseradd()!=null){
-                        if(us.getUseradd().getUserId().equals(userId)){
-                            userRoomListDanThuong.remove(us);
+                    for(UserRoom us : userRoomListDanThuong){
+                        if(us.getUseradd()!=null){
+                            if(us.getUseradd().getUserId().equals(userId)){
+                                us.setFlag(false);
+                                break;
+                            }
                         }
                     }
                 }
