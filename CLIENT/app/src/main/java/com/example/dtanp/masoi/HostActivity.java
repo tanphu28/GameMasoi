@@ -632,7 +632,6 @@ public class HostActivity extends Activity implements RoomView {
                         }
                         setLuotDB(7);
                         manv = 9;
-//                        DemGiay(30);
                         flagxuli = false;
                         roomPresenter.emitSync(flagchat, flagxuli, manv);
                   } else{
@@ -1310,7 +1309,6 @@ public class HostActivity extends Activity implements RoomView {
             if(host==true){
                 btnBatDau.setVisibility(View.INVISIBLE);
                 XuLyLuot(1, true);
-                //DemGiay(20);
             }
             else {
                 OffTouchUser(userRoomList);
