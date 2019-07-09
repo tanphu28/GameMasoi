@@ -1,2 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="app_name">MaSoi</string>
+    <string name="btnPhaynow">Chơi ngay</string>
+    <string name="btnPlaygame">Chơi ngay</string>
+    <string name="btnSend">Gửi</string>
+    <string name="btnSignup">Đăng Kí</string>
+    <string name="btnlogin">Đăng Nhập</string>
+    <string name="txtuser">Tên</string>
+    <string name="hintroomenter">nhập số phòng</string>
+    <string name="txtlistFriend">DS Bạn</string>
+    <string name="txtforget">quên mật khẩu ?</string>
+    <string name="txtbetting">Cược</string>
+    <string name="txtpass">Mật Khẩu</string>
+    <string name="txtpeoplenumber">Số người</string>
+    <string name="txttablenumber">Số Bàn</string>
+    <string name="hintname">tìm kiếm</string>
+    <string name="txtLogin">Đăng Nhập</string>
+    <string name="txtban">Bàn</string>
+    <string name="btnNew">Tạo Phòng</string>
+</resources>

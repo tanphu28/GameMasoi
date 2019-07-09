@@ -13,7 +13,7 @@
         android:id="@+id/txtlogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="LOGIN"
+        android:text="@string/txtLogin"
         android:textColor="#FFFFFF"
         android:textSize="28dp"
         android:layout_gravity="center"
@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="180dp"
-            android:text="User"
+            android:text="@string/txtuser"
             android:textColor="#FFFFFF"
             android:textSize="20dp" />
 
@@ -56,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="130dp"
-            android:text="Password"
+            android:text="@string/txtpass"
             android:textColor="#FFFFFF"
             android:textSize="20dp" />
 
@@ -78,7 +78,7 @@
             android:id="@+id/btnlogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Login"
+            android:text="@string/btnlogin"
             android:background="#e80715"
             android:textColor="#FFF"
             android:textSize="18dp"
@@ -89,7 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18dp"
-            android:text="Signup"
+            android:text="@string/btnSignup"
             android:background="#e80715"
             android:textColor="#FFF"
             android:layout_marginLeft="30dp"
@@ -132,7 +132,7 @@
             android:id="@+id/txtquenmk"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Quên mật khẩu ?"
+            android:text="@string/txtforget"
             android:textColor="#eb5a16"
             android:layout_gravity="center"
             android:layout_marginLeft="160dp"

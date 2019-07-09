@@ -8,4 +8,24 @@
     <string name="facebook_app_id">312067449576530</string>
     <string name="fb_login_protocol_scheme">fb312067449576530</string>
     <string name="google_login">AIzaSyAWQKdmulDz35Hl6fKvWIzHcGemq8sar5M</string>
+    <string name="txtLogin">LOGIN</string>
+    <string name="txtuser">User</string>
+    <string name="txtpass">Password</string>
+    <string name="btnlogin">Login</string>
+    <string name="btnSignup">Signup</string>
+    <string name="txtforget">forget password ?</string>
+
+    <string name="txtlistFriend">List Friend</string>
+    <string name="btnPlaygame">Play now</string>
+    <string name="hintname">search name</string>
+
+    <string name="btnNew">New</string>
+    <string name="btnPhaynow">Play now</string>
+    <string name="hintroomenter">room enter</string>
+    <string name="txtban">table</string>
+    <string name="txttablenumber">table number</string>
+    <string name="txtbetting">betting</string>
+    <string name="txtpeoplenumber">people number</string>
+
+    <string name="btnSend">Send</string>
 </resources>
