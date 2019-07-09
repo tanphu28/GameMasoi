@@ -625,7 +625,7 @@ io.on("connection", function (socket) {
     socket.on("BangIdChon", function (data) {
         var json = JSON.parse(data);
         io.sockets.in(socket.Phong).emit("BangIdChon", json.idchon);
-        io.sockets.in(socket.Phong,data);
+        io.sockets.in(socket.Phong).emit("listallchon",json);
         roomarr[socket.Phong].arrAll.push(json.idchon)
     });
     socket.on("cuoingay",function(){
