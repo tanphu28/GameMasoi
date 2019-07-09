@@ -36,4 +36,5 @@ public interface RoomView {
     public void updateCuoiNgay(String idBV, String idTS, List<String> listMaSoiChon, List<Integer> kqBP,String idBoPhieu);
     public void updateListDanLangChon(List<String> list);
     public void updateSync(boolean flagChat, boolean flagXuLi,int manv);
+    public void updateListAllChon(String name , String nameChoose);
 }

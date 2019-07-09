@@ -397,10 +397,20 @@ public class RoomPresenter {
         this.socket.on("AllChat", listenerChat);
     }
 
-    public void emitChonUser(String st, int manv, String idchon){
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("manv", manv + "");
-        jsonObject.addProperty("idchon", idchon+ "");
+    public void emitChonUser(String st, int manv, String idchon, String name, String nameChoose){
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("manv",manv + "");
+            jsonObject.put("idchon",idchon + "");
+            jsonObject.put("name",name + "");
+            jsonObject.put("namechoose",nameChoose + "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+//        jsonObject.addProperty("manv", manv + "");
+//        jsonObject.addProperty("idchon", idchon+ "");
+//        jsonObject.addProperty("name",name);
+//        jsonObject.addProperty("namechoose",nameChoose);
         String json = Enviroment.gson.toJson(jsonObject);
         this.socket.emit(st, json);
     }
@@ -655,6 +665,27 @@ public class RoomPresenter {
 
     public void emitUpdateHost(){
         this.socket.emit("updatehost");
+    }
+
+    public void listenListAllChon(){
+        socket.on("listallchon", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject jsonObject = (JSONObject) args[0];
+                        try {
+                            String name = jsonObject.getString("name");
+                            String nameChoose = jsonObject.getString("namechoose");
+                            roomView.updateListAllChon(name,nameChoose);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
     }
 
 }

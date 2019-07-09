@@ -31,6 +31,7 @@ import com.example.dtanp.masoi.appinterface.RoomView;
 import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Chat;
 import com.example.dtanp.masoi.model.NhanVat;
+import com.example.dtanp.masoi.model.Phong;
 import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.model.UserRoom;
 import com.example.dtanp.masoi.presenter.RoomPresenter;
@@ -46,15 +47,15 @@ import io.fabric.sdk.android.Fabric;
 
 public class HostActivity extends Activity implements RoomView {
     ListView listChat;
-    CustomAdapterChat adapterChat;
-    Button btnBatDau, btnSend, btnGiet, btnKhongGiet;
+    CustomAdapterChat adapterChat,adapterChatMaSoi;
+    Button btnBatDau, btnSend, btnGiet, btnKhongGiet,btnMe;
     ImageView imgNhanVat, imgTreoCo;
     List<UserRoom> userRoomList, userRoomListSong, userRoomListDanThuong;
-    List<Chat> list;
+    List<Chat> list,listChatMaSoi;
     EditText edtChat;
     public List<User> listUser, listUserInGame;
     TextView user1, user2, user3, user4, user5, user6, txtTenUser, txtSoPhong, txtTenPhong, txtThoiGian, txtLuot, txtTreoCo,txtGold;
-    LinearLayout linearLayoutChat, linearLayoutListUser, linearLayoutTreoCo, linearLayoutKhungChat;
+    LinearLayout linearLayoutChat, linearLayoutListUser, linearLayoutTreoCo, linearLayoutKhungChat,lnrListAllChon;
     private Timer timer;
     private Handler handler, handlerMaSoi;
     private ImageButton btnUser1, btnUser2, btnUser3, btnUser4, btnUser5, btnUser6,btnback;
@@ -67,7 +68,7 @@ public class HostActivity extends Activity implements RoomView {
     String idThoSanChon, idTienTriChon = "", idBaoVeChon, IDBoPhieu;
     HashMap<String, String> hashMap;
     boolean die = false;
-    private boolean flagThoSan = false, flagTienTri = false, flagBaoVe = false,flagBiBoPhieu=false;
+    private boolean flagThoSan = false, flagTienTri = false, flagBaoVe = false,flagBiBoPhieu=false,flagTuBaoVe=true;
     AlertDialog dialog;
     private static final boolean AUTO_HIDE = true;
 
@@ -165,6 +166,7 @@ public class HostActivity extends Activity implements RoomView {
         }
         addDialogFinish();
         roomPresenter.listenDisconect();
+        roomPresenter.listenListAllChon();
     }
     private TextView txtTitle ,txtSoi ,txtDan ,txtBaove ,txtThoSan ,txtTienTri;
     private Dialog dialogFinish;
@@ -183,7 +185,7 @@ public class HostActivity extends Activity implements RoomView {
         builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if(registLeaveRoom == true){
+                if(registLeaveRoom == true || Enviroment.user.getMoney()<Enviroment.phong.getMoney()){
                     if(host==true){
                         roomPresenter.emitUserHostExit(Enviroment.user.getUserId());
                     }
@@ -201,7 +203,6 @@ public class HostActivity extends Activity implements RoomView {
         });
         dialogFinish = builder.create();
         dialogFinish.setCanceledOnTouchOutside(false);
-
     }
 
     public void getHost(){
@@ -308,6 +309,16 @@ public class HostActivity extends Activity implements RoomView {
                 addDialog();
             }
         });
+
+        btnMe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                btnMe.setVisibility(View.INVISIBLE);
+                roomPresenter.emitChonUser("BangChonChucNang",nhanvat.getManv(),Enviroment.user.getUserId(),nhanvat.getName(),Enviroment.user.getName());
+                flagTuBaoVe=false;
+                OffTouchUser(userRoomListSong);
+            }
+        });
     }
 
     public void addDialog() {
@@ -355,6 +366,8 @@ public class HostActivity extends Activity implements RoomView {
 
     public void AnhXa() {
 
+        btnMe = findViewById(R.id.btnMe);
+        btnMe.setText(Enviroment.user.getName());
         txtGold = findViewById(R.id.txtGold);
         txtGold.setText(CommonFunction.formatGold(Enviroment.user.getMoney()));
         user1 = findViewById(R.id.txtuser1);
@@ -402,7 +415,9 @@ public class HostActivity extends Activity implements RoomView {
         listChat = findViewById(R.id.listChat);
         listChat.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         list = new ArrayList<>();
+        listChatMaSoi = new ArrayList<>();
         adapterChat = new CustomAdapterChat(this, R.layout.custom_chat, list);
+        adapterChatMaSoi = new CustomAdapterChat(this,R.layout.custom_chat,listChatMaSoi);
         listChat.setAdapter(adapterChat);
         adapterChat.registerDataSetObserver(new DataSetObserver() {
             @Override
@@ -420,7 +435,7 @@ public class HostActivity extends Activity implements RoomView {
         linearLayoutChat.setVisibility(View.INVISIBLE);
 
         linearLayoutKhungChat = findViewById(R.id.lnrkhungchat);
-
+        lnrListAllChon = findViewById(R.id.lnrListAllChon);
         listUserMaSoi = new ArrayList<User>();
         listUserDanLang = new ArrayList<>();
         listNhanVat = new ArrayList<>();
@@ -1019,7 +1034,10 @@ public class HostActivity extends Activity implements RoomView {
                             }
                         }
                     }
-                    roomPresenter.emitChonUser(st,nhanvat.getManv(),hashMap.get(text.getTxtuser().getText().toString()) + "");
+                    roomPresenter.emitChonUser(st,nhanvat.getManv(),hashMap.get(text.getTxtuser().getText().toString()) + "",nhanvat.getName(),text.getTxtuser().getText().toString());
+                    if (nhanvat.getManv()==4){
+                        flagTuBaoVe=true;
+                    }
                     OffTouchUser(userRoomListSong);
                 }
             });
@@ -1134,6 +1152,8 @@ public class HostActivity extends Activity implements RoomView {
         userRoomListDanThuong.clear();
         userRoomListSong.clear();
         list.clear();
+        listChatMaSoi.clear();
+        listChat.setAdapter(adapterChat);
         listUserInGame.clear();
         die = false;
         flagStart=false;
@@ -1228,8 +1248,15 @@ public class HostActivity extends Activity implements RoomView {
 
     @Override
     public void updateChatMessage(Chat chat) {
-        list.add(chat);
-        adapterChat.notifyDataSetChanged();
+        if (nhanvat!=null){
+            if (nhanvat.getManv()==1){
+                listChatMaSoi.add(chat);
+                adapterChatMaSoi.notifyDataSetChanged();
+            }else {
+                list.add(chat);
+                adapterChat.notifyDataSetChanged();
+            }
+        }
     }
 
     @Override
@@ -1393,6 +1420,10 @@ public class HostActivity extends Activity implements RoomView {
 
     @Override
     public void updateNhanVat(NhanVat nhanVat) {
+        if(nhanVat.getManv()==1){
+            listChat.setAdapter(adapterChatMaSoi);
+            adapterChatMaSoi.notifyDataSetChanged();
+        }
         nhanvat = nhanVat;
         System.out.println(nhanvat.getId());
         setImageNhanVat(nhanvat.getManv());
@@ -1411,6 +1442,7 @@ public class HostActivity extends Activity implements RoomView {
 
             }
             if (luot == 7) {
+                lnrListAllChon.setVisibility(View.INVISIBLE);
                 if (die == false) {
                     if (Enviroment.user.getUserId().toString().trim().equals(IDBoPhieu) == false) {
                         System.out.println("toi luot 7");
@@ -1515,7 +1547,15 @@ public class HostActivity extends Activity implements RoomView {
                 AddClickUser("BangChonChucNang");
                 if (nhanvat.getManv() == 1) {
                     OntouchUser(userRoomListDanThuong);
+                    linearLayoutChat.setVisibility(View.VISIBLE);
+                    findViewById(R.id.lnrkhungchat).setVisibility(View.VISIBLE);
+                    listChat.setVisibility(View.VISIBLE);
                 } else {
+                    if(nhanvat.getManv()==4){
+                        if(flagTuBaoVe==true){
+                            btnMe.setVisibility(View.VISIBLE);
+                        }
+                    }
                     OntouchUser(userRoomListSong);
                 }
             }
@@ -1528,12 +1568,20 @@ public class HostActivity extends Activity implements RoomView {
     @Override
     public void updateNhanVatTat(int nv) {
         if (nhanvat.getManv() == nv) {
-            if (nhanvat.getManv() == 1) {
-                OffTouchUser(userRoomListDanThuong);
-                txtThoiGian.setText("");
-            } else {
-                OffTouchUser(userRoomListSong);
-                txtThoiGian.setText("");
+            if(die == false){
+                if (nhanvat.getManv() == 1) {
+                    OffTouchUser(userRoomListDanThuong);
+                    linearLayoutChat.setVisibility(View.INVISIBLE);
+                    findViewById(R.id.lnrkhungchat).setVisibility(View.INVISIBLE);
+                    listChat.setVisibility(View.INVISIBLE);
+                    txtThoiGian.setText("");
+                } else {
+                    OffTouchUser(userRoomListSong);
+                    txtThoiGian.setText("");
+                    if(nhanvat.getManv()==4){
+                        btnMe.setVisibility(View.VISIBLE);
+                    }
+                }
             }
         }
     }
@@ -1573,6 +1621,7 @@ public class HostActivity extends Activity implements RoomView {
                 manv=8;
                 DemGiay(30);
             }
+            lnrListAllChon.setVisibility(View.VISIBLE);
 
         } else {
             OffTouchUser(userRoomListSong);
@@ -1645,6 +1694,7 @@ public class HostActivity extends Activity implements RoomView {
     public void updateFinish(int win) {
         if(win == 1){
             txtTitle.setText("Sói Thắng !");
+
         }
         else
         {
@@ -1666,6 +1716,25 @@ public class HostActivity extends Activity implements RoomView {
                 txtBaove.setText(txtBaove.getText().toString() + nhanVat.getName());
             }else if (nhanVat.getManv() == 6){
                 txtTienTri.setText(txtTienTri.getText().toString() + nhanVat.getName());
+            }
+            if(nhanVat.getId().equals(Enviroment.user.getUserId())){
+                if(win==1){
+                    if(nhanVat.getManv()==1){
+                        Enviroment.user.setMonney(Enviroment.user.getMoney() + Enviroment.phong.getMoney());
+                    }
+                    else {
+                        Enviroment.user.setMonney(Enviroment.user.getMoney() - Enviroment.phong.getMoney());
+                    }
+                }
+                else {
+                    if(nhanVat.getManv()==1){
+                        Enviroment.user.setMonney(Enviroment.user.getMoney() - Enviroment.phong.getMoney());
+                    }
+                    else {
+                        Enviroment.user.setMonney(Enviroment.user.getMoney() + Enviroment.phong.getMoney());
+                    }
+                }
+                txtGold.setText(CommonFunction.formatGold(Enviroment.user.getMoney()));
             }
         }
         dialogFinish.show();
@@ -1719,8 +1788,7 @@ public class HostActivity extends Activity implements RoomView {
             System.out.println("a");
         } else if (idMaSoiChon.equals(IDBoPhieu))
             System.out.println("a");
-        else if (userThoSan!=null) {
-            if(idMaSoiChon.equals(userThoSan.getUserId().toString())){
+        else if (idMaSoiChon.equals(userThoSan.getUserId().toString())) {
                 XoaNhanVat(idMaSoiChon);
                 XoaNhanVat(idThoSanChon);
                 XoaNhanVatChucNang(idMaSoiChon);
@@ -1731,7 +1799,6 @@ public class HostActivity extends Activity implements RoomView {
                     roomPresenter.emitUserDie(idMaSoiChon);
                     roomPresenter.emitUserDie(idThoSanChon);
                 }
-            }
 
         } else {
 
@@ -1768,6 +1835,15 @@ public class HostActivity extends Activity implements RoomView {
             this.flagxuli = flagXuLi;
             this.manv =manv;
         }
+    }
+
+    @Override
+    public void updateListAllChon(String name, String nameChoose) {
+        lnrListAllChon.setVisibility(View.VISIBLE);
+        TextView txt = new TextView(HostActivity.this);
+        txt.setText(name + " => " + nameChoose);
+        txt.setTextSize(15f);
+        lnrListAllChon.addView(txt);
     }
 
     @Override
