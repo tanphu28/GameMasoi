@@ -404,7 +404,7 @@ public class RoomPresenter {
             jsonObject.put("idchon",idchon + "");
             jsonObject.put("name",name + "");
             jsonObject.put("namechoose",nameChoose + "");
-            String json = Enviroment.gson.toJson(jsonObject);
+            String json = Enviroment.gson.toJson(jsonObject.toString());
             this.socket.emit(st, json);
         } catch (JSONException e) {
             e.printStackTrace();
