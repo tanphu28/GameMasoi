@@ -404,6 +404,8 @@ public class RoomPresenter {
             jsonObject.put("idchon",idchon + "");
             jsonObject.put("name",name + "");
             jsonObject.put("namechoose",nameChoose + "");
+            String json = Enviroment.gson.toJson(jsonObject);
+            this.socket.emit(st, json);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -411,8 +413,7 @@ public class RoomPresenter {
 //        jsonObject.addProperty("idchon", idchon+ "");
 //        jsonObject.addProperty("name",name);
 //        jsonObject.addProperty("namechoose",nameChoose);
-        String json = Enviroment.gson.toJson(jsonObject);
-        this.socket.emit(st, json);
+
     }
 
     public void listenAllManHinh(){
