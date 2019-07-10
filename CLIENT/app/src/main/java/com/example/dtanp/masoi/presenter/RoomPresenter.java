@@ -398,21 +398,22 @@ public class RoomPresenter {
     }
 
     public void emitChonUser(String st, int manv, String idchon, String name, String nameChoose){
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("manv",manv + "");
-            jsonObject.put("idchon",idchon + "");
-            jsonObject.put("name",name + "");
-            jsonObject.put("namechoose",nameChoose + "");
-            String json = Enviroment.gson.toJson(jsonObject.toString());
-            this.socket.emit(st, json);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-//        jsonObject.addProperty("manv", manv + "");
-//        jsonObject.addProperty("idchon", idchon+ "");
-//        jsonObject.addProperty("name",name);
-//        jsonObject.addProperty("namechoose",nameChoose);
+        JsonObject jsonObject = new JsonObject();
+//        try {
+//            jsonObject.put("manv",manv + "");
+//            jsonObject.put("idchon",idchon + "");
+//            jsonObject.put("name",name + "");
+//            jsonObject.put("namechoose",nameChoose + "");
+
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+        jsonObject.addProperty("manv", manv + "");
+        jsonObject.addProperty("idchon", idchon+ "");
+        //jsonObject.addProperty("name",name);
+        //jsonObject.addProperty("namechoose",nameChoose);
+        String json = Enviroment.gson.toJson(jsonObject);
+        this.socket.emit(st, json);
 
     }
 
