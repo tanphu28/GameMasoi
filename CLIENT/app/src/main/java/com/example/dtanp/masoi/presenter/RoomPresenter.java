@@ -540,20 +540,6 @@ public class RoomPresenter {
         this.socket.on("win",listener);
     }
 
-    public void  listenDisconect(){
-        this.socket.on("disconnect", new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-            context.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    System.out.println("disconnect");
-                }
-            });
-            }
-        });
-    }
-
     public void emitXuLyCuoiNgay(){
         this.socket.emit("cuoingay");
     }
@@ -682,6 +668,20 @@ public class RoomPresenter {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                    }
+                });
+            }
+        });
+    }
+
+    public void listenDisconect(){
+        this.socket.on("disconnect", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        roomView.updateDisconnect();
                     }
                 });
             }

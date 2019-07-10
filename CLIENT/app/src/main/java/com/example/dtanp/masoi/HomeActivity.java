@@ -3,6 +3,7 @@ package com.example.dtanp.masoi;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.graphics.Color;
@@ -135,6 +136,7 @@ public class HomeActivity extends Activity implements HomeView {
         txtUser.setText(Enviroment.user.getName());
         homePresenter.litenPingtoServer();
         inSomeWhere();
+        homePresenter.listenDisconect();
         //pingToServer();
     }
     @Override
@@ -204,6 +206,12 @@ public class HomeActivity extends Activity implements HomeView {
         txtPing = findViewById(R.id.txtPing);
         txtGold = findViewById(R.id.txtgold);
         txtGold.setText(CommonFunction.formatGold(Enviroment.user.getMoney()));
+    }
+    public void addDialogNoInternet(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.conectServer);
+        builder.setCancelable(false);
+        builder.create().show();
     }
 
     private void AddConTrols() {
@@ -376,6 +384,17 @@ public class HomeActivity extends Activity implements HomeView {
         adapterChat.notifyDataSetChanged();
     }
 
+    @Override
+    public void updateDisconnect() {
+        try{
+            addDialogNoInternet();
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage().toString());
+        }
+
+    }
+
     public void inSomeWhere() {
         new AsyncTask<Void, String, String>() {
             @Override
@@ -411,14 +430,15 @@ public class HomeActivity extends Activity implements HomeView {
             @Override
             protected void onProgressUpdate(String... values) {
                 super.onProgressUpdate(values);
-                String[] s = values[0].split("/");
-                int ping  = (int) Double.parseDouble(s[4]);;
-                txtPing.setText(ping + "ms");
-                if (ping>35){
-                    txtPing.setTextColor(Color.RED);
-                }else {
-                    txtPing.setTextColor(Color.GREEN);
-                }
+                System.out.println(values[0]);
+//                String[] s = values[0].split("/");
+//                int ping  = (int) Double.parseDouble(s[4]);;
+//                txtPing.setText(ping + "ms");
+//                if (ping>35){
+//                    txtPing.setTextColor(Color.RED);
+//                }else {
+//                    txtPing.setTextColor(Color.GREEN);
+//                }
             }
         }.execute();
     }

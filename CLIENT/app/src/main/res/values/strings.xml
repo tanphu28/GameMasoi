@@ -68,5 +68,6 @@
 
     <string name="btnConnectsv">Connect Server</string>
     <string name="btnConnectlc">Connect Local</string>
+    <string name="conectServer">You cannot connect to the server!</string>
 
 </resources>

@@ -37,4 +37,5 @@ public interface RoomView {
     public void updateListDanLangChon(List<String> list);
     public void updateSync(boolean flagChat, boolean flagXuLi,int manv);
     public void updateListAllChon(String name , String nameChoose);
+    public void updateDisconnect();
 }

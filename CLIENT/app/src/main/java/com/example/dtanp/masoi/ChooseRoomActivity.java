@@ -462,6 +462,13 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
         }
     }
 
+    public void addDialogNoInternet(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.conectServer);
+        builder.setCancelable(false);
+        builder.create().show();
+    }
+
     @Override
     public void addNewRoom(Phong phong) {
         this.list.add(phong);

@@ -127,5 +127,19 @@ public class HomePresenter {
         this.socket.on("ping",listener);
     }
 
+    public void listenDisconect(){
+        this.socket.on("disconnect", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        homeView.updateDisconnect();
+                    }
+                });
+            }
+        });
+    }
+
 
 }

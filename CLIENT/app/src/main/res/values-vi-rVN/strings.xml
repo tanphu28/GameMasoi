@@ -50,4 +50,12 @@
     <string name="txtPhone">Số Điện Thoại</string>
     <string name="btnConnectsv">Kết nối máy chủ</string>
     <string name="btnConnectlc">Kết nối</string>
+    <string name="conectServer">bạn không thể kết nối tới máy chủ!</string>
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="facebook_app_id">312067449576530</string>
+    <string name="fb_login_protocol_scheme">fb312067449576530</string>
+    <string name="google_login">AIzaSyAWQKdmulDz35Hl6fKvWIzHcGemq8sar5M</string>
 </resources>

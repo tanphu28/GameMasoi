@@ -4,10 +4,12 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -241,7 +243,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         loginPresenter.listenLogin();
         loginPresenter.listenRegister();
         loginPresenter.emitCheckVersionName();
-        startService(new Intent(this, UpdateService.class));
+        //startService(new Intent(this, UpdateService.class));
         if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Log.v("CONCHIM","Permission is granted");
         }
@@ -250,7 +252,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             Log.v("CONCHIM","Permission DEO!");
         }
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE);
-
+        if (isNetworkConnected()==false){
+            addDialogNoInternet();
+        }
         //emitFinishgame();
 
     }
@@ -263,6 +267,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
     private static TextView textCheck;
+
+
+    public void addDialogNoInternet(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.conectServer);
+        builder.setCancelable(false);
+        builder.create().show();
+    }
 
     public void AddDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -659,6 +671,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         loginPresenter.emitFinishGame(list,1);
 
 
+    }
+    public boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null;
     }
 
 

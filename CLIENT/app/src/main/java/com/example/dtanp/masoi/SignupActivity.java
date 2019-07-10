@@ -208,7 +208,12 @@ public class SignupActivity extends Activity implements SignupView {
             }
         });
     }
-
+    public void addDialogNoInternet(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.conectServer);
+        builder.setCancelable(false);
+        builder.create().show();
+    }
     private void AddConTrols() {
         edtuser= findViewById(R.id.edtuser);
         edtpass2 = findViewById(R.id.edtpass2);

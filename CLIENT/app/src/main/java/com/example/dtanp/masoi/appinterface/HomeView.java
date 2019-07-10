@@ -8,4 +8,5 @@ import java.util.ArrayList;
 public interface HomeView {
     public void updateListUserFreinds(ArrayList<UserFriends> list);
     public void addChatMessage(Chat chat);
+    public void updateDisconnect();
 }
