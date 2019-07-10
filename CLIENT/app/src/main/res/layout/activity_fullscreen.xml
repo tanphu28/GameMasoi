@@ -22,7 +22,7 @@
             android:id="@+id/txtsigup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SIGN UP"
+            android:text="@string/txtSignup"
             android:textSize="32dp"
             android:textColor="#FFF"
             android:layout_marginTop="30dp"
@@ -36,7 +36,7 @@
             <TextView
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:text="Email"
+                android:text="@string/txtEmail"
                 android:textColor="#FFF"
                 android:textSize="24dp"
                 />
@@ -60,7 +60,7 @@
             <TextView
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:text="User"
+                android:text="@string/txtuser"
                 android:textColor="#FFF"
                 android:textSize="24dp"
                 />
@@ -83,7 +83,7 @@
             <TextView
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:text="Pass"
+                android:text="@string/txtpass"
                 android:textColor="#FFF"
                 android:textSize="24dp"
                 />
@@ -108,7 +108,7 @@
             <TextView
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:text="Birthday"
+                android:text="@string/txtBrithday"
                 android:textColor="#FFF"
                 android:textSize="24dp"
                 />
@@ -129,7 +129,7 @@
             android:id="@+id/btnsignup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign up"
+            android:text="@string/btnSignup"
             android:textColor="#FFF"
             android:background="#2a2929"
             android:textSize="20dp"

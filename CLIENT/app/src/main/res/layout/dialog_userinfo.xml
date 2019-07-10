@@ -27,7 +27,7 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Edit"
+                android:text="@string/btnEdit"
                 android:background="@drawable/button"
                 android:layout_marginBottom="10dp"
                 />
@@ -35,26 +35,26 @@
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/edtFullName"
-                android:hint="Full Name"
+                android:hint="@string/hintFullname"
                 />
 
             <EditText
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/edtPhone"
-                android:hint="Phone Number"
+                android:hint="@string/hintPhone"
                 />
             <EditText
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/edtEmail"
-                android:hint="Email"
+                android:hint="@string/hintEmail"
                 />
             <EditText
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/edtaddress"
-                android:hint="Address"/>
+                android:hint="@string/hintAddress"/>
             <LinearLayout
                 android:layout_width="300dp"
                 android:layout_height="wrap_content">
@@ -63,13 +63,13 @@
                     android:id="@+id/edtBirthday"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
-                    android:hint="Birthday"
+                    android:hint="@string/cdd"
                     android:enabled="false"
                     android:inputType="none" />
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Date"
+                    android:text="@string/btnday"
                     android:id="@+id/dateBirthday"
                     />
             </LinearLayout>

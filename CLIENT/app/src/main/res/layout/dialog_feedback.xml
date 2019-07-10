@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Thank You!"
+        android:text="@string/txtThank"
         android:textSize="24dp"
         />
     <EditText
@@ -17,7 +17,7 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:id="@+id/edtEmail"
-        android:hint="Email"
+        android:hint="@string/hintEmail"
         />
 
     <EditText
@@ -25,12 +25,12 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:minLines="4"
-        android:hint="Content"
+        android:hint="@string/hintContent"
         />
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Send"
+        android:text="@string/btnSend"
         android:textSize="20dp"
         android:background="@drawable/button"
         android:id="@+id/btnSendFeedBack"

@@ -23,7 +23,7 @@
             android:id="@+id/txtsigup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SIGN UP"
+            android:text="@string/txtSignup"
             android:textSize="32dp"
             android:textColor="#FFF"
             android:layout_marginTop="30dp"
@@ -38,7 +38,7 @@
             <TextView
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:text="Username"
+                android:text="@string/txtusernameup"
                 android:textColor="#FFF"
                 android:textSize="24dp" />
 
@@ -61,7 +61,7 @@
             <TextView
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:text="PassWord"
+                android:text="@string/txtpassw"
                 android:textColor="#FFF"
                 android:textSize="24dp"
                 />
@@ -84,7 +84,7 @@
             <TextView
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:text="Pass Again"
+                android:text="@string/txtpassgain"
                 android:textColor="#FFF"
                 android:textSize="24dp"
                 />
@@ -102,7 +102,7 @@
             android:id="@+id/btnsignup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign up"
+            android:text="@string/btnSignup"
             android:textColor="#FFF"
             android:background="#2a2929"
             android:textSize="20dp"

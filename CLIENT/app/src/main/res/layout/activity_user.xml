@@ -67,7 +67,7 @@
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="10dp"
                     android:textSize="20dp"
-                    android:text=" ID :"
+                    android:text="@string/txtId"
                     />
 
                 <TextView
@@ -91,7 +91,7 @@
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="8dp"
-                    android:text="Nickname :"
+                    android:text="@string/txtNick"
                     android:textColor="#fff"
                     android:textSize="20dp" />
 
@@ -117,7 +117,7 @@
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="8dp"
-                    android:text="Fullname :"
+                    android:text="@string/txtFullName"
                     android:textColor="#fff"
                     android:textSize="20dp" />
 
@@ -143,7 +143,7 @@
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="8dp"
-                    android:text="PhoneNumber :"
+                    android:text="@string/txtPhone"
                     android:textColor="#fff"
                     android:textSize="20dp" />
 
@@ -169,7 +169,7 @@
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="8dp"
-                    android:text="Email :"
+                    android:text="@string/txtEmail"
                     android:textColor="#fff"
                     android:textSize="20dp" />
 
@@ -195,7 +195,7 @@
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="8dp"
-                    android:text="Birthday :"
+                    android:text="@string/txtBrithday"
                     android:textColor="#fff"
                     android:textSize="20dp" />
 
@@ -225,7 +225,7 @@
                     android:layout_marginStart="25dp"
                     android:layout_marginTop="10dp"
                     android:textSize="20dp"
-                    android:text="Level :"
+                    android:text="@string/txtLevel"
                     />
 
                 <TextView
@@ -260,7 +260,7 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="2dp"
                         android:textSize="20dp"
-                        android:text="Win :"
+                        android:text="@string/txtWin"
 
                         />
 
@@ -286,7 +286,7 @@
                         android:textSize="20dp"
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="2dp"
-                        android:text="Loss :"
+                        android:text="@string/txttLoss"
                         />
 
                     <TextView
@@ -317,7 +317,7 @@
                 android:layout_marginStart="118dp"
                 android:layout_marginBottom="191dp"
                 android:background="@drawable/button"
-                android:text="Edit" />
+                android:text="@string/btnEdit" />
 
 
 

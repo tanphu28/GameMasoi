@@ -15,13 +15,13 @@
             android:layout_height="wrap_content"
             android:inputType="textImeMultiLine"
             android:id="@+id/nickName"
-            android:hint="Nick Name!"
+            android:hint="@string/hintNickname"
             />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btnCheck"
-            android:text="Check"/>
+            android:text="@string/btnCheck"/>
     </LinearLayout>
 
     <TextView
@@ -34,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btnApply"
-        android:text="Apply"
+        android:text="@string/btnApply"
         />
 
 </LinearLayout>

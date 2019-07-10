@@ -108,7 +108,7 @@
                         android:id="@+id/btnSend"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="send" />
+                        android:text="@string/btnSend" />
 
                 </LinearLayout>
 
@@ -163,7 +163,7 @@
                     android:layout_gravity="center"
                     android:text="Phu"
                     android:textColor="#fff"
-                    android:textSize="30dp"
+                    android:textSize="25dp"
 
                     />
 
@@ -184,8 +184,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:text="5000"
+                        android:layout_marginTop="3dp"
                         android:textColor="#fff"
-                        android:textSize="25dp" />
+                        android:textSize="20dp" />
 
                 </LinearLayout>
 
@@ -450,7 +451,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="50dp"
-                android:text="aa"
                 android:textColor="#ffcd17"
                 android:textSize="18dp" />
 

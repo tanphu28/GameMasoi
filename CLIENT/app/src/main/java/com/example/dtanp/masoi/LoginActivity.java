@@ -27,7 +27,6 @@ import com.example.dtanp.masoi.appinterface.API;
 import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.model.UserStore;
-import com.example.dtanp.masoi.utils.MD5Util;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -456,7 +455,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
             String username = edtuser.getText().toString().trim();
             String pass = edtpassworld.getText().toString().trim();
-            pass = MD5Util.getMD5(pass);
+           // pass = MD5Util.getMD5(pass);
             UserStore userStore = new UserStore(username,pass);
             String json = Enviroment.gson.toJson(userStore);
             Enviroment.socket.emit("login",json);

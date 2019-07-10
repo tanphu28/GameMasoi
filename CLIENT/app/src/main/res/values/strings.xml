@@ -28,4 +28,45 @@
     <string name="txtpeoplenumber">people number</string>
 
     <string name="btnSend">Send</string>
+
+    <string name="txtSignup">SIGNUP</string>
+    <string name="txtusernameup">Username</string>
+    <string name="txtpassw">PassWord</string>
+    <string name="txtpassgain">Pass Again</string>
+    <string name="btnSignupok">SignUp</string>
+
+    <string name="txtId">ID :</string>
+    <string name="txtUser">User :</string>
+
+    <string name="txtWin">Win :</string>
+    <string name="txttLoss">Loss :</string>
+    <string name="btnClick">Click</string>
+
+    <string name="btnEdit">Edit</string>
+    <string name="hintFullname">Full Name</string>
+    <string name="hintPhone">Phone Number</string>
+    <string name="hintEmail">Email</string>
+    <string name="hintAddress">Address</string>
+    <string name="cdd">Birthday</string>
+    <string name="btnday">Date</string>
+
+    <string name="hintNickname">Nick Name!</string>
+    <string name="btnCheck">Check</string>
+    <string name="btnApply">Apply</string>
+    <string name="txtThank">Thank You!</string>
+    <string name="hintContent">Content</string>
+
+    <string name="txtBetmoney">Bet Money</string>
+    <string name="btnCreate">Create</string>
+
+    <string name="txtNick">Nick Name :</string>
+    <string name="txtFullName">Full Name :</string>
+    <string name="txtPhone">PhoneNumber :</string>
+    <string name="txtEmail">Email :</string>
+    <string name="txtBrithday">Birthday : </string>
+    <string name="txtLevel">Level :</string>
+
+    <string name="btnConnectsv">Connect Server</string>
+    <string name="btnConnectlc">Connect Local</string>
+
 </resources>
