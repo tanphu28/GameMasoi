@@ -410,8 +410,8 @@ public class RoomPresenter {
 //        }
         jsonObject.addProperty("manv", manv + "");
         jsonObject.addProperty("idchon", idchon+ "");
-        //jsonObject.addProperty("name",name);
-        //jsonObject.addProperty("namechoose",nameChoose);
+        jsonObject.addProperty("name",name);
+        jsonObject.addProperty("namechoose",nameChoose);
         String json = Enviroment.gson.toJson(jsonObject);
         this.socket.emit(st, json);
 
@@ -662,8 +662,9 @@ public class RoomPresenter {
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        JSONObject jsonObject = (JSONObject) args[0];
+                        JSONObject jsonObject = null;
                         try {
+                            jsonObject = new JSONObject((String) args[0]);
                             String name = jsonObject.getString("name");
                             String nameChoose = jsonObject.getString("namechoose");
                             roomView.updateListAllChon(name,nameChoose);
