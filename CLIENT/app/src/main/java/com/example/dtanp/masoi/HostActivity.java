@@ -167,6 +167,7 @@ public class HostActivity extends Activity implements RoomView {
         addDialogFinish();
         roomPresenter.listenDisconect();
         roomPresenter.listenListAllChon();
+        roomPresenter.listenDisconect();
     }
     private TextView txtTitle ,txtSoi ,txtDan ,txtBaove ,txtThoSan ,txtTienTri;
     private Dialog dialogFinish;
@@ -1443,6 +1444,7 @@ public class HostActivity extends Activity implements RoomView {
             }
             if (luot == 7) {
                 lnrListAllChon.setVisibility(View.INVISIBLE);
+                lnrListAllChon.removeAllViews();
                 if (die == false) {
                     if (Enviroment.user.getUserId().toString().trim().equals(IDBoPhieu) == false) {
                         System.out.println("toi luot 7");
@@ -1470,6 +1472,13 @@ public class HostActivity extends Activity implements RoomView {
         } else {
             txtLuot.setText("");
         }
+    }
+
+    public void addDialogNoInternet(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.conectServer);
+        builder.setCancelable(false);
+        builder.create().show();
     }
 
     @Override
@@ -1844,6 +1853,11 @@ public class HostActivity extends Activity implements RoomView {
         txt.setText(name + " => " + nameChoose);
         txt.setTextSize(15f);
         lnrListAllChon.addView(txt);
+    }
+
+    @Override
+    public void updateDisconnect() {
+        addDialogNoInternet();
     }
 
     @Override
