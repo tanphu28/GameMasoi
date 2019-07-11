@@ -690,5 +690,8 @@ public class RoomPresenter {
             }
         });
     }
+    public void removeListen(){
+        this.socket.off("disconnect");
+    }
 
 }

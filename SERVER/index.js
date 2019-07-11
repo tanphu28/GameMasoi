@@ -13,6 +13,7 @@ let UserStore = require('./models/UserStore');
 let UserFriends = require('./models/UserFriends');
 let FeedBack = require('./models/FeedBackModel');
 let RoomCache = require('./models/RoomCache');
+let UserHistory = require('./models/UserHistoryLogin');
 var PORT = process.env.PORT || 3000
 const versionName = '1.0'
 server.listen(PORT);
@@ -215,6 +216,10 @@ io.on("connection", function (socket) {
                         console.log("Thanh cong");
                         console.log(doc);
                         socket.emit("Registnickname", doc);
+                        let userHistory = new UserHistory({
+                            userId : json.userId
+                        });
+                        userHistory.save();
                     }
                 })
             }
@@ -244,6 +249,10 @@ io.on("connection", function (socket) {
             }
             else {
                 socket.emit("LonginSuccess", data);
+                let userHistory = new UserHistory({
+                    userId : json.id
+                });
+                userHistory.save();
             }
         })
     })
@@ -265,6 +274,10 @@ io.on("connection", function (socket) {
                     console.log("Thanh cong");
                     console.log(doc);
                     socket.emit("Registnickname", doc);
+                    let userHistory =new UserHistory({
+                        userId : json.userId
+                    });
+                    userHistory.save();
                 })
 
             }
@@ -291,6 +304,10 @@ io.on("connection", function (socket) {
                             socket.userId=json.userId;
                             console.log(doc2)
                             console.log("Thanh cong");
+                            let userHistory = new UserHistory({
+                                userId : json.userId
+                            });
+                            userHistory.save();
                         }
                     })
                 }

@@ -318,6 +318,7 @@ public class HomeActivity extends Activity implements HomeView {
         Intent intent = new Intent(this,ChooseRoomActivity.class);
         startActivity(intent);
         finish();
+        homePresenter.removeListen();
     }
 
     public void startmhuserfr()

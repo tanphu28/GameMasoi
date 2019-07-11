@@ -141,5 +141,9 @@ public class HomePresenter {
         });
     }
 
+    public void removeListen(){
+        this.socket.off("disconnect");
+    }
+
 
 }

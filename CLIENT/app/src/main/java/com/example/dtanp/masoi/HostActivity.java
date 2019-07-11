@@ -199,6 +199,7 @@ public class HostActivity extends Activity implements RoomView {
                     Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
                     startActivity(intent);
                     finish();
+                    roomPresenter.removeListen();
                 }
             }
         });
@@ -351,6 +352,7 @@ public class HostActivity extends Activity implements RoomView {
                     Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
                     startActivity(intent);
                     finish();
+                    roomPresenter.removeListen();
                 }
 
 
@@ -509,6 +511,19 @@ public class HostActivity extends Activity implements RoomView {
         dialog.show();
     }
 
+
+    public void resetClickUser(){
+        for (final UserRoom us : userRoomList){
+            if(us.getUseradd()!=null && us.getUser()!=null){
+                us.getUser().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        addDialoguser(us.getUseradd());
+                    }
+                });
+            }
+        }
+    }
 
     public void AddUser(final User user) {
         for (UserRoom text : userRoomList) {
@@ -1159,6 +1174,7 @@ public class HostActivity extends Activity implements RoomView {
         die = false;
         flagStart=false;
         ResetAnhUser();
+        resetClickUser();
 
     }
 
@@ -1254,8 +1270,11 @@ public class HostActivity extends Activity implements RoomView {
                 listChatMaSoi.add(chat);
                 adapterChatMaSoi.notifyDataSetChanged();
             }else {
-                list.add(chat);
-                adapterChat.notifyDataSetChanged();
+                if(manv!=1)
+                {
+                    list.add(chat);
+                    adapterChat.notifyDataSetChanged();
+                }
             }
         }
     }
@@ -1672,6 +1691,7 @@ public class HostActivity extends Activity implements RoomView {
         Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
         startActivity(intent);
         finishAffinity();
+        roomPresenter.removeListen();
     }
 
     @Override
@@ -1885,6 +1905,7 @@ public class HostActivity extends Activity implements RoomView {
             Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
             startActivity(intent);
             finish();
+            roomPresenter.removeListen();
         }
     }
 
