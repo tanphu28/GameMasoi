@@ -101,7 +101,11 @@ public class RoomPresenter {
     }
 
     public void emitBangBoPhieu(int number){
-        this.socket.emit("BangBoPhieu", number);
+        JsonObject jsonObject =new JsonObject();
+        jsonObject.addProperty("id",number);
+        jsonObject.addProperty("name",Enviroment.user.getName());
+        String json = Enviroment.gson.toJson(jsonObject);
+        this.socket.emit("BangBoPhieu", json);
     }
 
     public void emitUserHostExit(String userId){
@@ -692,6 +696,33 @@ public class RoomPresenter {
     }
     public void removeListen(){
         this.socket.off("disconnect");
+    }
+
+    public void listenListBangBoPhieu(){
+        this.socket.on("ListBangBoPhieu", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject jsonObject = (JSONObject) args[0];
+                        try {
+                            String name = jsonObject.getString("name");
+                            int number = jsonObject.getInt("id");
+                            String bp = "";
+                            if(number==1){
+                                bp = "Giet";
+                            }else {
+                                bp = "Khong Giet";
+                            }
+                            roomView.updateListBoPhieu(name,bp);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
     }
 
 }

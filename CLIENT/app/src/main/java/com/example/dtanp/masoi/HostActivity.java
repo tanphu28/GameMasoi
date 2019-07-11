@@ -168,6 +168,7 @@ public class HostActivity extends Activity implements RoomView {
         roomPresenter.listenDisconect();
         roomPresenter.listenListAllChon();
         roomPresenter.listenDisconect();
+        roomPresenter.listenListBangBoPhieu();
     }
     private TextView txtTitle ,txtSoi ,txtDan ,txtBaove ,txtThoSan ,txtTienTri;
     private Dialog dialogFinish;
@@ -1213,6 +1214,8 @@ public class HostActivity extends Activity implements RoomView {
         flagchat=false;
         flagxuli=false;
         roomPresenter.emitSync(flagchat,flagxuli,manv);
+        lnrListAllChon.removeAllViews();
+        lnrListAllChon.setVisibility(View.INVISIBLE);
     }
 
     public void ResetAnhUser() {
@@ -1462,7 +1465,7 @@ public class HostActivity extends Activity implements RoomView {
 
             }
             if (luot == 7) {
-                lnrListAllChon.setVisibility(View.INVISIBLE);
+                //lnrListAllChon.setVisibility(View.INVISIBLE);
                 lnrListAllChon.removeAllViews();
                 if (die == false) {
                     if (Enviroment.user.getUserId().toString().trim().equals(IDBoPhieu) == false) {
@@ -1878,6 +1881,15 @@ public class HostActivity extends Activity implements RoomView {
     @Override
     public void updateDisconnect() {
         addDialogNoInternet();
+    }
+
+    @Override
+    public void updateListBoPhieu(String name, String bp) {
+        lnrListAllChon.setVisibility(View.VISIBLE);
+        TextView txt = new TextView(HostActivity.this);
+        txt.setText(name + " => " + bp);
+        txt.setTextSize(15f);
+        lnrListAllChon.addView(txt);
     }
 
     @Override

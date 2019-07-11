@@ -664,9 +664,11 @@ io.on("connection", function (socket) {
         io.sockets.in(socket.Phong).emit("Chat", data);
     });
     socket.on("BangBoPhieu", function (data) {
+        var json = JSON.parse(data);
         console.log(data);
-        io.sockets.in(socket.Phong).emit("BangBoPhieu", data);
-        roomarr[socket.Phong].arrKetQuaBoPhieu.push(data);
+        io.sockets.in(socket.Phong).emit("BangBoPhieu", json.id);
+        io.sockets.in(socket.Phong).emit("ListBangBoPhieu", json);
+        roomarr[socket.Phong].arrKetQuaBoPhieu.push(json.id);
     });
 
     socket.on("resetngaymoi",function(){

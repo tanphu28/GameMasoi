@@ -38,4 +38,5 @@ public interface RoomView {
     public void updateSync(boolean flagChat, boolean flagXuLi,int manv);
     public void updateListAllChon(String name , String nameChoose);
     public void updateDisconnect();
+    public void updateListBoPhieu(String name, String bp);
 }
