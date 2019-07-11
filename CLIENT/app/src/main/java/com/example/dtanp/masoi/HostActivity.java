@@ -1439,6 +1439,7 @@ public class HostActivity extends Activity implements RoomView {
                 }
 
             }
+            lnrListAllChon.removeAllViews();
     }
 
     @Override
@@ -1610,7 +1611,7 @@ public class HostActivity extends Activity implements RoomView {
                     OffTouchUser(userRoomListSong);
                     txtThoiGian.setText("");
                     if(nhanvat.getManv()==4){
-                        btnMe.setVisibility(View.VISIBLE);
+                        btnMe.setVisibility(View.INVISIBLE);
                     }
                 }
             }
@@ -1806,6 +1807,12 @@ public class HostActivity extends Activity implements RoomView {
             XoaNhanVatChucNang(IDBoPhieu);
             removelistUserInGameID(IDBoPhieu);
             roomPresenter.emitUserDie(IDBoPhieu);
+            if (IDBoPhieu.equals(userThoSan.getUserId())){
+                XoaNhanVat(idThoSanChon);
+                XoaNhanVatChucNang(idThoSanChon);
+                removelistUserInGameID(idThoSanChon);
+                roomPresenter.emitUserDie(idThoSanChon);
+            }
         }
 
         linearLayoutListUser.setVisibility(View.VISIBLE);

@@ -601,6 +601,7 @@ io.on("connection", function (socket) {
     //Host
     socket.on("OK", function (data) {
         io.sockets.in(socket.Phong).emit("OK", data);
+        roomarr[socket.Phong] = new RoomCache();
         //roomarr[socket.Phong].OK=data;
     });
     socket.on("ListNhanVat", function (data) {
