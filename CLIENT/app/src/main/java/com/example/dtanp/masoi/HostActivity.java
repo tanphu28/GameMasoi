@@ -769,6 +769,7 @@ public class HostActivity extends Activity implements RoomView {
                     user.setUserId(nv.getId());
                     user.setName(nv.getName());
                     listUserMaSoi.add(user);
+                    listUserInGame.add(user);
                 }
             }
 
@@ -1353,16 +1354,23 @@ public class HostActivity extends Activity implements RoomView {
                 }
             }
             for (UserRoom us : userRoomListDanThuong){
-                if (us.getUseradd().getUserId().equals(id)){
-                    us.setFlag(false);
-                    break;
+                if (us.getUseradd()!= null)
+                {
+                    if (us.getUseradd().getUserId().equals(id)){
+                        us.setFlag(false);
+                        break;
+                    }
                 }
+
             }
 
             for (UserRoom us : userRoomListSong){
-                if(us.getUseradd().getUserId().equals(id)){
-                    us.setFlag(false);
-                    break;
+                if (us.getUseradd()!= null)
+                {
+                    if (us.getUseradd().getUserId().equals(id)){
+                        us.setFlag(false);
+                        break;
+                    }
                 }
             }
     }
