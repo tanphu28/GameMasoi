@@ -758,10 +758,13 @@ public class HostActivity extends Activity implements RoomView {
                 }
             }
             else {
-                User user = new User();
-                user.setUserId(nv.getId());
-                user.setName(nv.getName());
-                listUserMaSoi.add(user);
+                if (host == false)
+                {
+                    User user = new User();
+                    user.setUserId(nv.getId());
+                    user.setName(nv.getName());
+                    listUserMaSoi.add(user);
+                }
             }
 
         }

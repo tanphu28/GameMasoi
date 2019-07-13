@@ -41,48 +41,6 @@ http.createServer(function (req, res) {
         imgStream.pipe(res);
     }
 }).listen(4000);
-var room = new RoomCache();
-room._id = "bb";
-roomarr["aa"] = room;
-roomarr["aa"]._id = "1";
-roomarr["aa"].idBOPHIEU = "2";
-roomarr["aa"].idUserDie = "3";
-roomarr["aa"].idBaoVeChon = "4";
-roomarr["aa"].idThoSanChon = "5";
-for (let i = 0; i < 7; i++) {
-    roomarr["aa"].arrAll.push(i);
-    roomarr["aa"].arrMaSoiChon.push(i);
-    roomarr["aa"].arrBoPhieu.push(i);
-    roomarr["aa"].arrKetQuaBoPhieu.push(i);
-    roomarr["aa"].arrReady.push(i);
-    roomarr["aa"].arrUserDie.push(i);
-}
-
-// let transporter = nodeMailer.createTransport({
-//     host: 'smtp.gmail.com',
-//     port: 465,
-//     secure: true,
-//     auth: {
-//         user: 'tanphu2871997@gmail.com',
-//         pass: 'dtphu2871997'
-//     }
-// });
-// let mailOptions = {
-//     from: '"Ma Soi Admin" <tanphu2871997@gmail.com>', // sender address
-//     to: "dtanphu2871997@gmail.com", // list of receivers
-//     subject: "Change Pass Word Game Ma Soi", // Subject line
-//     text: 'OTP : 389098', // plain text body
-//     html: '<b>OTP : 389098</b>' // html body
-// };
-
-// transporter.sendMail(mailOptions, (error, info) => {
-//     if (error) {
-//         return console.log(error);
-//     }
-//     console.log('Message %s sent: %s', info.messageId, info.response);
-//         res.render('index');
-//     });
-
 
 io.on("connection", function (socket) {
     // socket.on("room",function(){
