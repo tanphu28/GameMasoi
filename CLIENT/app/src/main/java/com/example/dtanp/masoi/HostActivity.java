@@ -727,6 +727,11 @@ public class HostActivity extends Activity implements RoomView {
 
     public void getListXuLy() {
         userRoomListDanThuong.clear();
+        if (host==false){
+            listUserInGame.clear();
+            listUserDanLang.clear();
+            listUserMaSoi.clear();
+        }
         for (NhanVat nv : listNhanVat) {
             if (nv.getManv() != 1) {
                 for (UserRoom text : userRoomList) {
@@ -825,6 +830,15 @@ public class HostActivity extends Activity implements RoomView {
                 break;
             }
         }
+
+        for (User us : listUserMaSoi) {
+            if (us.getUserId().toString().equals(id)) {
+                listUserMaSoi.remove(us);
+                break;
+            }
+        }
+
+
     }
 
 
@@ -1310,7 +1324,8 @@ public class HostActivity extends Activity implements RoomView {
             }
 
             if (flagStart==true){
-                removelistUserInGameID(userId);
+                //removelistUserInGameID(userId);
+                removeUserInPlayGame(userId);
             }
         } else {
             Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
@@ -1718,6 +1733,7 @@ public class HostActivity extends Activity implements RoomView {
         host=true;
         getHost();
         roomPresenter.emitUpdateHost();
+        roomPresenter.removeListenMember();
         if (flagStart == false)
         {
             btnSS.setVisibility(View.INVISIBLE);

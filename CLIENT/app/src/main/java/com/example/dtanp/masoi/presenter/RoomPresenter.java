@@ -754,4 +754,11 @@ public class RoomPresenter {
         });
     }
 
+    public void removeListenMember(){
+        this.socket.off("listuserdie");
+        this.socket.off("sync");
+        this.socket.off("leaveroom");
+        this.socket.off("useruphost");
+    }
+
 }
