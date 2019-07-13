@@ -227,6 +227,7 @@ public class RoomPresenter {
         this.socket.on("ListNhanVat", listener);
     }
 
+
     public void emitLuotDB(int luot){
         this.socket.emit("Luot", luot);
     }
@@ -725,6 +726,32 @@ public class RoomPresenter {
         });
     }
 
+    public void emitListUserDie(List<String> list){
+        String json = Enviroment.gson.toJson(list);
+        this.socket.emit("listuserdie",json);
+    }
 
+    public void listenListUserDie(){
+        this.socket.on("listuserdie", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<String> list = new ArrayList<>();
+                       JSONArray jsonArray = (JSONArray) args[0];
+                       for (int i=0; i<jsonArray.length();i++){
+                           try {
+                               list.add(jsonArray.getString(i));
+                           } catch (JSONException e) {
+                               e.printStackTrace();
+                           }
+                       }
+                        roomView.updateListUserDie(list);
+                    }
+                });
+            }
+        });
+    }
 
 }

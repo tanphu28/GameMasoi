@@ -39,4 +39,5 @@ public interface RoomView {
     public void updateListAllChon(String name , String nameChoose);
     public void updateDisconnect();
     public void updateListBoPhieu(String name, String bp);
+    public void updateListUserDie(List<String> list);
 }

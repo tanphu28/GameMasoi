@@ -159,6 +159,7 @@ public class HostActivity extends Activity implements RoomView {
         }
         else
         {
+            roomPresenter.listenListUserDie();
             roomPresenter.listenSync();
             btnSS.setVisibility(View.VISIBLE);
             roomPresenter.listenKickUser();
@@ -749,7 +750,18 @@ public class HostActivity extends Activity implements RoomView {
                         userTienTri = new User();
                         userTienTri.setUserId(nv.getId());
                     }
+                    User user = new User();
+                    user.setUserId(nv.getId());
+                    user.setName(nv.getName());
+                    listUserInGame.add(user);
+                    listUserDanLang.add(user);
                 }
+            }
+            else {
+                User user = new User();
+                user.setUserId(nv.getId());
+                user.setName(nv.getName());
+                listUserMaSoi.add(user);
             }
 
         }
@@ -1715,12 +1727,14 @@ public class HostActivity extends Activity implements RoomView {
 
     @Override
     public void updateListNhanVat(ArrayList<NhanVat> list) {
-        listNhanVat.clear();
-        for (NhanVat nv : list){
-            listNhanVat.add(nv);
+        if (host==false){
+            listNhanVat.clear();
+            for (NhanVat nv : list){
+                listNhanVat.add(nv);
+            }
+            getListXuLy();
+            getTextViewAddList();
         }
-        getListXuLy();
-        getTextViewAddList();
     }
 
     @Override
@@ -1787,6 +1801,7 @@ public class HostActivity extends Activity implements RoomView {
 
     @Override
     public void updateCuoiNgay(String idBV, String idTS, List<String> listMaSoiChon, List<Integer> kqBP, String idBoPhieu) {
+        List<String> list =new ArrayList<>();
         idBaoVeChon=idBV;
         idThoSanChon=idTS;
         IDBoPhieu=idBoPhieu;
@@ -1806,12 +1821,14 @@ public class HostActivity extends Activity implements RoomView {
             XoaNhanVat(IDBoPhieu);
             XoaNhanVatChucNang(IDBoPhieu);
             removelistUserInGameID(IDBoPhieu);
+            list.add(IDBoPhieu);
             roomPresenter.emitUserDie(IDBoPhieu);
             if (IDBoPhieu.equals(userThoSan.getUserId())){
                 XoaNhanVat(idThoSanChon);
                 XoaNhanVatChucNang(idThoSanChon);
                 removelistUserInGameID(idThoSanChon);
                 roomPresenter.emitUserDie(idThoSanChon);
+                list.add(idThoSanChon);
             }
         }
 
@@ -1837,20 +1854,24 @@ public class HostActivity extends Activity implements RoomView {
                 if (!idMaSoiChon.equals(IDBoPhieu)) {
                     roomPresenter.emitUserDie(idMaSoiChon);
                     roomPresenter.emitUserDie(idThoSanChon);
+                    list.add(idMaSoiChon);
+                    list.add(idThoSanChon);
                 }
-
         } else {
 
             XoaNhanVat(idMaSoiChon);
             XoaNhanVatChucNang(idMaSoiChon);
             removelistUserInGameID(idMaSoiChon);
             roomPresenter.emitUserDie(idMaSoiChon);
+            list.add(idMaSoiChon);
         }
+
         if (listUserMaSoi.size() == 0) {
             resetLaiGameMoi(2);
         } else if (listUserMaSoi.size() >= listUserDanLang.size()) {
             resetLaiGameMoi(1);
         }
+        roomPresenter.emitListUserDie(list);
         ResetLaiNgayMoi();
 
     }
@@ -1897,6 +1918,33 @@ public class HostActivity extends Activity implements RoomView {
         txt.setText(name + " => " + bp);
         txt.setTextSize(15f);
         lnrListAllChon.addView(txt);
+    }
+
+    @Override
+    public void updateListUserDie(List<String> list) {
+        if (host == false){
+            for (String s : list){
+                for (User user : listUserInGame){
+                    if(user.getUserId().equals(s)){
+                        listUserInGame.remove(user);
+                        break;
+                    }
+                }
+
+                for (User user : listUserDanLang){
+                    if (user.getUserId().equals(s)){
+                        listUserDanLang.remove(user);
+                        break;
+                    }
+                }
+                for (User user : listUserMaSoi){
+                    if (user.getUserId().equals(s)){
+                        listUserMaSoi.remove(user);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     @Override
