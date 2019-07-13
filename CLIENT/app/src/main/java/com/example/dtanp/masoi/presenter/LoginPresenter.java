@@ -13,6 +13,7 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.JsonObject;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -176,6 +177,59 @@ public class LoginPresenter {
         jsonObject.addProperty("list",json);
         jsonObject.addProperty("win",win);
         this.socket.emit("finishgame",jsonObject.toString());
+    }
+
+    public void emitFogetPass(String userId, int method){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("userId",userId);
+        jsonObject.addProperty("method",method);
+        String json = Enviroment.gson.toJson(jsonObject);
+        this.socket.emit("fogot",json);
+    }
+
+    public void listenFogetPass(){
+        this.socket.on("fogot", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject jsonObject = (JSONObject) args[0];
+                        try {
+                            int code  = jsonObject.getInt("code");
+                            String userId = jsonObject.getString("userId");
+                            loginView.updateFogotPass(code,userId);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    public void emitChangePass(String userId, String passNew, String otp){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("userId",userId);
+        jsonObject.addProperty("pass",CommonFunction.getMD5(passNew));
+        jsonObject.addProperty("otp",otp);
+        String json = Enviroment.gson.toJson(jsonObject);
+        this.socket.emit("changepass", json);
+    }
+
+    public void listenChangePass(){
+        this.socket.on("changepass", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean flag  = (boolean) args[0];
+                        loginView.updateChangePass(flag);
+                    }
+                });
+            }
+        });
     }
 
 

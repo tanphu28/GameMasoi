@@ -7,4 +7,6 @@ public interface LoginView {
     public void registNicknameSuccess();
     public void showDialogUpdate();
     public void userLoginSuccess(boolean flag);
+    public void updateFogotPass(int code, String userId);
+    public void updateChangePass(boolean flag);
 }

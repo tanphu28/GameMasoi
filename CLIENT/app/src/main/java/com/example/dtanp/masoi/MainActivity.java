@@ -28,6 +28,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -105,10 +106,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public static final String TAG = "abc";
     private EditText edtuser, edtpassworld;
     private Button btnlogin, btnsignup;
+    private TextView txtFogotPass;
     private ImageButton btngg;
     private FirebaseDatabase database;
     private FirebaseAuth auth;
     private Emitter.Listener emitterUserLogin;
+    AlertDialog dialogFogot;
     private static final boolean AUTO_HIDE = true;
     private AlertDialog dialogUpdate;
 
@@ -243,6 +246,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         loginPresenter.listenLogin();
         loginPresenter.listenRegister();
         loginPresenter.emitCheckVersionName();
+        addDialogFogotPass();
         //startService(new Intent(this, UpdateService.class));
         if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Log.v("CONCHIM","Permission is granted");
@@ -255,6 +259,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         if (isNetworkConnected()==false){
             addDialogNoInternet();
         }
+        loginPresenter.listenFogetPass();
+        loginPresenter.listenChangePass();
         //emitFinishgame();
 
     }
@@ -268,7 +274,24 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
     private static TextView textCheck;
 
-
+    public void addDialogChangePass(final String userId){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater =getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_changepass,null);
+        builder.setView(view);
+        EditText edtUserId = view.findViewById(R.id.edtUserId);
+        final EditText edtPassNew = view.findViewById(R.id.edtPassNew);
+        final EditText edtOTP = view.findViewById(R.id.edtOTP);
+        edtUserId.setText(userId);
+        edtUserId.setEnabled(false);
+        builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                loginPresenter.emitChangePass(userId,edtPassNew.getText().toString(),edtOTP.getText().toString());
+            }
+        });
+        builder.create().show();
+    }
     public void addDialogNoInternet(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.conectServer);
@@ -476,6 +499,31 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
 
+    public void addDialogFogotPass(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_fogotpass,null);
+        builder.setView(view);
+        final EditText edtUserId = view.findViewById(R.id.edtUserid);
+        final RadioButton radSMS = view.findViewById(R.id.radMethodSMS);
+        final RadioButton radEmail = view.findViewById(R.id.radMethodEmail);
+
+        builder.setNegativeButton("Send", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String userId = edtUserId.getText().toString();
+                int method = 0;
+                if(radSMS.isChecked()){
+                    method = 1;
+                }else if (radEmail.isChecked()){
+                    method = 2;
+                }
+                loginPresenter.emitFogetPass(userId,method);
+            }
+        });
+        dialogFogot = builder.create();
+    }
+
 
     private void AddEvents() {
         btnlogin.setOnClickListener(this);
@@ -500,6 +548,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 hide();
             }
         });
+        txtFogotPass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogFogot.show();
+            }
+        });
     }
 
     private void AddConTrols() {
@@ -508,6 +562,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         edtpassworld = findViewById(R.id.edtpass);
         btnlogin = findViewById(R.id.btnlogin);
         btnsignup = findViewById(R.id.btnsignup);
+        txtFogotPass = findViewById(R.id.txtquenmk);
 
     }
 
@@ -627,6 +682,28 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         } else {
             startmh();
             finish();
+        }
+    }
+
+    @Override
+    public void updateFogotPass(int code, String userId) {
+        if (code == 1){
+            Toast.makeText(MainActivity.this,"Tên Đăng Nhập Không Hợp Lệ!",Toast.LENGTH_SHORT).show();
+        }else if (code==2){
+            Toast.makeText(MainActivity.this,"Tài Khoản Chưa Đăng Kí Số Điện Thoại !",Toast.LENGTH_SHORT).show();
+        }else if (code==3){
+            Toast.makeText(MainActivity.this,"Tài Khoản Chưa Đăng Kí Email!",Toast.LENGTH_SHORT).show();
+        }else{
+            addDialogChangePass(userId);
+        }
+    }
+
+    @Override
+    public void updateChangePass(boolean flag) {
+        if (flag==true){
+            Toast.makeText(MainActivity.this,"Bạn đã thay đổi mật khẩu thành công!",Toast.LENGTH_SHORT).show();
+        }else {
+            Toast.makeText(MainActivity.this,"OTP Sai! Thay đổi mật khẩu thất bại!",Toast.LENGTH_SHORT).show();
         }
     }
 

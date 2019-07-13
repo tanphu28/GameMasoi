@@ -4,16 +4,28 @@ var app = express();
 app.use(express.static("./public"));
 app.set("view engine", "ejs");
 app.set("views", "./views");
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+var path = require('path');
+var nodeMailer = require('nodemailer');
 var server = require("http").Server(app);
 var io = require("socket.io")(server);
 var mongoose = require("mongoose");
+var Nexmo = require('nexmo');
 let User = require('./models/UserModel');
-let Room = require('./models/RoomModel');
+let Room = require('./models/RoomRealModel');
+let RoomHis = require('./models/RoomModel');
 let UserStore = require('./models/UserStore');
 let UserFriends = require('./models/UserFriends');
 let FeedBack = require('./models/FeedBackModel');
 let RoomCache = require('./models/RoomCache');
 let UserHistory = require('./models/UserHistoryLogin');
+const nexmo = new Nexmo({
+    apiKey: 'b498f0a1',
+    apiSecret: 'RBa5Px6zsMWLrjjn'
+});
+
 var PORT = process.env.PORT || 3000
 const versionName = '1.0'
 server.listen(PORT);
@@ -30,14 +42,14 @@ http.createServer(function (req, res) {
     }
 }).listen(4000);
 var room = new RoomCache();
-room._id="bb";
+room._id = "bb";
 roomarr["aa"] = room;
-roomarr["aa"]._id="1";
-roomarr["aa"].idBOPHIEU="2";
-roomarr["aa"].idUserDie="3";
-roomarr["aa"].idBaoVeChon="4";
-roomarr["aa"].idThoSanChon="5";
-for(let i=0;i<7;i++){
+roomarr["aa"]._id = "1";
+roomarr["aa"].idBOPHIEU = "2";
+roomarr["aa"].idUserDie = "3";
+roomarr["aa"].idBaoVeChon = "4";
+roomarr["aa"].idThoSanChon = "5";
+for (let i = 0; i < 7; i++) {
     roomarr["aa"].arrAll.push(i);
     roomarr["aa"].arrMaSoiChon.push(i);
     roomarr["aa"].arrBoPhieu.push(i);
@@ -45,6 +57,33 @@ for(let i=0;i<7;i++){
     roomarr["aa"].arrReady.push(i);
     roomarr["aa"].arrUserDie.push(i);
 }
+
+// let transporter = nodeMailer.createTransport({
+//     host: 'smtp.gmail.com',
+//     port: 465,
+//     secure: true,
+//     auth: {
+//         user: 'tanphu2871997@gmail.com',
+//         pass: 'dtphu2871997'
+//     }
+// });
+// let mailOptions = {
+//     from: '"Ma Soi Admin" <tanphu2871997@gmail.com>', // sender address
+//     to: "dtanphu2871997@gmail.com", // list of receivers
+//     subject: "Change Pass Word Game Ma Soi", // Subject line
+//     text: 'OTP : 389098', // plain text body
+//     html: '<b>OTP : 389098</b>' // html body
+// };
+
+// transporter.sendMail(mailOptions, (error, info) => {
+//     if (error) {
+//         return console.log(error);
+//     }
+//     console.log('Message %s sent: %s', info.messageId, info.response);
+//         res.render('index');
+//     });
+
+
 io.on("connection", function (socket) {
     // socket.on("room",function(){
     //     socket.emit("room",roomarr["aa"].arrAll);
@@ -54,14 +93,14 @@ io.on("connection", function (socket) {
     //     roomarr["aa"].arrAll.push("1");
     // })
     //join room cho web test
-    socket.Phong="";
-    socket.host=0;
-    socket.userId="";
+    socket.Phong = "";
+    socket.host = 0;
+    socket.userId = "";
     socket.UserFriends = "TPv1zwikUlbUR7zp8lYZoRnPTWl1";
     console.log("co nguoi ket noi den server");
     socket.on("disconnect", function () {
         console.log("ngat ket noi toi server");
-        if(socket.Phong!=""){
+        if (socket.Phong != "") {
             Room.findOne({ _id: socket.Phong }, function (err, doc) {
                 if (err) {
                     console.log("That bai! 0");
@@ -69,7 +108,7 @@ io.on("connection", function (socket) {
                 else {
                     doc.people = doc.users.length - 1;
                     doc.host = 0;
-    
+
                     console.log(doc);
                     doc.save((err) => {
                         if (err) {
@@ -86,12 +125,12 @@ io.on("connection", function (socket) {
                                         console.log("Thanh cong!");
                                         io.sockets.emit("DeleteRoom", socket.Phong);
                                         socket.leave(socket.Phong);
-    
-    
+
+
                                     }
                                 });
-    
-    
+
+
                             }
                             else {
                                 id = doc.users[1].userId;
@@ -105,26 +144,159 @@ io.on("connection", function (socket) {
                                         }
                                         else {
                                             console.log("Thanh cong !");
-                                            io.sockets.in(socket.Phong).emit("userexit",  socket.userId);
-                                            if(socket.host==1){
+                                            io.sockets.in(socket.Phong).emit("userexit", socket.userId);
+                                            if (socket.host == 1) {
                                                 io.sockets.in(socket.Phong).emit("useruphost", id);
-                                                socket.host=0;
+                                                socket.host = 0;
                                             }
                                             console.log(id);
                                             socket.leave(socket.Phong);
-                                            socket.Phong="";
+                                            socket.Phong = "";
                                         }
                                     }
                                 );
                             }
                         }
                     });
-    
-    
-    
+
+
+
                 }
             });
         }
+    });
+
+    socket.on("changepass", function (data) {
+        var json = JSON.parse(data);
+        UserStore.findOne({ userId: json.userId }, (err, doc) => {
+            if (err) {
+                console.log("that bai");
+            } else {
+                console.log("thanh Cong");
+                var pass = doc.passWord;
+                var otp = pass.substring(0, 6);
+                if (otp == json.otp) {
+                    doc.passWord = json.pass;
+                    doc.save();
+                    socket.emit("changepass", true);
+                } else {
+                    socket.emit("changepass", false);
+                }
+            }
+        });
+    });
+
+    socket.on("fogot", function (data) {
+        var json = JSON.parse(data);
+        console.log(data);
+        User.findOne({ userId: json.userId }, (err, doc) => {
+            if (err) {
+                console.log("That Bai");
+            }
+            else {
+                console.log("Thanh Cong");
+                if (doc == null) {
+                    var response = {
+                        code: 1,
+                        userId: ""
+                    };
+                    socket.emit("fogot", response);
+                } else {
+                    if (json.method == '1') {
+                        if (doc.phone_number != "") {
+                            var response = {
+                                code: 4,
+                                userId: json.userId
+                            };
+
+                            socket.emit("fogot", response);
+                            UserStore.findOne({ userId: json.userId }, (err, doc2) => {
+                                if (err) {
+                                    console.log("that bai");
+                                } else {
+                                    var from = 'NEXMO'
+                                    var phone = doc.phone_number;
+                                    if(phone[0]=='0'){
+                                        phone = '84' + phone.substr(1,phone.length);
+                                        console.log(phone);
+                                    }
+                                    var to = phone;
+                                    var pass = doc2.passWord;
+                                    var otp = pass.substring(0, 6);
+                                    var text = 'OTP : '+otp;
+
+                                    nexmo.message.sendSms(from, to, text, (err, responseData) => {
+                                        if (err) {
+                                            console.log(err);
+                                        } else {
+                                            if (responseData.messages[0]['status'] === "0") {
+                                                console.log("Message sent successfully.");
+                                            } else {
+                                                console.log(`Message failed with error: ${responseData.messages[0]['error-text']}`);
+                                            }
+                                        }
+                                    })
+                                }
+                            });
+                        }
+                        else {
+                            var response = {
+                                code: 2,
+                                userId: ""
+                            };
+                            socket.emit("fogot", response);
+                        }
+                    } else {
+                        if (doc.email != "") {
+                            var response = {
+                                code: 4,
+                                userId: json.userId
+                            };
+                            socket.emit("fogot", response);
+                            UserStore.findOne({ userId: json.userId }, (err, doc2) => {
+                                if (err) {
+                                    console.log("that bai");
+                                } else {
+                                    console.log("thanh Cong");
+                                    var pass = doc2.passWord;
+                                    var otp = pass.substring(0, 6);
+                                    let transporter = nodeMailer.createTransport({
+                                        host: 'smtp.gmail.com',
+                                        port: 465,
+                                        secure: true,
+                                        auth: {
+                                            user: 'tanphu2871997@gmail.com',
+                                            pass: 'dtphu2871997'
+                                        }
+                                    });
+                                    let mailOptions = {
+                                        from: '"Ma Soi Admin" <tanphu2871997@gmail.com>', // sender address
+                                        to: doc.email, // list of receivers
+                                        subject: "Change Pass Word Game Ma Soi", // Subject line
+                                        text: otp, // plain text body
+                                        html: '<b>OTP : ' + otp + '</b>' // html body
+                                    };
+
+                                    transporter.sendMail(mailOptions, (error, info) => {
+                                        if (error) {
+                                            return console.log(error);
+                                        }
+                                        console.log('Message %s sent: %s', info.messageId, info.response);
+                                        res.render('index');
+                                    });
+                                }
+                            });
+                        } else {
+                            var response = {
+                                code: 3,
+                                userId: ""
+                            };
+                            socket.emit("fogot", response);
+                        }
+                    }
+                }
+            }
+        });
     });
 
     //update version android
@@ -169,7 +341,7 @@ io.on("connection", function (socket) {
                     })
                     userStore.save((err) => {
                         socket.emit('register_user', true);
-                        socket.userId=json.userId;
+                        socket.userId = json.userId;
                     })
                 }
                 else {
@@ -217,7 +389,7 @@ io.on("connection", function (socket) {
                         console.log(doc);
                         socket.emit("Registnickname", doc);
                         let userHistory = new UserHistory({
-                            userId : json.userId
+                            userId: json.userId
                         });
                         userHistory.save();
                     }
@@ -243,14 +415,14 @@ io.on("connection", function (socket) {
                     else {
                         console.log("Thanh Cong");
                         socket.emit('register_user', true);
-                        socket.userId=json.id;
+                        socket.userId = json.id;
                     }
                 })
             }
             else {
                 socket.emit("LonginSuccess", data);
                 let userHistory = new UserHistory({
-                    userId : json.id
+                    userId: json.id
                 });
                 userHistory.save();
             }
@@ -274,8 +446,8 @@ io.on("connection", function (socket) {
                     console.log("Thanh cong");
                     console.log(doc);
                     socket.emit("Registnickname", doc);
-                    let userHistory =new UserHistory({
-                        userId : json.userId
+                    let userHistory = new UserHistory({
+                        userId: json.userId
                     });
                     userHistory.save();
                 })
@@ -301,11 +473,11 @@ io.on("connection", function (socket) {
                         }
                         else {
                             socket.emit("userlogin", doc2);
-                            socket.userId=json.userId;
+                            socket.userId = json.userId;
                             console.log(doc2)
                             console.log("Thanh cong");
                             let userHistory = new UserHistory({
-                                userId : json.userId
+                                userId: json.userId
                             });
                             userHistory.save();
                         }
@@ -340,7 +512,7 @@ io.on("connection", function (socket) {
             people: json.people,
             totalpeople: json.totalpeople,
             roomnumber: json.roomnumber,
-            money:json.money,
+            money: json.money,
             host: 1
         });
         room.save((err) => {
@@ -353,7 +525,7 @@ io.on("connection", function (socket) {
                         onsole.log("that bai");
                     }
                     else {
-                        socket.host=1;
+                        socket.host = 1;
                         socket.Phong = "";
                         socket.Phong = data._id;
                         socket.join(data._id);
@@ -361,8 +533,8 @@ io.on("connection", function (socket) {
                         console.log(socket.Phong);
                         console.log("Them thanh cong");
                         var room = new RoomCache();
-                        room._id=socket.Phong;
-                        roomarr[socket.Phong] =room; 
+                        room._id = socket.Phong;
+                        roomarr[socket.Phong] = room;
                     }
                 });
 
@@ -374,9 +546,9 @@ io.on("connection", function (socket) {
     socket.on("joinroom", function (data) {
         var json = JSON.parse(data);
         Room.findOne({ _id: json.id_room }, function (err, doc) {
-            if(err){
+            if (err) {
                 console.log("That bai");
-            }else{
+            } else {
                 if (doc.users.length == 7) {
                     var response = {
                         flag: true,
@@ -405,7 +577,7 @@ io.on("connection", function (socket) {
                             console.log("That Bai !");
                         }
                         else {
-                            socket.host=0;
+                            socket.host = 0;
                             socket.join(json.id_room);
                             socket.Phong = json.id_room;
                             io.sockets.in(json.id_room).emit("newuser", user);
@@ -527,7 +699,7 @@ io.on("connection", function (socket) {
     socket.on("ready", function (data) {
         io.sockets.in(socket.Phong).emit("ready", data);
         roomarr[socket.Phong].arrReady.push(data);
-        if(roomarr[socket.Phong].arrReady.length==7){
+        if (roomarr[socket.Phong].arrReady.length == 7) {
             io.sockets.in(socket.Phong).emit("allready", data);
         }
     });
@@ -575,8 +747,8 @@ io.on("connection", function (socket) {
                                 console.log("Thanh cong !");
                                 io.sockets.in(socket.Phong).emit("userexit", data);
                                 socket.leave(socket.Phong);
-                                socket.Phong="";
-                                socket.host=0;
+                                socket.Phong = "";
+                                socket.host = 0;
                             }
                         }
                     );
@@ -602,6 +774,26 @@ io.on("connection", function (socket) {
     socket.on("OK", function (data) {
         io.sockets.in(socket.Phong).emit("OK", data);
         roomarr[socket.Phong] = new RoomCache();
+        Room.findOne({_id : socket.Phong},(err,doc)=>{
+            if(err){
+                console.log("that bai");
+            }else{
+                console.log("Thanh Cong");
+                var room = new RoomHis({
+                    id : doc._id,
+                    name: doc.name,
+                    users : doc.users,
+                    people : doc.people,
+                    totalpeople : doc.totalpeople,
+                    roomnumber: doc.roomnumber,
+                    host: doc.host,
+                    money: doc.money,
+                    create_date: doc.create_date,
+                });
+                room.save();
+            }
+        });
+
         //roomarr[socket.Phong].OK=data;
     });
     socket.on("ListNhanVat", function (data) {
@@ -611,11 +803,11 @@ io.on("connection", function (socket) {
     });
     socket.on("Luot", function (data) {
         io.sockets.in(socket.Phong).emit("Luot", data);
-        roomarr[socket.Phong].luot=data;
+        roomarr[socket.Phong].luot = data;
     });
     socket.on("IDBiBoPhieu", function (data) {
         io.sockets.in(socket.Phong).emit("IDBiBoPhieu", data);
-        roomarr[socket.Phong].idBOPHIEU=data;
+        roomarr[socket.Phong].idBOPHIEU = data;
     });
     socket.on("UserBoPhieu", function (data) {
         io.sockets.in(socket.Phong).emit("UserBoPhieu", data);
@@ -626,7 +818,7 @@ io.on("connection", function (socket) {
     socket.on("UserDie", function (data) {
         io.sockets.in(socket.Phong).emit("UserDie", data);
         roomarr[socket.Phong].arrUserDie.push(data);
-        roomarr[socket.Phong].idUserDie=data;
+        roomarr[socket.Phong].idUserDie = data;
     });
     socket.on("NhanVatsang", function (data) {
         io.sockets.in(socket.Phong).emit("NhanVatsang", data);
@@ -643,22 +835,22 @@ io.on("connection", function (socket) {
     socket.on("BangIdChon", function (data) {
         var json = JSON.parse(data);
         io.sockets.in(socket.Phong).emit("BangIdChon", json.idchon);
-        io.sockets.in(socket.Phong).emit("listallchon",json);
+        io.sockets.in(socket.Phong).emit("listallchon", json);
         roomarr[socket.Phong].arrAll.push(json.idchon)
     });
-    socket.on("cuoingay",function(){
-        socket.emit("cuoingay",roomarr[socket.Phong]);
+    socket.on("cuoingay", function () {
+        socket.emit("cuoingay", roomarr[socket.Phong]);
     });
     socket.on("BangChonChucNang", function (data) {
         console.log(data);
         var json = JSON.parse(data);
         io.sockets.in(socket.Phong).emit(json.manv, json.idchon);
-        if(json.manv=='1'){
+        if (json.manv == '1') {
             roomarr[socket.Phong].arrMaSoiChon.push(json.idchon);
-        }else if(json.manv=='3'){
-            roomarr[socket.Phong].idThoSanChon=json.idchon;
-        }else if(json.manv=='4'){
-            roomarr[socket.Phong].idBaoVeChon=json.idchon;
+        } else if (json.manv == '3') {
+            roomarr[socket.Phong].idThoSanChon = json.idchon;
+        } else if (json.manv == '4') {
+            roomarr[socket.Phong].idBaoVeChon = json.idchon;
         }
     });
     socket.on("Chat", function (data) {
@@ -672,21 +864,21 @@ io.on("connection", function (socket) {
         roomarr[socket.Phong].arrKetQuaBoPhieu.push(json.id);
     });
 
-    socket.on("resetngaymoi",function(){
+    socket.on("resetngaymoi", function () {
         roomarr[socket.Phong] = new RoomCache();
     });
-    
-    
-    socket.on("listdanlangchon",function(){
-        socket.emit("listdanlangchon",roomarr[socket.Phong].arrAll);
+
+
+    socket.on("listdanlangchon", function () {
+        socket.emit("listdanlangchon", roomarr[socket.Phong].arrAll);
     });
 
-    socket.on("sync",function(data){
+    socket.on("sync", function (data) {
         io.sockets.in(socket.Phong).emit("sync", data);
     })
 
-    socket.on("updatehost",function(){
-        socket.host=1;
+    socket.on("updatehost", function () {
+        socket.host = 1;
     });
     socket.on("time", function (data) {
         console.log(data);
@@ -745,8 +937,8 @@ io.on("connection", function (socket) {
                                         io.sockets.in(socket.Phong).emit("useruphost", id);
                                         console.log(id);
                                         socket.leave(socket.Phong);
-                                        socket.Phong="";
-                                        socket.host=0;
+                                        socket.Phong = "";
+                                        socket.host = 0;
                                     }
                                 }
                             );
@@ -814,7 +1006,7 @@ io.on("connection", function (socket) {
                         }
                         else {
                             doc.win = doc.win + 1;
-                            doc.money = doc.money+gold;
+                            doc.money = doc.money + gold;
                             doc.save();
                         }
 
@@ -828,7 +1020,7 @@ io.on("connection", function (socket) {
                         }
                         else {
                             doc.lose = doc.lose + 1;
-                            doc.money = doc.money-gold;
+                            doc.money = doc.money - gold;
                             doc.save();
                         }
 
@@ -846,7 +1038,7 @@ io.on("connection", function (socket) {
                         }
                         else {
                             doc.win = doc.win + 1;
-                            doc.money = doc.money+gold;
+                            doc.money = doc.money + gold;
                             doc.save();
                         }
 
@@ -859,16 +1051,16 @@ io.on("connection", function (socket) {
                         }
                         else {
                             doc.lose = doc.lose + 1;
-                            doc.money = doc.money-gold;
-                        doc.save();
+                            doc.money = doc.money - gold;
+                            doc.save();
                         }
-                        
+
                     });
                 }
             });
-        
+
         }
-        
+
 
     })
 
