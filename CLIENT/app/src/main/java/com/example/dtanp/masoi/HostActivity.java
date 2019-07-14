@@ -320,6 +320,7 @@ public class HostActivity extends Activity implements RoomView {
                 btnMe.setVisibility(View.INVISIBLE);
                 roomPresenter.emitChonUser("BangChonChucNang",nhanvat.getManv(),Enviroment.user.getUserId(),nhanvat.getName(),Enviroment.user.getName());
                 flagTuBaoVe=false;
+                idBaoVeChon=Enviroment.user.getUserId();
                 OffTouchUser(userRoomListSong);
             }
         });
@@ -1110,19 +1111,17 @@ public class HostActivity extends Activity implements RoomView {
 
     public String getIDBOPhieu() {
         String id = "";
-        int max = 1, count = 0;
-        {
-            for (int i = 0; i < listAllChon.size(); i++) {
-                count = 0;
-                for (int j = i + 1; j < listAllChon.size(); j++) {
+        int max = 0, count = 0;
+        for (int i = 0; i < listAllChon.size(); i++) {
+            count = 0;
+            for (int j = i + 1; j < listAllChon.size(); j++) {
                     if (listAllChon.get(i).toString().equals(listAllChon.get(j).toString())) {
                         count++;
                     }
-                }
-                if (count > max) {
+            }
+            if (count > max) {
                     max = count;
                     id = listAllChon.get(i);
-                }
             }
         }
         return id;
