@@ -1615,17 +1615,17 @@ public class HostActivity extends Activity implements RoomView {
         }
         else {
             btnMe.setVisibility(View.VISIBLE);
-            for (UserRoom us : userRoomListSong){
-                if(us.getUseradd()!=null){
-                    if(us.getUseradd().getUserId().equals(idBaoVeChon)==false){
+        }
+        for (UserRoom us : userRoomListSong){
+            if(us.getUseradd()!=null){
+                if(us.getUseradd().getUserId().equals(idBaoVeChon)==false){
 
-                        if(us.isFlag()==true){
-                            us.getUser().setEnabled(true);
-                            us.getUser().setAlpha(1f);
-                        }
+                    if(us.isFlag()==true){
+                        us.getUser().setEnabled(true);
+                        us.getUser().setAlpha(1f);
                     }
-
                 }
+
             }
         }
         for (final UserRoom text : userRoomList) {
