@@ -1065,29 +1065,31 @@ public class HostActivity extends Activity implements RoomView {
 
     public void AddClickUser(final String st) {
         for (final UserRoom text : userRoomList) {
-            text.getUser().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (nhanvat.getManv() == 6) {
-                        for (NhanVat nv : listNhanVat) {
-                            if (text.getUseradd().getUserId().toString().equals(nv.getId().toString())) {
-                                if (nv.getManv() == 1) {
-                                    Toast.makeText(HostActivity.this, "day la ma soi", Toast.LENGTH_SHORT).show();
+            if (text.isFlag()==true){
+                text.getUser().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (nhanvat.getManv() == 6) {
+                            for (NhanVat nv : listNhanVat) {
+                                if (text.getUseradd().getUserId().toString().equals(nv.getId().toString())) {
+                                    if (nv.getManv() == 1) {
+                                        Toast.makeText(HostActivity.this, "day la ma soi", Toast.LENGTH_SHORT).show();
 
-                                } else {
-                                    Toast.makeText(HostActivity.this, "day khong phai la soi la ma soi", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(HostActivity.this, "day khong phai la soi la ma soi", Toast.LENGTH_SHORT).show();
+                                    }
+                                    break;
                                 }
-                                break;
                             }
                         }
+                        if (nhanvat.getManv()==4){
+                            idBaoVeChon = hashMap.get(text.getTxtuser().getText().toString());
+                        }
+                        roomPresenter.emitChonUser(st,nhanvat.getManv(),hashMap.get(text.getTxtuser().getText().toString()) + "",nhanvat.getName(),text.getTxtuser().getText().toString());
+                        OffTouchUser(userRoomListSong);
                     }
-                    roomPresenter.emitChonUser(st,nhanvat.getManv(),hashMap.get(text.getTxtuser().getText().toString()) + "",nhanvat.getName(),text.getTxtuser().getText().toString());
-                    if (nhanvat.getManv()==4){
-                        flagTuBaoVe=true;
-                    }
-                    OffTouchUser(userRoomListSong);
-                }
-            });
+                });
+            }
         }
     }
 
@@ -1251,6 +1253,7 @@ public class HostActivity extends Activity implements RoomView {
     public void ResetAnhUser() {
         for (UserRoom text : userRoomList) {
             text.setFlag(true);
+            text.getUser().setEnabled(true);
             text.getUser().setImageResource(R.drawable.image_user);
         }
     }
@@ -1497,11 +1500,10 @@ public class HostActivity extends Activity implements RoomView {
         if (luot != 0) {
             if (luot == 1) {
                 linearLayoutKhungChat.setVisibility(View.INVISIBLE);
-
                 linearLayoutListUser.setVisibility(View.VISIBLE);
                 linearLayoutTreoCo.setVisibility(View.INVISIBLE);
                 linearLayoutChat.setVisibility(View.INVISIBLE);
-
+                lnrListAllChon.removeAllViews();
             }
             if (luot == 7) {
                 //lnrListAllChon.setVisibility(View.INVISIBLE);
@@ -1609,6 +1611,28 @@ public class HostActivity extends Activity implements RoomView {
         }
     }
 
+    public void OntouchUserForBaove(){
+        if (Enviroment.user.getUserId().equals(idBaoVeChon)){
+            btnMe.setVisibility(View.INVISIBLE);
+        }
+        else {
+            btnMe.setVisibility(View.VISIBLE);
+            for (UserRoom us : userRoomListSong){
+                if(us.getUseradd()!=null){
+                    if(us.getUseradd().getUserId().equals(idBaoVeChon)==false){
+
+                        if(us.isFlag()==true){
+                            us.getUser().setEnabled(true);
+                            us.getUser().setAlpha(1f);
+                        }
+                    }
+
+                }
+            }
+        }
+
+    }
+
     @Override
     public void updateNhanVatSang(int nv) {
         if (nhanvat.getManv() == nv) {
@@ -1622,11 +1646,12 @@ public class HostActivity extends Activity implements RoomView {
                     listChat.setVisibility(View.VISIBLE);
                 } else {
                     if(nhanvat.getManv()==4){
-                        if(flagTuBaoVe==true){
-                            btnMe.setVisibility(View.VISIBLE);
-                        }
+                        OntouchUserForBaove();
                     }
-                    OntouchUser(userRoomListSong);
+                    else {
+                        OntouchUser(userRoomListSong);
+                    }
+
                 }
             }
         }
@@ -1659,6 +1684,7 @@ public class HostActivity extends Activity implements RoomView {
     @Override
     public void updateAllChat(boolean flag) {
         if (flag == true) {
+            txtLuot.setText("Dân Làng Trò Chuyện!");
             if (die ==false){
                 linearLayoutChat.setVisibility(View.VISIBLE);
                 findViewById(R.id.lnrkhungchat).setVisibility(View.VISIBLE);
