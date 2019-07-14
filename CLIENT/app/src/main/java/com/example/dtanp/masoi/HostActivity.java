@@ -185,7 +185,7 @@ public class HostActivity extends Activity implements RoomView {
         txtBaove = view.findViewById(R.id.txtBaove);
         txtTienTri = view.findViewById(R.id.txtTienTri);
         txtThoSan = view.findViewById(R.id.txtThoSan);
-        builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.NegativeButton, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(registLeaveRoom == true || Enviroment.user.getMoney()<Enviroment.phong.getMoney()){
@@ -254,11 +254,11 @@ public class HostActivity extends Activity implements RoomView {
                 if (ready == false) {
                     roomPresenter.emitReady(1);
                     ready = true;
-                    btnSS.setText("BỎ SẲN SÀNG");
+                    btnSS.setText(R.string.btnquitstart);
                 } else {
                     roomPresenter.emitReady(0);
                     ready = false;
-                    btnSS.setText("SẲN SÀNG");
+                    btnSS.setText(R.string.btnstart);
                 }
             }
         });
@@ -327,7 +327,7 @@ public class HostActivity extends Activity implements RoomView {
 
     public void addDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Thoát");
+        builder.setTitle(R.string.btnexit);
         builder.setMessage("Bạn muốn thoát ra khỏi phòng !");
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
@@ -1768,7 +1768,6 @@ public class HostActivity extends Activity implements RoomView {
     public void updateFinish(int win) {
         if(win == 1){
             txtTitle.setText("Sói Thắng !");
-
         }
         else
         {

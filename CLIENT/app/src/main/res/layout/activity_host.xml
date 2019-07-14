@@ -120,7 +120,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:layout_gravity="center_vertical"
-                android:text="Bắt Đầu"
+                android:text="@string/btnstart"
                 android:textSize="40dp"
                 android:visibility="gone"
                 />
@@ -231,13 +231,13 @@
                         android:id="@+id/btngiet"
                         android:layout_width="120dp"
                         android:layout_height="70dp"
-                        android:text="Giet"/>
+                        android:text="@string/btnkill"/>
                     <Button
                         android:id="@+id/btnkhonggiet"
                         android:layout_width="120dp"
                         android:layout_height="70dp"
                         android:layout_marginLeft="20dp"
-                        android:text="Không Giết"/>
+                        android:text="@string/btnnotkill"/>
                 </LinearLayout>
 
             </LinearLayout>

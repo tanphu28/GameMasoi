@@ -69,5 +69,11 @@
     <string name="btnConnectsv">Connect Server</string>
     <string name="btnConnectlc">Connect Local</string>
     <string name="conectServer">You cannot connect to the server!</string>
+    <string name="btnstart">Start</string>
+    <string name="btnkill">Kill</string>
+    <string name="btnnotkill">Not Kill</string>
+    <string name="NegativeButton">OK</string>
+    <string name="btnquitstart">Quit Start</string>
+    <string name="btnexit">Exit</string>
 
 </resources>
