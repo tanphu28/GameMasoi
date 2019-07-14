@@ -413,6 +413,7 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
         intent.putExtra("host",flag);
         startActivity(intent);
         finish();
+        chooseRoomPresenter.removeListener();
     }
 
     public void startmhban() {

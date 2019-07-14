@@ -136,4 +136,11 @@ public class ChooseRoomPresenter {
         };
         this.socket.on("DeleteRoom",listener);
     }
+
+    public void removeListener(){
+        this.socket.off("allroom");
+        this.socket.off("FullPeople");
+        this.socket.off("newroom");
+        this.socket.off("DeleteRoom");
+    }
 }

@@ -232,5 +232,16 @@ public class LoginPresenter {
         });
     }
 
+    public void removeListener(){
+        this.socket.off("register_user");
+        this.socket.off("LonginSuccess");
+        this.socket.off("CheckUser");
+        this.socket.off("Registnickname");
+        this.socket.off("CheckVersionName");
+        this.socket.off("userlogin");
+        this.socket.off("fogot");
+        this.socket.off("changepass");
+    }
+
 
 }

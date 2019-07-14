@@ -143,6 +143,9 @@ public class HomePresenter {
 
     public void removeListen(){
         this.socket.off("disconnect");
+        this.socket.off("alluserfriend");
+        this.socket.off("ChatAll");
+        this.socket.off("ping");
     }
 
 

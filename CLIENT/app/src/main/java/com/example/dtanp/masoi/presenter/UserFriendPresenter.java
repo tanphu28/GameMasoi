@@ -94,4 +94,9 @@ public class UserFriendPresenter {
         };
         this.socket.on("ChatUser", listenerChatMes);
     }
+
+    public void removeListener(){
+        this.socket.off("ChatUser");
+        this.socket.off("alluser");
+    }
 }

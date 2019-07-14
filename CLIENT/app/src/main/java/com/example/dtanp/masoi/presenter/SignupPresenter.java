@@ -104,4 +104,10 @@ public class SignupPresenter {
         this.socket.emit("register_user",json);
     }
 
+    public void removeListener(){
+        this.socket.off("CheckUser");
+        this.socket.off("Registnickname");
+        this.socket.off("register_user");
+    }
+
 }

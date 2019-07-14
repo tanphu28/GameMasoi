@@ -569,12 +569,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public void startmhsignup() {
         Intent intent = new Intent(this, SignupActivity.class);
         startActivity(intent);
+        loginPresenter.removeListener();
     }
 
 
     public void startmh() {
         Intent intent = new Intent(this, HomeActivity.class);
         startActivity(intent);
+        loginPresenter.removeListener();
     }
 
 

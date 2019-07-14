@@ -226,6 +226,7 @@ public class SignupActivity extends Activity implements SignupView {
         Intent intent = new Intent(this,HomeActivity.class);
         startActivity(intent);
         finish();
+        signupPresenter.removeListener();
     }
 
     @Override

@@ -1,19 +1,11 @@
 package com.example.dtanp.masoi.presenter;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.view.View;
-
-import com.example.dtanp.masoi.BanActivity;
-import com.example.dtanp.masoi.ChooseRoomActivity;
-import com.example.dtanp.masoi.HostActivity;
-import com.example.dtanp.masoi.R;
 import com.example.dtanp.masoi.appinterface.RoomView;
 import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Chat;
 import com.example.dtanp.masoi.model.NhanVat;
 import com.example.dtanp.masoi.model.User;
-import com.example.dtanp.masoi.model.UserRoom;
 import com.example.dtanp.masoi.singleton.SocketSingleton;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
@@ -697,6 +689,36 @@ public class RoomPresenter {
     }
     public void removeListen(){
         this.socket.off("disconnect");
+        this.socket.off("Chat");
+        this.socket.off("userexit");
+        this.socket.off("ready");
+        this.socket.off("newuser");
+        this.socket.off("time");
+        this.socket.off("UserDie");
+        this.socket.off("ListNhanVat");
+        this.socket.off("Luot");
+        this.socket.off("BangBoPhieu");
+        this.socket.off("NhanVatChucNangDie");
+        this.socket.off("4");
+        this.socket.off("6");
+        this.socket.off("3");
+        this.socket.off("1");
+        this.socket.off("BangIdChon");
+        this.socket.off("NhanVatsang");
+        this.socket.off("NhanVatTat");
+        this.socket.off("AllChat");
+        this.socket.off("AllManHinhChon");
+        this.socket.off("IDBiBoPhieu");
+        this.socket.off("OK");
+        this.socket.off("leaveroom");
+        this.socket.off("useruphost");
+        this.socket.off("win");
+        this.socket.off("cuoingay");
+        this.socket.off("listdanlangchon");
+        this.socket.off("sync");
+        this.socket.off("listallchon");
+        this.socket.off("ListBangBoPhieu");
+        this.socket.off("listuserdie");
     }
 
     public void listenListBangBoPhieu(){
@@ -760,5 +782,7 @@ public class RoomPresenter {
         this.socket.off("leaveroom");
         this.socket.off("useruphost");
     }
+
+
 
 }
