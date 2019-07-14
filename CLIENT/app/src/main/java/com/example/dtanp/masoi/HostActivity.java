@@ -1069,21 +1069,20 @@ public class HostActivity extends Activity implements RoomView {
                 text.getUser().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (nhanvat.getManv() == 6) {
-                            for (NhanVat nv : listNhanVat) {
-                                if (text.getUseradd().getUserId().toString().equals(nv.getId().toString())) {
-                                    if (nv.getManv() == 1) {
-                                        Toast.makeText(HostActivity.this, "day la ma soi", Toast.LENGTH_SHORT).show();
+                        if (st.equals("BangChonChucNang")){
+                            if (nhanvat.getManv() == 6) {
+                                for (NhanVat nv : listNhanVat) {
+                                    if (text.getUseradd().getUserId().toString().equals(nv.getId().toString())) {
+                                        if (nv.getManv() == 1) {
+                                            Toast.makeText(HostActivity.this, "day la ma soi", Toast.LENGTH_SHORT).show();
 
-                                    } else {
-                                        Toast.makeText(HostActivity.this, "day khong phai la soi la ma soi", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(HostActivity.this, "day khong phai la soi la ma soi", Toast.LENGTH_SHORT).show();
+                                        }
+                                        break;
                                     }
-                                    break;
                                 }
                             }
-                        }
-                        if (nhanvat.getManv()==4){
-                            idBaoVeChon = hashMap.get(text.getTxtuser().getText().toString());
                         }
                         roomPresenter.emitChonUser(st,nhanvat.getManv(),hashMap.get(text.getTxtuser().getText().toString()) + "",nhanvat.getName(),text.getTxtuser().getText().toString());
                         OffTouchUser(userRoomListSong);
@@ -1628,6 +1627,18 @@ public class HostActivity extends Activity implements RoomView {
                     }
 
                 }
+            }
+        }
+        for (final UserRoom text : userRoomList) {
+            if (text.isFlag()==true){
+                text.getUser().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        idBaoVeChon = hashMap.get(text.getTxtuser().getText().toString()) + "";
+                        roomPresenter.emitChonUser("BangChonChucNang",nhanvat.getManv(),hashMap.get(text.getTxtuser().getText().toString()) + "",nhanvat.getName(),text.getTxtuser().getText().toString());
+                        OffTouchUser(userRoomListSong);
+                    }
+                });
             }
         }
 
