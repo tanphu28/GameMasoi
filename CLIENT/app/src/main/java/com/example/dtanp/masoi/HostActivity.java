@@ -485,14 +485,12 @@ public class HostActivity extends Activity implements RoomView {
         View view = inflater.inflate(R.layout.layout_dialog_user, null);
         builder.setView(view);
         TextView txtuser = view.findViewById(R.id.txtuser);
-        TextView txtid = view.findViewById(R.id.txtid);
-        TextView txtlevel = view.findViewById(R.id.txtlevel);
         TextView txtwin = view.findViewById(R.id.txtwwin);
         TextView txtloss = view.findViewById(R.id.txtloss);
 
-        txtid.setText(user.getUserId());
         txtuser.setText(user.getName());
-
+        txtwin.setText(user.getWin()+"");
+        txtloss.setText(user.getLose()+"");
         Button btnkick = view.findViewById(R.id.btnkick);
         if(host==false){
             btnkick.setVisibility(View.GONE);
@@ -614,7 +612,7 @@ public class HostActivity extends Activity implements RoomView {
 
     public void RemoveUserList(User user) {
         for (User us : listUser) {
-            if (us.getUserId().toString().trim().equals(us.getUserId())) {
+            if (us.getUserId().toString().trim().equals(user.getUserId())) {
                 listUser.remove(us);
                 break;
             }
@@ -962,6 +960,12 @@ public class HostActivity extends Activity implements RoomView {
         for (User user : listUserDanLang) {
             if (user.getUserId().toString().equals(id)) {
                 listUserDanLang.remove(user);
+                break;
+            }
+        }
+        for (User user : listUserInGame){
+            if (user.getUserId().toString().equals(id)) {
+                listUserInGame.remove(user);
                 break;
             }
         }

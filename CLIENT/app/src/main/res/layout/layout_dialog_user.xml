@@ -38,28 +38,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="100dp">
-
-                <TextView
-                    android:id="@+id/txtidd"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginStart="25dp"
-                    android:layout_marginTop="70dp"
-                    android:text="@string/txtId"
-                    android:textColor="#fff"
-                    android:textSize="20dp" />
-
-                <TextView
-                    android:id="@+id/txtid"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="50dp"
-
-                    android:layout_marginTop="70dp"
-                    android:text="2158452"
-                    android:textColor="#fff"
-                    android:textSize="20dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -89,35 +67,6 @@
                     android:textSize="20dp" />
 
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp">
-
-                <TextView
-                    android:id="@+id/txtlv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="25dp"
-
-                    android:layout_marginTop="10dp"
-                    android:text="@string/txtLevel"
-                    android:textColor="#fff"
-                    android:textSize="20dp" />
-
-                <TextView
-                    android:id="@+id/txtlevel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="27dp"
-
-                    android:layout_marginTop="10dp"
-                    android:text="15"
-                    android:textColor="#fff"
-                    android:textSize="20dp" />
-
-            </LinearLayout>
-
 
         </LinearLayout>
 

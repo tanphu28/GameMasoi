@@ -15,7 +15,10 @@ import com.example.dtanp.masoi.MainActivity;
 import com.example.dtanp.masoi.R;
 import com.example.dtanp.masoi.singleton.SocketSingleton;
 import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+
+import java.net.URISyntaxException;
 
 public class UpdateService extends Service {
 
@@ -34,7 +37,12 @@ public class UpdateService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        socket = SocketSingleton.getInstance();
+        try {
+            socket = IO.socket("http://192.168.1.9:3000");
+            socket.connect();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         socket.on("updateversion", new Emitter.Listener() {
             @Override
             public void call(Object... args) {

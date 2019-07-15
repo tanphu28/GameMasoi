@@ -432,14 +432,14 @@ public class HomeActivity extends Activity implements HomeView {
             protected void onProgressUpdate(String... values) {
                 super.onProgressUpdate(values);
                 System.out.println(values[0]);
-//                String[] s = values[0].split("/");
-//                int ping  = (int) Double.parseDouble(s[4]);;
-//                txtPing.setText(ping + "ms");
-//                if (ping>35){
-//                    txtPing.setTextColor(Color.RED);
-//                }else {
-//                    txtPing.setTextColor(Color.GREEN);
-//                }
+                String[] s = values[0].split("/");
+                int ping  = (int) Double.parseDouble(s[4]);;
+                txtPing.setText(ping + "ms");
+                if (ping>35){
+                    txtPing.setTextColor(Color.RED);
+                }else {
+                    txtPing.setTextColor(Color.GREEN);
+                }
             }
         }.execute();
     }

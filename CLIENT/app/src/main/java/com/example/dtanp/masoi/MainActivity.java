@@ -247,7 +247,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         loginPresenter.listenRegister();
         loginPresenter.emitCheckVersionName();
         addDialogFogotPass();
-        //startService(new Intent(this, UpdateService.class));
+        startService(new Intent(this, UpdateService.class));
         if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             Log.v("CONCHIM","Permission is granted");
         }
@@ -416,12 +416,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     public void downloadfile() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.43.87:3000/")
+                .baseUrl("http://192.168.1.9:3000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         API downloadService = retrofit.create(API.class);
 
-        Call<ResponseBody> call = downloadService.downloadApk("http://192.168.43.87:3000/apk");
+        Call<ResponseBody> call = downloadService.downloadApk("http://192.168.1.9:3000/apk");
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
