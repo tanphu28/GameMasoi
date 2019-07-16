@@ -239,7 +239,7 @@
 
                         android:layout_marginTop="100dp"
                         android:layout_marginStart="10dp"
-                        android:background="@drawable/icon_gold"
+                        android:background="@drawable/coins"
                         android:layout_marginEnd="5dp"
                         />
 
@@ -254,17 +254,6 @@
                         android:textSize="20dp"
 
                         />
-
-                    <ImageButton
-                        android:id="@+id/bgcong"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-
-
-                        android:layout_marginTop="100dp"
-                        android:background="@drawable/iconcong"
-                        />
-
 
                 </LinearLayout>
 

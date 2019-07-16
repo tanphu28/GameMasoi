@@ -175,7 +175,7 @@ android:orientation="vertical"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_gravity="center"
-                android:src="@drawable/dola" />
+                android:src="@drawable/coins" />
 
             <TextView
                 android:id="@+id/txtGold"
