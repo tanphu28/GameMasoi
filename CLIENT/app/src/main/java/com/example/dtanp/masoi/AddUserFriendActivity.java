@@ -208,6 +208,7 @@ public class AddUserFriendActivity extends Activity  implements UserFriendView {
                     mRcvAdapter=new CustomListUser(filterdList);
                     recyclerView.setAdapter(mRcvAdapter);
                     mRcvAdapter.notifyDataSetChanged();
+                    filterdList.clear();
 
                 }
             }

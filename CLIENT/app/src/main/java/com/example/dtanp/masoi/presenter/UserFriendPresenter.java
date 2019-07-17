@@ -2,7 +2,6 @@ package com.example.dtanp.masoi.presenter;
 
 import android.app.Activity;
 
-import com.example.dtanp.masoi.appinterface.HomeView;
 
 import com.example.dtanp.masoi.appinterface.UserFriendView;
 import com.example.dtanp.masoi.environment.Enviroment;
@@ -32,6 +31,7 @@ public class UserFriendPresenter {
     public void emitGetAllUser(){
         this.socket.emit("alluser");
     }
+
     public void listenGetAllUser(){
         final ArrayList<User> list = new ArrayList<>();
         Emitter.Listener listener = new Emitter.Listener() {
@@ -53,7 +53,6 @@ public class UserFriendPresenter {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-
                         }
                         userFriendView.updateListUser(list);
                     }
@@ -89,14 +88,9 @@ public class UserFriendPresenter {
                         }
                     }
                 });
-
             }
         };
         this.socket.on("ChatUser", listenerChatMes);
     }
 
-    public void removeListener(){
-        this.socket.off("ChatUser");
-        this.socket.off("alluser");
-    }
 }

@@ -151,7 +151,7 @@ android:orientation="vertical"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_gravity="center"
-            android:background="@drawable/imgbaove"
+            android:background="@drawable/gradmale_avatar"
 
             />
 
@@ -172,8 +172,8 @@ android:orientation="vertical"
             android:layout_marginLeft="40dp">
 
             <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_gravity="center"
                 android:src="@drawable/coins" />
 
