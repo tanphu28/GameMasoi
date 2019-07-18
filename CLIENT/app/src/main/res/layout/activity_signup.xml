@@ -45,10 +45,11 @@
             <EditText
                 android:id="@+id/edtuser"
                 android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:background="#726d71"
+                android:layout_height="35dp"
+                android:background="@drawable/edittext"
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="textImeMultiLine"
+                android:textAlignment="center"
                 />
 
         </LinearLayout>
@@ -68,10 +69,11 @@
             <EditText
                 android:id="@+id/edtpass"
                 android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:background="#726d71"
+                android:layout_height="35dp"
+                android:background="@drawable/edittext"
                 android:inputType="textPassword"
                 android:imeOptions="flagNoExtractUi"
+                android:textAlignment="center"
                 />
 
         </LinearLayout>
@@ -92,19 +94,20 @@
             <EditText
                 android:id="@+id/edtpass2"
                 android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:background="#726d71"
+                android:layout_height="35dp"
+                android:background="@drawable/edittext"
                 android:imeOptions="flagNoExtractUi"
+                android:textAlignment="center"
                 android:inputType="textPassword" />
 
         </LinearLayout>
         <Button
             android:id="@+id/btnsignup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:layout_height="45dp"
             android:text="@string/btnSignup"
             android:textColor="#FFF"
-            android:background="#2a2929"
+            android:background="#1B9ED8"
             android:textSize="20dp"
             android:layout_marginTop="30dp"
             />

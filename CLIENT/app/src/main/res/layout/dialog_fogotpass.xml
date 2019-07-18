@@ -7,12 +7,14 @@
     android:gravity="center"
     >
     <EditText
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
+        android:layout_width="170dp"
+        android:layout_height="35dp"
         android:hint="Username"
+        android:background="@drawable/edittext"
         android:id="@+id/edtUserid"
         />
     <LinearLayout
+        android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <RadioGroup

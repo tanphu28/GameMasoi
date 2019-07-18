@@ -54,7 +54,7 @@
 
                         android:layout_width="145dp"
                         android:layout_height="35dp"
-                        android:background="#f2f1f1"
+                        android:background="@drawable/edittext"
 
                         android:hint="@string/hintname" />
 
@@ -83,7 +83,7 @@
                     android:layout_marginStart="65dp"
                     android:layout_marginEnd="50dp"
                     android:layout_marginTop="2dp"
-                    android:background="#00BCD4"
+                    android:background="#3F51B5"
                     />
 
 
@@ -216,6 +216,8 @@
                         android:layout_marginLeft="80dp"
                         android:layout_marginTop="20dp"
                         android:background="@drawable/button"
+                        android:textSize="20dp"
+
                         android:text="@string/btnPlaygame" />
 
                 </LinearLayout>
@@ -279,7 +281,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
 
-                        android:layout_marginStart="50dp"
+                        android:layout_marginStart="60dp"
                         android:layout_marginTop="25dp"
                         android:layout_marginEnd="20dp"
                         android:gravity="center"
