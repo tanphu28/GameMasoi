@@ -185,6 +185,7 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
         final Spinner spinner = view.findViewById(R.id.sltCuoc);
         spinner.setAdapter(arrayAdapter);
         Button btnCreate = view.findViewById(R.id.btnCreate);
+        final EditText edtnameroom=view.findViewById(R.id.edtnameroom);
         final TextView txtErr = view.findViewById(R.id.txtErr);
         btnCreate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -197,7 +198,7 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
                     Phong phong = new Phong();
                     phong.setId(Enviroment.user.getUserId());
                     phong.setRoomnumber(list.size() + 1);
-                    phong.setName(Enviroment.user.getName());
+                    phong.setName(edtnameroom.getText().toString()+"");
                     phong.setPeople(1);
                     phong.getUsers().add(Enviroment.user);
                     phong.setHost(1);
