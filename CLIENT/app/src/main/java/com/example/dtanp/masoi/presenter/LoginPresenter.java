@@ -232,6 +232,20 @@ public class LoginPresenter {
         });
     }
 
+    public void listenErrorLogin(){
+        this.socket.on("loidangnhap", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loginView.updateErrorLogin();
+                    }
+                });
+            }
+        });
+    }
+
     public void removeListener(){
         this.socket.off("register_user");
         this.socket.off("LonginSuccess");
@@ -241,6 +255,7 @@ public class LoginPresenter {
         this.socket.off("userlogin");
         this.socket.off("fogot");
         this.socket.off("changepass");
+        this.socket.off("loidangnhap");
     }
 
 

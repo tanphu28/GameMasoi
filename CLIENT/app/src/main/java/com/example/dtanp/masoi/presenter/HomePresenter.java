@@ -141,11 +141,32 @@ public class HomePresenter {
         });
     }
 
+    public  void emitConnect(){
+        this.socket.emit("againconnect",Enviroment.user.getUserId());
+    }
+
+    public void listenConnect(){
+        this.socket.on("connect", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        emitConnect();
+                        homeView.updateConnect();
+                        System.out.println("connect");
+                    }
+                });
+            }
+        });
+    }
+
     public void removeListen(){
         this.socket.off("disconnect");
         this.socket.off("alluserfriend");
         this.socket.off("ChatAll");
         this.socket.off("ping");
+        this.socket.off("connection");
     }
 
 

@@ -1,5 +1,8 @@
 package com.example.dtanp.masoi.singleton;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 

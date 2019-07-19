@@ -56,7 +56,7 @@ io.on("connection", function (socket) {
     socket.userId = "";
     socket.UserFriends = "TPv1zwikUlbUR7zp8lYZoRnPTWl1";
     console.log("co nguoi ket noi den server");
-    socket.on("disconnect", function () {
+    socket.on("disconnect", async function () {
         console.log("ngat ket noi toi server");
         if (socket.Phong != "") {
             Room.findOne({ _id: socket.Phong }, function (err, doc) {
@@ -122,6 +122,31 @@ io.on("connection", function (socket) {
                 }
             });
         }
+
+        if(socket.userId!=""){
+            User.findOne({userId : socket.userId}, function(err,doc){
+                if(err){
+                    console.log("That Bai!");
+                }
+                else{
+                    doc.isActive = false;
+                    doc.save();
+                }
+            });
+        }
+    });
+
+    socket.on("againconnect",function(data){
+        socket.userId = data;
+        User.findOne({userId : data},function(err,doc){
+            if(err){
+                console.log("that bai!");
+            }
+            else{
+                doc.isActive = true;
+                doc.save();
+            }
+        })
     });
 
     socket.on("changepass", function (data) {
@@ -350,12 +375,23 @@ io.on("connection", function (socket) {
                             userId: json.userId
                         });
                         userHistory.save();
+                        doc.isActive=true;
+                        doc.save();
                     }
                 })
             }
 
         })
     })
+
+    socket.on("logout",function(data){
+            User.findOne({userId : socket.userId},function(err,doc){
+                if(doc!=null){
+                    doc.isActive = false;
+                    doc.save();
+                }
+            });
+    });
 
     //logginFB
     socket.on("LoginFB", function (data) {
@@ -378,11 +414,20 @@ io.on("connection", function (socket) {
                 })
             }
             else {
-                socket.emit("LonginSuccess", data);
-                let userHistory = new UserHistory({
-                    userId: json.id
-                });
-                userHistory.save();
+                if(data.isActive == true){
+                    socket.emit("loidangnhap",1);
+                }
+                else{
+                    socket.emit("LonginSuccess", data);
+                    let userHistory = new UserHistory({
+                        userId: json.id
+                    });
+                    userHistory.save();
+                    data.isActive = true;
+                    socket.userId = json.id;
+                    data.save();
+                }
+                
             }
         })
     })
@@ -400,6 +445,8 @@ io.on("connection", function (socket) {
             }
             else {
                 doc.name = json.name;
+                doc.isActive= true;
+                socket.userId = json.userId;
                 doc.save((err) => {
                     console.log("Thanh cong");
                     console.log(doc);
@@ -414,7 +461,7 @@ io.on("connection", function (socket) {
         })
     })
     //login
-    socket.on("login", function (data) {
+    socket.on("login", async function (data) {
         var json = JSON.parse(data)
         UserStore.findOne({ userId: json.userId, passWord: json.passWord }, function (err, doc) {
             if (err) {
@@ -430,14 +477,23 @@ io.on("connection", function (socket) {
                             console.log('That Bai')
                         }
                         else {
-                            socket.emit("userlogin", doc2);
-                            socket.userId = json.userId;
-                            console.log(doc2)
-                            console.log("Thanh cong");
-                            let userHistory = new UserHistory({
-                                userId: json.userId
-                            });
-                            userHistory.save();
+                            if(doc2.isActive==false){
+                                socket.emit("userlogin", doc2);
+                                socket.userId = json.userId;
+                                console.log(doc2)
+                                console.log("Thanh cong");
+                                let userHistory = new UserHistory({
+                                    userId: json.userId
+                                });
+                                userHistory.save();
+                                doc2.isActive=true;
+                                doc2.save();
+                            }
+                            else{
+                                socket.emit("loidangnhap",1),
+                                console.log("Loi Dang Nhap!");
+                            }
+                            
                         }
                     })
                 }

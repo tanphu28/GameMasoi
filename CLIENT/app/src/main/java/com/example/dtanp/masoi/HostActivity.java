@@ -48,7 +48,7 @@ import io.fabric.sdk.android.Fabric;
 public class HostActivity extends Activity implements RoomView {
     ListView listChat;
     CustomAdapterChat adapterChat,adapterChatMaSoi;
-    Button btnBatDau, btnSend, btnGiet, btnKhongGiet,btnMe;
+    Button btnBatDau, btnSend, btnGiet, btnKhongGiet,btnMe,btnSkip;
     ImageView imgNhanVat, imgTreoCo;
     List<UserRoom> userRoomList, userRoomListSong, userRoomListDanThuong;
     List<Chat> list,listChatMaSoi;
@@ -156,6 +156,7 @@ public class HostActivity extends Activity implements RoomView {
         if(host==true){
             getHost();
             btnBatDau.setVisibility(View.VISIBLE);
+            btnSkip.setVisibility(View.VISIBLE);
         }
         else
         {
@@ -217,6 +218,7 @@ public class HostActivity extends Activity implements RoomView {
         roomPresenter.listenKetQuaBoPhieu();
         roomPresenter.listenUserIdBiGiet();
         roomPresenter.listenXuLyCuoiNgay();
+        btnSkip.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -246,6 +248,34 @@ public class HostActivity extends Activity implements RoomView {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 hide();;
+            }
+        });
+        btnSkip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(flagchat==true){
+                    manv = 7;
+                    handlerMaSoi.sendEmptyMessage(0);
+                    flagchat = false;
+                    roomPresenter.emitSync(flagchat,flagxuli,manv);
+                }else if(flagxuli==true){
+                    timer.cancel();
+                    roomPresenter.emitUserBiBoPhieuTat(IDBoPhieu);
+                    XuLyLuot(7, false);
+                    if (die == false) {
+                        if (Enviroment.user.getUserId().toString().trim().equals(IDBoPhieu) == false) {
+                            btnKhongGiet.setVisibility(View.VISIBLE);
+                            btnGiet.setVisibility(View.VISIBLE);
+                        }
+                    }
+                    setLuotDB(7);
+                    manv = 9;
+                    flagxuli = false;
+                    roomPresenter.emitSync(flagchat, flagxuli, manv);
+                }else {
+                    handlerMaSoi.sendEmptyMessage(0);
+                }
+                txtThoiGian.setText("");
             }
         });
         btnSS.setOnClickListener(new View.OnClickListener() {
@@ -372,6 +402,7 @@ public class HostActivity extends Activity implements RoomView {
 
     public void AnhXa() {
 
+        btnSkip = findViewById(R.id.btnSkip);
         btnMe = findViewById(R.id.btnMe);
         btnMe.setText(Enviroment.user.getName());
         txtGold = findViewById(R.id.txtGold);
@@ -1709,6 +1740,8 @@ public class HostActivity extends Activity implements RoomView {
             roomPresenter.emitSync(flagchat,flagxuli,manv);
             if(host==true){
                 DemGiay(30);
+                manv = 7;
+                roomPresenter.emitSync(flagchat,flagxuli,manv);
             }
         } else {
             linearLayoutChat.setVisibility(View.INVISIBLE);

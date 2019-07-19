@@ -121,6 +121,7 @@ public class HomeActivity extends Activity implements HomeView {
     Emitter.Listener eListenerAllUser;
     private HomePresenter homePresenter;
     private TextView txtPing;
+    private AlertDialog dialogDisconnect;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -135,9 +136,11 @@ public class HomeActivity extends Activity implements HomeView {
         homePresenter.listenAllChat();
         txtUser.setText(Enviroment.user.getName());
         homePresenter.litenPingtoServer();
-        inSomeWhere();
+         //inSomeWhere();
         homePresenter.listenDisconect();
+        homePresenter.listenConnect();
         //pingToServer();
+        addDialogNoInternet();
     }
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -211,7 +214,7 @@ public class HomeActivity extends Activity implements HomeView {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.conectServer);
         builder.setCancelable(false);
-        builder.create().show();
+        dialogDisconnect=builder.create();
     }
 
     private void AddConTrols() {
@@ -388,12 +391,26 @@ public class HomeActivity extends Activity implements HomeView {
     @Override
     public void updateDisconnect() {
         try{
-            addDialogNoInternet();
+            dialogDisconnect.show();
         }
         catch (Exception e){
             System.out.println(e.getMessage().toString());
         }
 
+    }
+
+    @Override
+    public void updateConnect() {
+        try{
+//            if(dialogDisconnect.isShowing()){
+//                dialogDisconnect.cancel();
+//            }
+            dialogDisconnect.cancel();
+
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage().toString());
+        }
     }
 
     public void inSomeWhere() {

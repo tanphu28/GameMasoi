@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
@@ -36,9 +37,10 @@ public class UpdateService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        SharedPreferences sharedPreferences = getSharedPreferences("host", Context.MODE_PRIVATE);
+        String url = sharedPreferences.getString("url","https://app-masoi.herokuapp.com/");
         try {
-            socket = IO.socket("http://192.168.1.9:3000");
+            socket = IO.socket(url);
             socket.connect();
         } catch (URISyntaxException e) {
             e.printStackTrace();

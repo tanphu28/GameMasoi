@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -40,6 +41,7 @@ import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.NhanVat;
 import com.example.dtanp.masoi.presenter.LoginPresenter;
 import com.example.dtanp.masoi.presenter.RoomPresenter;
+import com.example.dtanp.masoi.singleton.SocketSingleton;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -170,6 +172,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_login);
+        if(SocketSingleton.HOST==null){
+            SharedPreferences sharedPreferences = getSharedPreferences("host", Context.MODE_PRIVATE);
+            SocketSingleton.HOST = sharedPreferences.getString("url","https://app-masoi.herokuapp.com/");
+        }
         loginPresenter = new LoginPresenter(MainActivity.this, MainActivity.this);
         mVisible = true;
         mContentView = findViewById(R.id.fullscreen_content);
@@ -202,7 +208,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                                             userId = me.optString("id");
                                             String name = me.optString("name");
                                             loginPresenter.emitLoginFB(userId, name);
-                                            Toast.makeText(MainActivity.this, "Login Success!", Toast.LENGTH_SHORT).show();
                                             Enviroment.METHOD_LOGIN = 2;
                                         }
                                     }
@@ -230,6 +235,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         database = FirebaseDatabase.getInstance();
         auth = FirebaseAuth.getInstance();
+        auth.signOut();
         Enviroment.gson = new Gson();
         createDialogUpdate();
         try {
@@ -331,12 +337,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         });
         loginPresenter.listenCheckUser();
         loginPresenter.listenRegistNickname();
+        loginPresenter.listenErrorLogin();
 
         dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
     }
 
     private void signIn() {
+        Auth.GoogleSignInApi.signOut(googleApiClient);
         Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
         startActivityForResult(intent, REC_CODE);
         googleApiClient.connect();
@@ -357,9 +365,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         callbackManager.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REC_CODE) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            Toast.makeText(MainActivity.this, result.getStatus().toString() + "", Toast.LENGTH_SHORT).show();
-            handleSignInResult(result);
+            if(data!=null){
+                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+                handleSignInResult(result);
+            }
 
         }
 
@@ -367,16 +376,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
-        Toast.makeText(MainActivity.this, result.isSuccess() + "", Toast.LENGTH_SHORT).show();
         if (result.isSuccess()) {
             GoogleSignInAccount account = result.getSignInAccount();
             String name = account.getDisplayName();
             String email = account.getEmail();
             userId = email;
             loginPresenter.emitLoginFB(email, name);
-            Toast.makeText(MainActivity.this, "Login Success!", Toast.LENGTH_SHORT).show();
-        } else {
-            updateUI(false);
         }
 
     }
@@ -416,12 +421,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     public void downloadfile() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.9:3000/")
+                .baseUrl(SocketSingleton.HOST+"/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         API downloadService = retrofit.create(API.class);
 
-        Call<ResponseBody> call = downloadService.downloadApk("http://192.168.1.9:3000/apk");
+        Call<ResponseBody> call = downloadService.downloadApk(SocketSingleton.HOST + "/apk");
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -707,6 +712,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }else {
             Toast.makeText(MainActivity.this,"OTP Sai! Thay đổi mật khẩu thất bại!",Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void updateErrorLogin() {
+        Toast.makeText(MainActivity.this,"Lỗi đăng nhập : Đã có người đăng nhập tài khoản này",Toast.LENGTH_SHORT).show();
     }
 
     public void emitFinishgame(){

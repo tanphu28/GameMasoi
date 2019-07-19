@@ -89,6 +89,7 @@ public class UserActivity extends Activity implements UserView {
                 Intent intent = new Intent(UserActivity.this,MainActivity.class);
                 startActivity(intent);
                 finishAffinity();
+                userPresenter.emitLogout();
 
             }
         });

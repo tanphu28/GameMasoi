@@ -9,4 +9,5 @@ public interface LoginView {
     public void userLoginSuccess(boolean flag);
     public void updateFogotPass(int code, String userId);
     public void updateChangePass(boolean flag);
+    public void updateErrorLogin();
 }

@@ -33,5 +33,9 @@ public class UserPresenter {
         this.socket.emit("updateuserinfo",json);
     }
 
+    public void emitLogout(){
+        this.socket.emit("logout",1);
+    }
+
 
 }

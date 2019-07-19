@@ -1,7 +1,9 @@
 package com.example.dtanp.masoi;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -109,6 +111,10 @@ public class ConnectAtivity extends Activity {
             @Override
             public void onClick(View v) {
                 SocketSingleton.HOST ="http://" +  edtConnect.getText().toString().trim() + ":3000";
+                SharedPreferences sharedPreferences = getSharedPreferences("host", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("url",SocketSingleton.HOST);
+                editor.commit();
                 Intent intent = new Intent(ConnectAtivity.this,MainActivity.class);
                 startActivity(intent);
                 finish();

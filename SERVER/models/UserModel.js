@@ -54,6 +54,10 @@ var PersonSchema  = new Schema({
         type:String,
         default:""
     },
+    isActive : {
+        type:Boolean,
+        default:false
+    },
     create_date:{
         type:Date,
         default:Date.now
