@@ -15,21 +15,24 @@
         <EditText
             android:id="@+id/edtConnect"
             android:layout_width="200dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_marginEnd="8dp"
+            android:background="@drawable/edittext"
             />
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/btnConnect"
-            android:text="@string/btnConnectlc"/>
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:text="@string/btnConnectlc" />
     </LinearLayout>
 
 
     <Button
+
+        android:layout_marginTop="5dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:id="@+id/btnConnectServer"
         android:text="@string/btnConnectsv"
         />

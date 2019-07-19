@@ -17,7 +17,7 @@ android:orientation="vertical"
         android:id="@+id/imgback"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:background="@drawable/back"
+        android:background="@drawable/left"
         android:layout_gravity="center"
         />
     <LinearLayout
@@ -38,7 +38,7 @@ android:orientation="vertical"
             android:id="@+id/imgsearch"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:background="@drawable/search89"
+            android:background="@drawable/search"
 
             />
 
