@@ -9,6 +9,7 @@ import com.example.dtanp.masoi.HomeActivity;
 import com.example.dtanp.masoi.appinterface.HomeView;
 import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Chat;
+import com.example.dtanp.masoi.model.Phong;
 import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.model.UserFriends;
 import com.example.dtanp.masoi.singleton.SocketSingleton;
@@ -167,6 +168,26 @@ public class HomePresenter {
         this.socket.off("ChatAll");
         this.socket.off("ping");
         this.socket.off("connection");
+    }
+    public void emitUreridInRoomPlayingGame(){
+        this.socket.emit("useringameplay",Enviroment.user.getUserId());
+    }
+
+    public void listenJoinRoom(){
+        this.socket.on("useringameplay", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String json = (String) args[0];
+                        Phong phong = Enviroment.gson.fromJson(json,Phong.class);
+                        Enviroment.phong=phong;
+
+                    }
+                });
+            }
+        });
     }
 
 

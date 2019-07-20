@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.graphics.Color;
@@ -209,6 +210,8 @@ public class HomeActivity extends Activity implements HomeView {
         txtPing = findViewById(R.id.txtPing);
         txtGold = findViewById(R.id.txtgold);
         txtGold.setText(CommonFunction.formatGold(Enviroment.user.getMoney()));
+        homePresenter.listenJoinRoom();
+        homePresenter.emitUreridInRoomPlayingGame();
     }
     public void addDialogNoInternet(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -411,6 +414,34 @@ public class HomeActivity extends Activity implements HomeView {
         catch (Exception e){
             System.out.println(e.getMessage().toString());
         }
+    }
+
+    public void addDialogPlayGame(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Ban co muon vao lai tran dau khong!");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(HomeActivity.this, HostActivity.class);
+                intent.putExtra("host",false);
+                intent.putExtra("reset",true);
+                startActivity(intent);
+                finish();
+                homePresenter.removeListen();
+            }
+        });
+        builder.setNegativeButton("Cancle", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Enviroment.phong=null;
+            }
+        });
+        builder.create().show();
+    }
+
+    @Override
+    public void updatePlayGame() {
+        addDialogPlayGame();
     }
 
     public void inSomeWhere() {

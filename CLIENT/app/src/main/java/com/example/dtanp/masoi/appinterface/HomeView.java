@@ -10,4 +10,5 @@ public interface HomeView {
     public void addChatMessage(Chat chat);
     public void updateDisconnect();
     public void updateConnect();
+    public void updatePlayGame();
 }

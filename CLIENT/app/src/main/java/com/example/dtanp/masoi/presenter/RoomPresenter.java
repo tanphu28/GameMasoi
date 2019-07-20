@@ -719,6 +719,9 @@ public class RoomPresenter {
         this.socket.off("listallchon");
         this.socket.off("ListBangBoPhieu");
         this.socket.off("listuserdie");
+        this.socket.off("listuserexit");
+        this.socket.off("synclistnhanvat");
+        this.socket.off("syncforuser");
     }
 
     public void listenListBangBoPhieu(){
@@ -783,6 +786,107 @@ public class RoomPresenter {
         this.socket.off("useruphost");
     }
 
+    public void listenSyncListNhanVat(){
+        this.socket.on("synclistnhanvat", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<String> listDie = new ArrayList<>();
+                        List<NhanVat> listNhanVat = new ArrayList<>();
+                        JSONObject jsonObject = (JSONObject) args[0];
+                        try {
+                            JSONArray jsonArrayDie = jsonObject.getJSONArray("listdie");
+                            JSONArray jsonArrayNhanVat = jsonObject.getJSONArray("listnhanvat");
+                            for (int i=0; i<jsonArrayDie.length();i++){
+                                listDie.add(jsonArrayDie.getString(i));
+                            }
+                            for (int i=0; i<jsonArrayNhanVat.length();i++){
+                                JSONObject jsonObject1 = jsonArrayNhanVat.getJSONObject(i);
+                                NhanVat nhanVat = Enviroment.gson.fromJson(jsonObject1.toString(),NhanVat.class);
+                                listNhanVat.add(nhanVat);
+                            }
+                            roomView.updateListReset(listDie,listNhanVat);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
+    }
+    public void emitSyncListNhanVat(){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("userid",Enviroment.user.getUserId());
+        jsonObject.addProperty("phong",Enviroment.phong.get_id());
+        String json = Enviroment.gson.toJson(jsonObject);
+        this.socket.emit("synclistnhanvat",json);
+    }
+
+    public void lisetSyncForUser(){
+        this.socket.on("syncforuser", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject jsonObject = (JSONObject) args[0];
+                        try {
+                            String userId = jsonObject.getString("userid");
+                            roomView.updateSyncForUser(userId);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
+            }
+        });
+    }
+
+    public void emitSyncForUser(List<String> listDie,List<NhanVat> list,String userId){
+        String jsonldie = Enviroment.gson.toJson(listDie);
+        String jsonnhanvat = Enviroment.gson.toJson(list);
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("userid",userId);
+        jsonObject.addProperty("listdie",jsonldie);
+        jsonObject.addProperty("listnhanvat",jsonnhanvat);
+        String json = Enviroment.gson.toJson(jsonObject);
+        this.socket.emit("syncforuser",json);
+    }
+
+    public void emitListenRoom(){
+        this.socket.emit("listenroom",Enviroment.phong.get_id());
+    }
+
+    public void emitListUserExit(List<String> list){
+        String json  = Enviroment.gson.toJson(list);
+        this.socket.emit("listuserexit",json);
+    }
+
+    public void listenListUserExit(){
+            this.socket.on("listuserexit", new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<String> list = new ArrayList<>();
+                        JSONArray jsonArray = (JSONArray) args[0];
+                        for (int i=0; i<jsonArray.length(); i++){
+                            try {
+                                list.add(jsonArray.getString(i));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }
+                });
+            }
+        });
+    }
 
 
 }

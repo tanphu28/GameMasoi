@@ -67,13 +67,14 @@ public class HostActivity extends Activity implements RoomView {
     List<String> listIdMaSoichon, listAllChon;
     String idThoSanChon, idTienTriChon = "", idBaoVeChon, IDBoPhieu;
     HashMap<String, String> hashMap;
-    boolean die = false;
+    boolean die = false,flagSync = false;
     private boolean flagThoSan = false, flagTienTri = false, flagBaoVe = false,flagBiBoPhieu=false,flagTuBaoVe=true;
     AlertDialog dialog;
     private static final boolean AUTO_HIDE = true;
-
+    List<String> listUserExit,listUserDie;
 
     private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+
 
 
     private static final int UI_ANIMATION_DELAY = 300;
@@ -129,6 +130,7 @@ public class HostActivity extends Activity implements RoomView {
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_host);
         host = getIntent().getBooleanExtra("host",false);
+        flagSync = getIntent().getBooleanExtra("reset",false);
         roomPresenter = new RoomPresenter(HostActivity.this,HostActivity.this);
         AnhXa();
         taophong();
@@ -171,6 +173,13 @@ public class HostActivity extends Activity implements RoomView {
         roomPresenter.listenListAllChon();
         roomPresenter.listenDisconect();
         roomPresenter.listenListBangBoPhieu();
+        roomPresenter.listenListUserExit();
+        if(flagSync==true){
+            OffTouchUser(userRoomList);
+            roomPresenter.listenSyncListNhanVat();
+            roomPresenter.emitSyncListNhanVat();
+            flagSync=false;
+        }
     }
     private TextView txtTitle ,txtSoi ,txtDan ,txtBaove ,txtThoSan ,txtTienTri;
     private Dialog dialogFinish;
@@ -204,6 +213,10 @@ public class HostActivity extends Activity implements RoomView {
                     finish();
                     roomPresenter.removeListen();
                 }
+                if (listUserExit.size()>0 && host==true){
+                    roomPresenter.emitListUserExit(listUserExit);
+                }
+
             }
         });
         dialogFinish = builder.create();
@@ -219,6 +232,7 @@ public class HostActivity extends Activity implements RoomView {
         roomPresenter.listenUserIdBiGiet();
         roomPresenter.listenXuLyCuoiNgay();
         btnSkip.setVisibility(View.VISIBLE);
+        roomPresenter.lisetSyncForUser();
     }
 
     @Override
@@ -401,7 +415,8 @@ public class HostActivity extends Activity implements RoomView {
     }
 
     public void AnhXa() {
-
+        listUserDie = new ArrayList<>();
+        listUserExit = new ArrayList<>();
         btnSkip = findViewById(R.id.btnSkip);
         btnMe = findViewById(R.id.btnMe);
         btnMe.setText(Enviroment.user.getName());
@@ -1224,7 +1239,7 @@ public class HostActivity extends Activity implements RoomView {
         flagxuli=false;
         flagchat=false;
         roomPresenter.emitSync(flagchat,flagxuli,manv);
-
+        listUserDie.clear();
         listIdMaSoichon.clear();
         listAllChon.clear();
         //listNhanVat.clear();
@@ -1351,18 +1366,20 @@ public class HostActivity extends Activity implements RoomView {
     @Override
     public void updateUserExit(String userId) {
         if (!userId.trim().equals(Enviroment.user.getUserId().toString().trim())) {
-            for (User us : Enviroment.phong.getUsers()) {
-                if (us.getUserId().trim().equals(userId)) {
-                    System.out.println(us.getUserId() + "id ne");
-                    RemoveUserList(us);
-                    RemoveUser(us);
-                    break;
+            if (flagStart==false){
+                for (User us : Enviroment.phong.getUsers()) {
+                    if (us.getUserId().trim().equals(userId)) {
+                        System.out.println(us.getUserId() + "id ne");
+                        RemoveUserList(us);
+                        RemoveUser(us);
+                        break;
+                    }
                 }
             }
-
             if (flagStart==true){
                 //removelistUserInGameID(userId);
-                removeUserInPlayGame(userId);
+                //removeUserInPlayGame(userId);
+                listUserExit.add(userId);
             }
         } else {
             Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
@@ -1477,6 +1494,7 @@ public class HostActivity extends Activity implements RoomView {
 
     @Override
     public void updateUserDie(String userId) {
+        listUserDie.add(userId);
             if (userId.equals(Enviroment.user.getUserId())) {
                 die = true;
             } else {
@@ -2044,6 +2062,47 @@ public class HostActivity extends Activity implements RoomView {
                 }
             }
         }
+    }
+
+    @Override
+    public void updateSyncForUser(String userId) {
+        if (host == true){
+            roomPresenter.emitSyncForUser(listUserDie,listNhanVat,userId);
+        }
+        for (String st : listUserExit){
+            if (st.equals(userId)){
+                listUserExit.remove(st);
+                break;
+            }
+        }
+
+    }
+
+    @Override
+    public void updateListReset(List<String> listDie, List<NhanVat> listNhanVatUpdate) {
+        flagStart=true;
+        listNhanVat.clear();
+        for (NhanVat nhanVat : listNhanVatUpdate){
+            if (nhanVat.getId().equals(Enviroment.user.getUserId())){
+                updateNhanVat(nhanVat);
+            }
+            listNhanVat.add(nhanVat);
+        }
+        getTextViewAddList();
+        getListXuLy();
+        for (String st : listDie){
+            updateUserDie(st);
+        }
+        roomPresenter.emitListenRoom();
+
+    }
+
+    @Override
+    public void updateListUserExit(List<String> list) {
+        for (String st : list){
+            updateUserExit(st);
+        }
+        listUserExit.clear();
     }
 
     @Override
