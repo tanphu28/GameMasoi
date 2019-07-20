@@ -198,7 +198,13 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
                     Phong phong = new Phong();
                     phong.setId(Enviroment.user.getUserId());
                     phong.setRoomnumber(list.size() + 1);
-                    phong.setName(edtRoomName.getText().toString());
+                    if(edtRoomName.getText().toString().length()>0){
+                        phong.setName(edtRoomName.getText().toString());
+                    }else{
+                        phong.setName(Enviroment.user.getName());
+                    }
+
+
                     phong.setPeople(1);
                     phong.getUsers().add(Enviroment.user);
                     phong.setHost(1);
