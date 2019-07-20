@@ -797,20 +797,24 @@ public class RoomPresenter {
                         List<NhanVat> listNhanVat = new ArrayList<>();
                         JSONObject jsonObject = (JSONObject) args[0];
                         try {
-                            JSONArray jsonArrayDie = jsonObject.getJSONArray("listdie");
-                            JSONArray jsonArrayNhanVat = jsonObject.getJSONArray("listnhanvat");
+                            JSONArray jsonArrayDie = new JSONArray(jsonObject.getString("listdie"));
+                            JSONArray jsonArrayNhanVat = new JSONArray(jsonObject.getString("listnhanvat"));
                             for (int i=0; i<jsonArrayDie.length();i++){
                                 listDie.add(jsonArrayDie.getString(i));
                             }
+                            System.out.println("toi 1");
                             for (int i=0; i<jsonArrayNhanVat.length();i++){
                                 JSONObject jsonObject1 = jsonArrayNhanVat.getJSONObject(i);
                                 NhanVat nhanVat = Enviroment.gson.fromJson(jsonObject1.toString(),NhanVat.class);
                                 listNhanVat.add(nhanVat);
                             }
+                            System.out.println("toi 2");
                             roomView.updateListReset(listDie,listNhanVat);
+                            System.out.println("Ok  synclistnhanvat");
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+
                     }
                 });
             }
@@ -833,8 +837,10 @@ public class RoomPresenter {
                     public void run() {
                         JSONObject jsonObject = (JSONObject) args[0];
                         try {
-                            String userId = jsonObject.getString("userid");
-                            roomView.updateSyncForUser(userId);
+                            String userId  = jsonObject.getString("userId");
+                            String id  = jsonObject.getString("id");
+                            roomView.updateSyncForUser(userId,id);
+                            System.out.println("syncforuser ok");
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -858,6 +864,7 @@ public class RoomPresenter {
 
     public void emitListenRoom(){
         this.socket.emit("listenroom",Enviroment.phong.get_id());
+        System.out.println("room ne" + Enviroment.phong.get_id());
     }
 
     public void emitListUserExit(List<String> list){
@@ -873,14 +880,16 @@ public class RoomPresenter {
                     @Override
                     public void run() {
                         List<String> list = new ArrayList<>();
-                        JSONArray jsonArray = (JSONArray) args[0];
-                        for (int i=0; i<jsonArray.length(); i++){
-                            try {
+                        JSONArray jsonArray = null;
+                        try {
+                            jsonArray = new JSONArray(args[0]);
+                            for (int i=0; i<jsonArray.length(); i++){
                                 list.add(jsonArray.getString(i));
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
+
 
                     }
                 });

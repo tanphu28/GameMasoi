@@ -135,7 +135,7 @@ io.on("connection", function (socket) {
     });
 
     socket.on("useringameplay", async function (data) {
-        Room.findOne({ users: { userId: data } }, (err, doc) => {
+        Room.findOne({ users: {$elemMatch:{ userId: data } }}, (err, doc) => {
             if (err) {
                 console.log("That Bai")
             } else {
@@ -152,16 +152,21 @@ io.on("connection", function (socket) {
     socket.on("synclistnhanvat", function (data) {
         console.log(data);
         var json = JSON.parse(data);
-        io.sockets.to(json.phong).emit("syncforuser", json);
+        var json2 = {
+            userId : json.userid,
+            id : socket.id
+        }
+        io.sockets.in(json.phong).emit("syncforuser", json2);
     });
     socket.on("syncforuser", function (data) {
         console.log("syncforuser ok");
         var json = JSON.parse(data);
-        io.sockets.to(json.userid).emit("synclistnhanvat", json);
+        io.sockets.in(json.userid).emit("synclistnhanvat", json);
     });
 
     socket.on("listenroom", function (data) {
         socket.Phong = data;
+        socket.host = 0;
         socket.join(data);
     });
 
@@ -179,7 +184,7 @@ io.on("connection", function (socket) {
                 }
             );
         });
-        io.sockets.to(socket.Phong).emit("listuserexit", data);
+        io.sockets.in(socket.Phong).emit("listuserexit", data);
     });
 
 

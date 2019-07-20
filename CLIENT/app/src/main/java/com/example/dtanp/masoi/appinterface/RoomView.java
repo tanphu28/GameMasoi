@@ -40,7 +40,7 @@ public interface RoomView {
     public void updateDisconnect();
     public void updateListBoPhieu(String name, String bp);
     public void updateListUserDie(List<String> list);
-    public void updateSyncForUser(String userId);
+    public void updateSyncForUser(String userId,String id);
     public void updateListReset(List<String> listDie, List<NhanVat> listNhanVatUpdate);
     public void updateListUserExit(List<String> list);
 }

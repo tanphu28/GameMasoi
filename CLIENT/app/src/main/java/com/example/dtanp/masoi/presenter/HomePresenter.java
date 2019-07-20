@@ -180,10 +180,10 @@ public class HomePresenter {
                 context.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        String json = (String) args[0];
-                        Phong phong = Enviroment.gson.fromJson(json,Phong.class);
+                       JSONObject jsonObject = (JSONObject) args[0];
+                        Phong phong = Enviroment.gson.fromJson(jsonObject.toString(),Phong.class);
                         Enviroment.phong=phong;
-
+                        homeView.updatePlayGame();
                     }
                 });
             }

@@ -142,6 +142,8 @@ public class HomeActivity extends Activity implements HomeView {
         homePresenter.listenConnect();
         //pingToServer();
         addDialogNoInternet();
+        homePresenter.listenJoinRoom();
+        homePresenter.emitUreridInRoomPlayingGame();
     }
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -210,8 +212,6 @@ public class HomeActivity extends Activity implements HomeView {
         txtPing = findViewById(R.id.txtPing);
         txtGold = findViewById(R.id.txtgold);
         txtGold.setText(CommonFunction.formatGold(Enviroment.user.getMoney()));
-        homePresenter.listenJoinRoom();
-        homePresenter.emitUreridInRoomPlayingGame();
     }
     public void addDialogNoInternet(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

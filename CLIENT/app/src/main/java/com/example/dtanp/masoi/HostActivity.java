@@ -179,6 +179,7 @@ public class HostActivity extends Activity implements RoomView {
             roomPresenter.listenSyncListNhanVat();
             roomPresenter.emitSyncListNhanVat();
             flagSync=false;
+            btnSS.setVisibility(View.INVISIBLE);
         }
     }
     private TextView txtTitle ,txtSoi ,txtDan ,txtBaove ,txtThoSan ,txtTienTri;
@@ -2065,9 +2066,9 @@ public class HostActivity extends Activity implements RoomView {
     }
 
     @Override
-    public void updateSyncForUser(String userId) {
+    public void updateSyncForUser(String userId,String id) {
         if (host == true){
-            roomPresenter.emitSyncForUser(listUserDie,listNhanVat,userId);
+            roomPresenter.emitSyncForUser(listUserDie,listNhanVat,id);
         }
         for (String st : listUserExit){
             if (st.equals(userId)){
