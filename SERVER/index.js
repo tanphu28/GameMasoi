@@ -715,7 +715,7 @@ io.on("connection", function (socket) {
         );
     });
     //create user friends
-    socket.on("createUserFriend", function (data) {
+    socket.on("createUserFriend",async function (data) {
         var ketqua = false;
         console.log("create friend");
         var json = JSON.parse(data);
@@ -727,26 +727,12 @@ io.on("connection", function (socket) {
             regist_dt: json.regist_dt
 
         });
-        userfriend.save((err) => {
+        userfriend.save((err,doc) => {
             if (err) {
-
                 console.log(" add user friends  fail");
+                socket.emit('ketquakb',false);
             } else {
-                UserFriends.findOne({ friend_no: json.friend_no }, function (err, data) {
-                    if (err) {
-                        console.log("fail ");
-                        ketqua = false;
-                    } else {
-                        console.log("tc ");
-
-                        callback(constants.success.msg_reg_success);
-                        socket.UserFriends = "";
-                        socket.UserFriends = data.friend_no;
-                        ketqua = true;
-                    }
-                    socket.emit('ketquakb', { noidung: ketqua });
-                });
-
+                socket.emit('ketquakb',true);
             }
         })
 

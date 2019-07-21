@@ -647,7 +647,7 @@ public class HostActivity extends Activity implements RoomView {
 
     public void laylistUser() {
         for (User us : Enviroment.phong.getUsers()) {
-            if (us.getUserId() != Enviroment.user.getUserId()) {
+            if (!us.getUserId().equals(Enviroment.user.getUserId())) {
                 System.out.println(us.getName());
                 AddUser(us);
             }

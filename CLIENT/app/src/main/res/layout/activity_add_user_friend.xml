@@ -24,7 +24,10 @@
                     android:layout_width="250dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:hint="Search"/>
+                    android:hint="Search"
+                    android:imeOptions="flagNoExtractUi"
+                    android:inputType="textImeMultiLine"
+                    />
                 <ImageButton
                     android:id="@+id/btnBack1"
                     android:layout_width="40dp"

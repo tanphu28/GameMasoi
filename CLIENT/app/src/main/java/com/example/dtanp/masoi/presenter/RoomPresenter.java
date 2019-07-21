@@ -880,12 +880,13 @@ public class RoomPresenter {
                     @Override
                     public void run() {
                         List<String> list = new ArrayList<>();
-                        JSONArray jsonArray = null;
+
                         try {
-                            jsonArray = new JSONArray(args[0]);
+                            JSONArray jsonArray = new JSONArray((String) args[0]);
                             for (int i=0; i<jsonArray.length(); i++){
                                 list.add(jsonArray.getString(i));
                             }
+                            roomView.updateListUserExit(list);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

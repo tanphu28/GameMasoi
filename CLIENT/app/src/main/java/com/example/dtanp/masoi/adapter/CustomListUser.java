@@ -1,5 +1,6 @@
 package com.example.dtanp.masoi.adapter;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,7 +18,9 @@ import com.example.dtanp.masoi.R;
 import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.model.UserFriends;
+import com.example.dtanp.masoi.singleton.SocketSingleton;
 import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.Socket;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,12 +34,13 @@ public class CustomListUser extends RecyclerView.Adapter<CustomListUser.Recycler
 
     private List<User> data;
     private List<User> filter;
-    private Context context;
+    private Activity context;
 
 
-    public CustomListUser(List<User> datas) {
+    public CustomListUser(List<User> datas,Activity context) {
         this.data = datas;
         this.filter = datas;
+        this.context = context;
 
     }
 
@@ -146,8 +150,10 @@ public class CustomListUser extends RecyclerView.Adapter<CustomListUser.Recycler
 
                     Enviroment.userFriends = userFriends;
                     String jsonFriends = Enviroment.gson.toJson(userFriends);
-                    Enviroment.socket.emit("createUserFriend", jsonFriends);
-                    Enviroment.socket.on("ketquakb", onNewMessage);
+                    Socket socket  = SocketSingleton.getInstance();
+                    socket.on("ketquakb", onNewMessage);
+                    socket.emit("createUserFriend", jsonFriends);
+
                 }
             });
 
@@ -163,22 +169,18 @@ public class CustomListUser extends RecyclerView.Adapter<CustomListUser.Recycler
         }
         private Emitter.Listener onNewMessage=new Emitter.Listener() {
             @Override
-            public void call(Object... args) {
-                JSONObject data=(JSONObject) args[0];
-                String noidung;
-                try {
-                    noidung=data.getString("noidung");
-                    if(noidung=="true"){
-                        Toast.makeText(context,"tc",Toast.LENGTH_LONG).show();
-
+            public void call(final Object... args) {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean flag = (boolean) args[0];
+                        if (flag==true){
+                            Toast.makeText(context,"Success",Toast.LENGTH_SHORT).show();
+                        }else {
+                            Toast.makeText(context,"Fail",Toast.LENGTH_SHORT).show();
+                        }
                     }
-                    else
-                    {
-                        Toast.makeText(context,"tb",Toast.LENGTH_LONG).show();
-                    }
-                }catch (JSONException e){
-                    return;
-                }
+                });
             }
         };
     }

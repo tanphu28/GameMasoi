@@ -69,7 +69,7 @@ public class AddUserFriendActivity extends Activity  implements UserFriendView {
         list=new ArrayList<>();
         filterdList=new ArrayList<>();
 
-        mRcvAdapter = new CustomListUser(list);
+        mRcvAdapter = new CustomListUser(list,AddUserFriendActivity.this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
@@ -192,10 +192,7 @@ public class AddUserFriendActivity extends Activity  implements UserFriendView {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-
-                if(s.length()>0){
-
-
+                    filterdList.clear();
                     textlength = edtsearch.getText().length();
                     for(int i=0;i< list.size();i++){
                             if(textlength<=list.get(i).getName().toLowerCase().length()){
@@ -205,12 +202,9 @@ public class AddUserFriendActivity extends Activity  implements UserFriendView {
                             }
                         }
                     }
-                    mRcvAdapter=new CustomListUser(filterdList);
+                    mRcvAdapter=new CustomListUser(filterdList,AddUserFriendActivity.this);
                     recyclerView.setAdapter(mRcvAdapter);
                     mRcvAdapter.notifyDataSetChanged();
-                    filterdList.clear();
-
-                }
             }
 
             @Override
