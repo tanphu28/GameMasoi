@@ -54,7 +54,7 @@ io.on("connection", function (socket) {
     socket.Phong = "";
     socket.host = 0;
     socket.userId = "";
-    socket.UserFriends = "TPv1zwikUlbUR7zp8lYZoRnPTWl1";
+    socket.UserFriends = "";
     console.log("co nguoi ket noi den server");
     socket.on("disconnect", async function () {
         console.log("ngat ket noi toi server");
@@ -738,9 +738,10 @@ io.on("connection", function (socket) {
 
     })
     //chat user
-    socket.on("ChatUser", function (data) {
-        io.sockets.in(socket.UserFriends).emit("ChatUser", data);
-    });
+   
+      socket.on("ChatUser", function (data) {
+            io.sockets.in(socket.UserFriends).emit("ChatUser", data);
+      });
     //user ready
     socket.on("ready", function (data) {
         console.log(socket.Phong + " phong");
@@ -1201,7 +1202,7 @@ let options = {
     pass: 'admin'
 };
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/MasoiDB', options).then(
+mongoose.connect('mongodb://localhost:27017/MasoiDB',options).then(
     () => {
         console.log("connect Db Succes");
     },
