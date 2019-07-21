@@ -37,11 +37,12 @@ import java.util.List;
 public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserFriends.RecyclerViewHolder> implements Filterable  {
     private List<UserFriends> data;
     private  List<UserFriends> filter;
-    private Context context;
+    private Activity context;
 
-    public CustomListUserFriends(List<UserFriends> data) {
+    public CustomListUserFriends(List<UserFriends> data,Activity context) {
         this.data = data;
         this.filter=data;
+        this.context=context;
     }
 
     @Override
