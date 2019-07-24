@@ -215,6 +215,7 @@ public class HomeActivity extends Activity implements HomeView {
         txtPing = findViewById(R.id.txtPing);
         txtGold = findViewById(R.id.txtgold);
         txtGold.setText(CommonFunction.formatGold(Enviroment.user.getMoney()));
+
     }
     public void addDialogNoInternet(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

@@ -541,6 +541,7 @@ io.on("connection", function (socket) {
                                 userHistory.save();
                                 doc2.isActive = true;
                                 doc2.save();
+                                socket.join(socket.userId);
                             }
                             else {
                                 socket.emit("loidangnhap", 1),
@@ -738,7 +739,10 @@ io.on("connection", function (socket) {
 
     })
     //chat user
-   
+    socket.on("chatuserfreind",function(data){
+        var json = JSON.parse(data);
+        io.sockets.in(json.userId).emit("chatuserfreind",json.message);
+    });
       socket.on("ChatUser", function (data) {
             io.sockets.in(socket.UserFriends).emit("ChatUser", data);
       });
@@ -1202,7 +1206,7 @@ let options = {
     pass: 'admin'
 };
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/MasoiDB',options).then(
+mongoose.connect('mongodb://localhost:27017/MasoiDB').then(
     () => {
         console.log("connect Db Succes");
     },
