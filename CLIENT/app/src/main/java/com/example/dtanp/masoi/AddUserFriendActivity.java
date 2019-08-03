@@ -1,13 +1,17 @@
 package com.example.dtanp.masoi;
 
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.Button;
@@ -35,7 +39,51 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AddUserFriendActivity extends Activity  implements UserFriendView {
+    private static final boolean AUTO_HIDE = true;
 
+
+    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+
+    private boolean mVisible;
+    private final Runnable mHideRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hide();
+        }
+    };
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
+    private View mContentView;
+    private final Runnable mHidePart2Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        }
+    };
+    private final Runnable mShowPart2Runnable = new Runnable() {
+        @Override
+        public void run() {
+            ActionBar actionBar = getActionBar();
+            if (actionBar != null) {
+                actionBar.show();
+            }
+        }
+    };
+    private static final int UI_ANIMATION_DELAY = 300;
+    private final Handler mHideHandler = new Handler();
     private RecyclerView recyclerView;
     CustomListUser mRcvAdapter;
     List<User> list,filterdList;
@@ -58,6 +106,7 @@ public class AddUserFriendActivity extends Activity  implements UserFriendView {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_user_friend);
+        mContentView = findViewById(R.id.fullscreen_content);
         userFriendPresenter = new UserFriendPresenter(AddUserFriendActivity.this,AddUserFriendActivity.this);
         userFriendPresenter.listenAllChat();
         userFriendPresenter.listenGetAllUser();
@@ -96,22 +145,28 @@ public class AddUserFriendActivity extends Activity  implements UserFriendView {
                 listViewChat1.setSelection(adapterChat.getCount() - 1);
             }
         });
+        edt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                hide();
+            }
+        });
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 System.out.println("ok ");
                 Chat chat = new Chat();
-
                 if (edt.getText().toString() != "") {
                     chat.setUsername(Enviroment.user.getName());
                     chat.setMesage(edt.getText().toString());
-                    userFriendPresenter.emitChat(chat);
+                    userFriendPresenter.emitChatUserFriend(chat);
                     edt.setText("");
                     System.out.println("aaaa");
-
                 }
+                hide();
             }
         });
+
         imgCancleChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -198,7 +253,6 @@ public class AddUserFriendActivity extends Activity  implements UserFriendView {
                             if(textlength<=list.get(i).getName().toLowerCase().length()){
                             if(list.get(i).getName().toLowerCase().trim().contains(edtsearch.getText().toString().toLowerCase().trim())){
                                 filterdList.add(list.get(i));
-
                             }
                         }
                     }
@@ -213,7 +267,21 @@ public class AddUserFriendActivity extends Activity  implements UserFriendView {
             }
         });
     }
+    private void hide() {
+        // Hide UI first
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+        mVisible = false;
 
+        mHideHandler.removeCallbacks(mShowPart2Runnable);
+        mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
+    }
+    private void delayedHide(int delayMillis) {
+        mHideHandler.removeCallbacks(mHideRunnable);
+        mHideHandler.postDelayed(mHideRunnable, delayMillis);
+    }
     public void startmhhome()
     {
         Intent intent = new Intent(this,HomeActivity.class);

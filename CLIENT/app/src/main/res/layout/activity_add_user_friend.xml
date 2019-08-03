@@ -9,7 +9,10 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:id="@+id/fullscreen_content">
+
+
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="wrap_content"
@@ -104,7 +107,7 @@
                             android:layout_height="190dp"
                             android:layout_alignStart="@+id/lnrchat"
                             android:layout_alignTop="@+id/lnrchat1"
-                            android:background="#00BCD4"></ListView>
+                            android:background="#fff"></ListView>
 
                         <LinearLayout
                             android:id="@+id/lnrkhungchat"

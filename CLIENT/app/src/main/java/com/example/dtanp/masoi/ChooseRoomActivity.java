@@ -192,8 +192,6 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
                     }else{
                         phong.setName(Enviroment.user.getName());
                     }
-
-
                     phong.setPeople(1);
                     phong.getUsers().add(Enviroment.user);
                     phong.setHost(1);
@@ -205,13 +203,11 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
                     dialogCreate.cancel();
                 }
 
-
             }
         });
 
         dialogCreate = builder.create();
     }
-
 
 //    public void LangNgheXoaPhong(){
 //        Emitter.Listener listener = new Emitter.Listener() {

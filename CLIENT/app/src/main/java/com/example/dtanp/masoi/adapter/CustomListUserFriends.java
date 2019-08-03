@@ -26,7 +26,10 @@ import com.example.dtanp.masoi.R;
 import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Chat;
 import com.example.dtanp.masoi.model.UserFriends;
+import com.example.dtanp.masoi.singleton.SocketSingleton;
 import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.Socket;
+import com.google.gson.JsonObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,11 +40,14 @@ import java.util.List;
 public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserFriends.RecyclerViewHolder> implements Filterable  {
     private List<UserFriends> data;
     private  List<UserFriends> filter;
-    private Context context;
+    private Activity context;
+    private Socket socket;
 
-    public CustomListUserFriends(List<UserFriends> data) {
+    public CustomListUserFriends(List<UserFriends> data,Activity context) {
         this.data = data;
         this.filter=data;
+        this.context=context;
+        this.socket = SocketSingleton.getInstance();
     }
 
     @Override
@@ -53,8 +59,15 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, int position) {
-        holder.txtUserName.setText(data.get(position).getUserId1()+"");
-        holder.txtNumber.setText(data.get(position).getUserId2()+"");
+        if (Enviroment.user.getUserId().equals(data.get(position).getUserId1())){
+            holder.txtUserName.setText(data.get(position).getUserId2()+"");
+            //holder.txtNumber.setText(data.get(position).+"");
+        }
+        else {
+            holder.txtUserName.setText(data.get(position).getUserId1()+"");
+        }
+
+
     }
 
 
@@ -172,9 +185,16 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
         }
 
         @Override
-        public void onClick(View v) {
+        public void onClick(final View v) {
 
-            InitDialog(v.getContext());
+            context.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    addChatDialog(v.getContext());
+                }
+            });
+            System.out.println("click");
+
         }
         public  void InitDialog(final Context context){
             int position =getLayoutPosition();
@@ -211,16 +231,12 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
         }
 
 
-
-
-
         public  void addChatDialog(final Context context){
-            int position =getLayoutPosition();
+            final int position =getLayoutPosition();
             LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
             final AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
             View view = inflater.inflate(R.layout.dialog_userfriend, null);
             alertDialog.setView(view);
-            alertDialog.setTitle("Chat user");
             final TextView edt = view.findViewById(R.id.edtChat);
             TextView btn = view.findViewById(R.id.btnSend);
             listViewChat = view.findViewById(R.id.listChat);
@@ -242,12 +258,21 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
                     System.out.println("ok ");
                     Chat chat = new Chat();
 
-                    if (edt.getText().toString() != "") {
-                        chat.setUsername(Enviroment.user.getName());
-                        chat.setMesage(edt.getText().toString());
-                        sendUser(chat);
-                        edt.setText("");
-                        System.out.println("aaaa");
+                    if (!edt.getText().toString().equals("")) {
+                        Chat chat1 =new Chat();
+                        chat1.setUsername(Enviroment.user.getName());
+                        chat1.setMesage(edt.getText().toString());
+                        if (Enviroment.user.getUserId().equals(data.get(position).getUserId1())){
+                            //System.out.println(data.get(position).getUserId2());
+                            //chat.setUsername(data.get(position).getUserId2());
+                            sendChat(data.get(position).getUserId2(),chat1);
+                        }
+                        else {
+                            //System.out.println(data.get(position).getUserId1());
+                            //chat.setUsername(data.get(position).getUserId1());
+                            sendChat(data.get(position).getUserId1(),chat1);
+                        }
+
                     }
 
                 }
@@ -261,8 +286,22 @@ public class CustomListUserFriends extends  RecyclerView.Adapter<CustomListUserF
                     dialog.cancel();
                 }
             });
-            AlertDialog dialog = alertDialog.create();
-            dialog.show();
+            alertDialog.create().show();
+
+        }
+
+        public void sendChat(String userId, Chat chat){
+            JsonObject jsonObject =new JsonObject();
+            jsonObject.addProperty("userId",userId);
+            String jsonChat = Enviroment.gson.toJson(chat);
+            jsonObject.addProperty("message",jsonChat);
+            String json = Enviroment.gson.toJson(jsonObject);
+            socket.emit("chatuserfreind",json);
+
+        }
+
+        public void listenChat(){
+
         }
 
     }

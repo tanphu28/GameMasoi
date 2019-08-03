@@ -13,7 +13,7 @@
 
         <ListView
             android:id="@+id/listChat"
-            android:layout_width="match_parent"
+            android:layout_width="190dp"
             android:layout_height="170dp"
             android:background="#FFF"
             ></ListView>
@@ -26,13 +26,13 @@
 
             <EditText
                 android:id="@+id/edtChat"
-                android:layout_width="155dp"
-                android:layout_height="23dp" />
+                android:layout_width="145dp"
+                android:layout_height="wrap_content" />
 
             <Button
                 android:id="@+id/btnSend"
                 android:layout_width="match_parent"
-                android:layout_height="25dp"
+                android:layout_height="wrap_content"
                 android:text="send" />
 
         </LinearLayout>

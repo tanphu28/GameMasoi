@@ -20,14 +20,18 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 public class UserFriendPresenter {
+
     private Socket socket;
     private UserFriendView userFriendView;
     private Activity context;
+
     public UserFriendPresenter(UserFriendView userFriendView, Activity context) {
+
         socket = SocketSingleton.getInstance();
         this.userFriendView = userFriendView;
         this.context = context;
     }
+
     public void emitGetAllUser(){
         this.socket.emit("alluser");
     }
@@ -63,7 +67,7 @@ public class UserFriendPresenter {
         this.socket.on("alluser",listener);
     }
 
-    public void emitChat(Chat chat){
+    public void emitChatUserFriend(Chat chat){
         String json = Enviroment.gson.toJson(chat);
         this.socket.emit("ChatUser", json);
     }
@@ -91,6 +95,7 @@ public class UserFriendPresenter {
             }
         };
         this.socket.on("ChatUser", listenerChatMes);
+
     }
 
 }

@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.example.dtanp.masoi.adapter.CustomAdapterChat;
+import com.example.dtanp.masoi.adapter.CustomListUser;
 import com.example.dtanp.masoi.adapter.CustomListUserFriends;
 import com.example.dtanp.masoi.appinterface.HomeView;
 import com.example.dtanp.masoi.environment.Enviroment;
@@ -111,7 +112,7 @@ public class HomeActivity extends Activity implements HomeView {
 
     private RecyclerView recyclerView;
     CustomListUserFriends mRcvAdapter;
-    List<UserFriends> list;
+    List<UserFriends> list,filterdList;
 
     EditText edtsearch;
     ImageButton imgsearch;
@@ -119,6 +120,7 @@ public class HomeActivity extends Activity implements HomeView {
     private HomePresenter homePresenter;
     private TextView txtPing;
     private AlertDialog dialogDisconnect;
+    int textlength=0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -196,7 +198,8 @@ public class HomeActivity extends Activity implements HomeView {
         edtsearch = findViewById(R.id.edtsearch);
         imgsearch = findViewById(R.id.imgsearch);
         list=new ArrayList<>();
-        mRcvAdapter = new CustomListUserFriends(list);
+        filterdList=new ArrayList<>();
+        mRcvAdapter = new CustomListUserFriends(list,HomeActivity.this);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -208,6 +211,7 @@ public class HomeActivity extends Activity implements HomeView {
         txtPing = findViewById(R.id.txtPing);
         txtGold = findViewById(R.id.txtgold);
         txtGold.setText(CommonFunction.formatGold(Enviroment.user.getMoney()));
+
     }
     public void addDialogNoInternet(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -283,17 +287,17 @@ public class HomeActivity extends Activity implements HomeView {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                s=s.toString().toLowerCase();
-                final List<UserFriends> filterdList =new ArrayList<>();
-                for(int i=0;i< list.size();i++){
 
-                    final String text =list.get(i).toString();
-                    if(text.contains(s)){
-                        filterdList.add(list.get(i));
+                filterdList.clear();
+                textlength = edtsearch.getText().length();
+                for(int i=0;i< list.size();i++){
+                    if(textlength<=list.get(i).getUserId1().toLowerCase().length()){
+                        if(list.get(i).getUserId1().toLowerCase().trim().contains(edtsearch.getText().toString().toLowerCase().trim())){
+                            filterdList.add(list.get(i));
+                        }
                     }
                 }
-                recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                mRcvAdapter=new CustomListUserFriends(filterdList);
+                mRcvAdapter=new CustomListUserFriends(filterdList,HomeActivity.this);
                 recyclerView.setAdapter(mRcvAdapter);
                 mRcvAdapter.notifyDataSetChanged();
             }
