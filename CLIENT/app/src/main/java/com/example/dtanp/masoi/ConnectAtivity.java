@@ -132,11 +132,13 @@ public class ConnectAtivity extends Activity {
         btnConnectServer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SocketSingleton.HOST ="https://app-masoi.herokuapp.com/";
+                SocketSingleton.HOST ="https://app-gamemasoi.herokuapp.com/";
                 Intent intent = new Intent(ConnectAtivity.this,MainActivity.class);
                 startActivity(intent);
                 finish();
             }
         });
+
     }
+
 }

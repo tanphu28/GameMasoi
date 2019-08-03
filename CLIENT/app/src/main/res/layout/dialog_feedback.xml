@@ -11,21 +11,25 @@
         android:layout_height="wrap_content"
         android:text="@string/txtThank"
         android:textSize="24dp"
+        android:textColor="#fff"
         />
+
     <EditText
-        android:layout_marginTop="20dp"
+        android:id="@+id/edtEmail"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:id="@+id/edtEmail"
+        android:layout_marginTop="20dp"
         android:hint="@string/hintEmail"
+        android:textColorHint="#FFF"
         />
 
     <EditText
         android:id="@+id/edtContent"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:minLines="4"
         android:hint="@string/hintContent"
+        android:minLines="4"
+        android:textColorHint="#FFF"
         />
     <Button
         android:layout_width="wrap_content"
@@ -34,6 +38,7 @@
         android:textSize="20dp"
         android:background="@drawable/button"
         android:id="@+id/btnSendFeedBack"
+
         />
 
 </LinearLayout>

@@ -13,7 +13,7 @@
         android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        android:theme="@android:style/Theme.Material.Light.NoActionBar.Fullscreen">
         <activity android:name=".ConnectAtivity"
             android:screenOrientation="landscape"
             >
@@ -54,23 +54,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".FullscreenActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_fullscreen"
-            android:screenOrientation="landscape"
-            android:theme="@style/FullscreenTheme"
-            android:windowSoftInputMode="adjustResize|adjustPan" />
-        <activity
-            android:name=".LoginActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="landscape"
-            android:theme="@style/FullscreenTheme"
-            android:windowSoftInputMode="adjustResize|adjustPan" />
-        <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="landscape"
-            android:theme="@style/FullscreenTheme"
             android:windowSoftInputMode="adjustResize|adjustPan">
 
         </activity>
@@ -78,31 +64,21 @@
             android:name=".SignupActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="landscape"
-            android:theme="@style/FullscreenTheme"
             android:windowSoftInputMode="adjustResize|adjustPan" />
         <activity
             android:name=".UserActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="landscape"
-            android:theme="@style/FullscreenTheme"
             android:windowSoftInputMode="adjustResize|adjustPan" />
         <activity
-            android:name=".HostActivity"
+            android:name=".RoomActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="landscape"
-            android:theme="@style/FullscreenTheme"
             android:windowSoftInputMode="adjustResize|adjustPan" />
         <activity
             android:name=".HomeActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="landscape"
-            android:theme="@style/FullscreenTheme"
-            android:windowSoftInputMode="adjustResize|adjustPan" />
-        <activity
-            android:name=".BanActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="landscape"
-            android:theme="@style/FullscreenTheme"
             android:windowSoftInputMode="adjustResize|adjustPan" />
         <activity
             android:name=".ChooseRoomActivity"

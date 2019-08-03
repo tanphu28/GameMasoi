@@ -2,10 +2,7 @@ package com.example.dtanp.masoi;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,19 +22,11 @@ import com.example.dtanp.masoi.adapter.CustomAdapter;
 import com.example.dtanp.masoi.appinterface.ChooseRoomView;
 import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Phong;
-import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.presenter.ChooseRoomPresenter;
 import com.example.dtanp.masoi.utils.CommonFunction;
 import com.github.nkzawa.emitter.Emitter;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -416,17 +405,11 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
     }
 
     public void startmhhost(boolean flag) {
-        Intent intent = new Intent(this, HostActivity.class);
+        Intent intent = new Intent(this, RoomActivity.class);
         intent.putExtra("host",flag);
         startActivity(intent);
         finish();
         chooseRoomPresenter.removeListener();
-    }
-
-    public void startmhban() {
-        Intent intent = new Intent(this, BanActivity.class);
-        startActivity(intent);
-        finish();
     }
 
     @Override

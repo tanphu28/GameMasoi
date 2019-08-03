@@ -5,6 +5,7 @@
     android:background="@drawable/bgmasoi"
     android:orientation="vertical"
     android:gravity="center"
+    android:textColor="#FFF"
     >
     <TextView
         android:layout_width="wrap_content"
@@ -12,6 +13,7 @@
         android:text="@string/txtWin"
         android:textSize="30dp"
         android:id="@+id/txtTitle"
+        android:textColor="#FFF"
         />
 
     <TextView
@@ -20,6 +22,7 @@
         android:text="Sói : "
         android:textSize="20dp"
         android:id="@+id/txtSoi"
+        android:textColor="#FFF"
         />
     <TextView
         android:layout_width="wrap_content"
@@ -27,6 +30,7 @@
         android:text="Dân thường : "
         android:textSize="20dp"
         android:id="@+id/txtDan"
+        android:textColor="#FFF"
         />
     <TextView
         android:layout_width="wrap_content"
@@ -34,6 +38,7 @@
         android:text="Bảo vệ : "
         android:textSize="20dp"
         android:id="@+id/txtBaove"
+        android:textColor="#FFF"
         />
     <TextView
         android:layout_width="wrap_content"
@@ -41,6 +46,7 @@
         android:text="Thợ Săn : "
         android:textSize="20dp"
         android:id="@+id/txtThoSan"
+        android:textColor="#FFF"
         />
 
     <TextView
@@ -49,6 +55,7 @@
         android:text="Tiên Tri : "
         android:textSize="20dp"
         android:id="@+id/txtTienTri"
+        android:textColor="#FFF"
         />
 
 </LinearLayout>

@@ -898,5 +898,12 @@ public class RoomPresenter {
         });
     }
 
+    public void emitListUserInGame(List<User> list){
+        String json = Enviroment.gson.toJson(list);
+        this.socket.emit("updateuseringame",json);
+    }
+
+
+
 
 }

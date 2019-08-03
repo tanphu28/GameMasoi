@@ -258,5 +258,13 @@ public class LoginPresenter {
         this.socket.off("loidangnhap");
     }
 
+    public void emitCrash(String track, String  message){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("track",track);
+        jsonObject.addProperty("message",message);
+        String json = Enviroment.gson.toJson(jsonObject);
+        this.socket.emit("crash",json);
+    }
+
 
 }

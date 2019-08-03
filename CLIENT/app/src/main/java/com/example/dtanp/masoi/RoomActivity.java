@@ -31,7 +31,6 @@ import com.example.dtanp.masoi.appinterface.RoomView;
 import com.example.dtanp.masoi.environment.Enviroment;
 import com.example.dtanp.masoi.model.Chat;
 import com.example.dtanp.masoi.model.NhanVat;
-import com.example.dtanp.masoi.model.Phong;
 import com.example.dtanp.masoi.model.User;
 import com.example.dtanp.masoi.model.UserRoom;
 import com.example.dtanp.masoi.presenter.RoomPresenter;
@@ -45,7 +44,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import io.fabric.sdk.android.Fabric;
 
-public class HostActivity extends Activity implements RoomView {
+public class RoomActivity extends Activity implements RoomView {
     ListView listChat;
     CustomAdapterChat adapterChat,adapterChatMaSoi;
     Button btnBatDau, btnSend, btnGiet, btnKhongGiet,btnMe,btnSkip;
@@ -131,7 +130,7 @@ public class HostActivity extends Activity implements RoomView {
         setContentView(R.layout.activity_host);
         host = getIntent().getBooleanExtra("host",false);
         flagSync = getIntent().getBooleanExtra("reset",false);
-        roomPresenter = new RoomPresenter(HostActivity.this,HostActivity.this);
+        roomPresenter = new RoomPresenter(RoomActivity.this, RoomActivity.this);
         AnhXa();
         taophong();
         ConTrols();
@@ -186,7 +185,7 @@ public class HostActivity extends Activity implements RoomView {
     private Dialog dialogFinish;
 
     public void addDialogFinish(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(HostActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(RoomActivity.this);
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_finish,null);
         builder.setView(view);
@@ -209,7 +208,7 @@ public class HostActivity extends Activity implements RoomView {
                     Enviroment.phong.getUsers().clear();
                     Enviroment.phong = null;
                     Enviroment.user.setId_room("");
-                    Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
+                    Intent intent = new Intent(RoomActivity.this, ChooseRoomActivity.class);
                     startActivity(intent);
                     finish();
                     roomPresenter.removeListen();
@@ -333,6 +332,7 @@ public class HostActivity extends Activity implements RoomView {
                 getTextViewAddList();
                 btnBatDau.setVisibility(View.INVISIBLE);
                 roomPresenter.emitOk(true);
+                roomPresenter.emitListUserInGame(listUser);
 
             }
         });
@@ -380,10 +380,10 @@ public class HostActivity extends Activity implements RoomView {
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(flagStart == true){
                     if (registLeaveRoom == false){
-                        Toast.makeText(HostActivity.this,"Bạn đã đăng kí tời phòng",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RoomActivity.this,"Bạn đã đăng kí tời phòng",Toast.LENGTH_SHORT).show();
                         registLeaveRoom = true;
                     } else {
-                        Toast.makeText(HostActivity.this,"Bạn đã hủy đăng kí tời phòng",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RoomActivity.this,"Bạn đã hủy đăng kí tời phòng",Toast.LENGTH_SHORT).show();
                         registLeaveRoom = false;
                     }
                 }
@@ -397,7 +397,7 @@ public class HostActivity extends Activity implements RoomView {
                     Enviroment.phong.getUsers().clear();
                     Enviroment.phong = null;
                     Enviroment.user.setId_room("");
-                    Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
+                    Intent intent = new Intent(RoomActivity.this, ChooseRoomActivity.class);
                     startActivity(intent);
                     finish();
                     roomPresenter.removeListen();
@@ -646,6 +646,7 @@ public class HostActivity extends Activity implements RoomView {
     }
 
     public void laylistUser() {
+        listUser.clear();
         for (User us : Enviroment.phong.getUsers()) {
             if (!us.getUserId().equals(Enviroment.user.getUserId())) {
                 System.out.println(us.getName());
@@ -1126,10 +1127,10 @@ public class HostActivity extends Activity implements RoomView {
                                 for (NhanVat nv : listNhanVat) {
                                     if (text.getUseradd().getUserId().toString().equals(nv.getId().toString())) {
                                         if (nv.getManv() == 1) {
-                                            Toast.makeText(HostActivity.this, "day la ma soi", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(RoomActivity.this, "day la ma soi", Toast.LENGTH_SHORT).show();
 
                                         } else {
-                                            Toast.makeText(HostActivity.this, "day khong phai la soi la ma soi", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(RoomActivity.this, "day khong phai la soi la ma soi", Toast.LENGTH_SHORT).show();
                                         }
                                         break;
                                     }
@@ -1383,7 +1384,7 @@ public class HostActivity extends Activity implements RoomView {
                 listUserExit.add(userId);
             }
         } else {
-            Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
+            Intent intent = new Intent(RoomActivity.this, ChooseRoomActivity.class);
             startActivity(intent);
         }
     }
@@ -1822,7 +1823,7 @@ public class HostActivity extends Activity implements RoomView {
 
     @Override
     public void updateLeaveRoom() {
-        Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
+        Intent intent = new Intent(RoomActivity.this, ChooseRoomActivity.class);
         startActivity(intent);
         finishAffinity();
         roomPresenter.removeListen();
@@ -2018,7 +2019,7 @@ public class HostActivity extends Activity implements RoomView {
     @Override
     public void updateListAllChon(String name, String nameChoose) {
         lnrListAllChon.setVisibility(View.VISIBLE);
-        TextView txt = new TextView(HostActivity.this);
+        TextView txt = new TextView(RoomActivity.this);
         txt.setText(name + " => " + nameChoose);
         txt.setTextSize(15f);
         lnrListAllChon.addView(txt);
@@ -2032,7 +2033,7 @@ public class HostActivity extends Activity implements RoomView {
     @Override
     public void updateListBoPhieu(String name, String bp) {
         lnrListAllChon.setVisibility(View.VISIBLE);
-        TextView txt = new TextView(HostActivity.this);
+        TextView txt = new TextView(RoomActivity.this);
         txt.setText(name + " => " + bp);
         txt.setTextSize(15f);
         lnrListAllChon.addView(txt);
@@ -2111,10 +2112,10 @@ public class HostActivity extends Activity implements RoomView {
        // super.onBackPressed();
         if(flagStart == true){
             if (registLeaveRoom == false){
-                Toast.makeText(HostActivity.this,"Bạn đã đăng kí tời phòng",Toast.LENGTH_SHORT).show();
+                Toast.makeText(RoomActivity.this,"Bạn đã đăng kí tời phòng",Toast.LENGTH_SHORT).show();
                 registLeaveRoom = true;
             } else {
-                Toast.makeText(HostActivity.this,"Bạn đã hủy đăng kí tời phòng",Toast.LENGTH_SHORT).show();
+                Toast.makeText(RoomActivity.this,"Bạn đã hủy đăng kí tời phòng",Toast.LENGTH_SHORT).show();
                 registLeaveRoom = false;
             }
         }
@@ -2128,7 +2129,7 @@ public class HostActivity extends Activity implements RoomView {
             Enviroment.phong.getUsers().clear();
             Enviroment.phong = null;
             Enviroment.user.setId_room("");
-            Intent intent = new Intent(HostActivity.this, ChooseRoomActivity.class);
+            Intent intent = new Intent(RoomActivity.this, ChooseRoomActivity.class);
             startActivity(intent);
             finish();
             roomPresenter.removeListen();

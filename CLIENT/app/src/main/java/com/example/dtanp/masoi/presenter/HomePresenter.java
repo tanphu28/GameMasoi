@@ -15,6 +15,7 @@ import com.example.dtanp.masoi.model.UserFriends;
 import com.example.dtanp.masoi.singleton.SocketSingleton;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
+import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -188,6 +189,14 @@ public class HomePresenter {
                 });
             }
         });
+    }
+
+    public  void emitCancelJoinRoom(String idRoom, String userId){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("idroom",idRoom);
+        jsonObject.addProperty("userid",userId);
+        String json = Enviroment.gson.toJson(jsonObject);
+        this.socket.emit("canclejoinroom",json);
     }
 
 

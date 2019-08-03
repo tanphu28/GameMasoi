@@ -12,6 +12,9 @@ var RoomSchema  = new Schema({
     users:{
         type: [User]
     },
+    useringame:{
+        type: [User]
+    },
 
     people:{
         type:Number
@@ -26,7 +29,10 @@ var RoomSchema  = new Schema({
     host:{
         type:Number
     },
-
+    isPlay:{
+        type : Boolean,
+        default: false
+    },
     money:{
         type:Number
     },

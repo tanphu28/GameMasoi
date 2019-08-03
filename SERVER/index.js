@@ -20,6 +20,7 @@ let UserStore = require('./models/UserStore');
 let UserFriends = require('./models/UserFriends');
 let FeedBack = require('./models/FeedBackModel');
 let RoomCache = require('./models/RoomCache');
+let MessageError = require('./models/MessageError');
 let UserHistory = require('./models/UserHistoryLogin');
 const nexmo = new Nexmo({
     apiKey: 'b498f0a1',
@@ -74,7 +75,7 @@ io.on("connection", function (socket) {
                         }
                         else {
                             console.log("thanh cong!");
-                            if (doc.users.length == 1) {
+                            if (doc.users.length == 1 || doc.useringame.length == 1 ) {
                                 Room.deleteOne({ _id: socket.Phong }, function (err) {
                                     if (err) {
                                         console.log("That bai! 2");
@@ -83,34 +84,48 @@ io.on("connection", function (socket) {
                                         console.log("Thanh cong!");
                                         io.sockets.emit("DeleteRoom", socket.Phong);
                                         socket.leave(socket.Phong);
-
-
                                     }
                                 });
                             }
                             else {
-                                id = doc.users[1].userId;
-                                // Room.update(
-                                //     { _id: socket.Phong },
-                                //     {
-                                //         $pull: { users: { userId: socket.userId } }
-                                //     }, { multi: true }, function (err) {
-                                //         if (err) {
-                                //             console.log("That Bai 3");
-                                //         }
-                                //         else {
-                                console.log("Thanh cong !");
-                                io.sockets.in(socket.Phong).emit("userexit", socket.userId);
-                                if (socket.host == 1) {
-                                    io.sockets.in(socket.Phong).emit("useruphost", id);
-                                    socket.host = 0;
+                                
+                                Room.update(
+                                    { _id: socket.Phong },
+                                    {
+                                        $pull: { useringame: { userId: socket.userId } }
+                                    }, { multi: true }, function (err,doc3) {
+                                        if (err) {
+                                            console.log("That Bai 3");
+                                        }
+                                        else {
+                                            if(doc3.isPlay==false){
+                                                Room.update(
+                                                    { _id: socket.Phong },
+                                                    {
+                                                        $pull: { users: { userId: socket.userId } }
+                                                    },
+                                                    { multi: true }
+                                                );
+                                            }
+
+                                            if(doc3.useringame!=null){
+                                                id = doc3.useringame[0].userId;
+                                            }
+                                            console.log("Thanh Cong!");
+                                            console.log("Thanh cong !");
+                                            io.sockets.in(socket.Phong).emit("userexit", socket.userId);
+                                            if (socket.host == 1) {
+                                                io.sockets.in(socket.Phong).emit("useruphost", id);
+                                                socket.host = 0;
+                                            }
+                                            socket.leave(socket.Phong);
+                                            socket.Phong = "";
+                                            
+                                    }
                                 }
-                                console.log(id);
-                                socket.leave(socket.Phong);
-                                socket.Phong = "";
-                                //}
-                                //}
-                                // );
+                                );
+                                
+                                
                             }
                         }
                     });
@@ -135,7 +150,7 @@ io.on("connection", function (socket) {
     });
 
     socket.on("useringameplay", async function (data) {
-        Room.findOne({ users: {$elemMatch:{ userId: data } }}, (err, doc) => {
+        Room.findOne({ users: { $elemMatch: { userId: data } } }, (err, doc) => {
             if (err) {
                 console.log("That Bai")
             } else {
@@ -153,8 +168,8 @@ io.on("connection", function (socket) {
         console.log(data);
         var json = JSON.parse(data);
         var json2 = {
-            userId : json.userid,
-            id : socket.id
+            userId: json.userid,
+            id: socket.id
         }
         io.sockets.in(json.phong).emit("syncforuser", json2);
     });
@@ -485,6 +500,29 @@ io.on("connection", function (socket) {
         })
     })
 
+    socket.on("updateuseringame",function(data){
+        var json = JSON.parse(data);
+        Room.findOne({_id : socket.Phong},function(err,data){
+            if(err){
+                console.log("That Bai");
+            }
+            else{
+                console.log("Thanh Cong");
+                data.useringame = json;
+                data.save();
+            }
+        })
+
+    });
+
+    socket.on("crash",function(data){
+        var json = JSON.parse(data);
+        var mes = new MessageError({
+            message : json.track + json.message
+        });
+        mes.save();
+    })
+
     socket.on("RegistnicknameLoginFb", function (data) {
         var json = JSON.parse(data);
         var user = new User({
@@ -609,7 +647,7 @@ io.on("connection", function (socket) {
             if (err) {
                 console.log("That bai");
             } else {
-                if (doc.users.length == 7) {
+                if (doc.users.length == 7 || doc.isPlay == true) {
                     var response = {
                         flag: true,
                         room: doc
@@ -683,6 +721,23 @@ io.on("connection", function (socket) {
         //     }
         // });
     });
+
+    //cancle join room
+    socket.on("canclejoinroom", async function (data) {
+        var json = JSON.parse(data);
+        Room.update(
+            { _id: json.idroom },
+            {
+                $pull: { users: { userId: json.userid } }
+            }, { multi: true }, function (err) {
+                if (err) {
+                    console.log("That Bai!");
+                }
+                else { 
+                    console.log("Thanh cong!");
+                }
+            });
+    });
     //all user
     socket.on("alluser", function () {
         console.log("that all user");
@@ -715,7 +770,7 @@ io.on("connection", function (socket) {
         );
     });
     //create user friends
-    socket.on("createUserFriend",async function (data) {
+    socket.on("createUserFriend", async function (data) {
         var ketqua = false;
         console.log("create friend");
         var json = JSON.parse(data);
@@ -727,12 +782,12 @@ io.on("connection", function (socket) {
             regist_dt: json.regist_dt
 
         });
-        userfriend.save((err,doc) => {
+        userfriend.save((err, doc) => {
             if (err) {
                 console.log(" add user friends  fail");
-                socket.emit('ketquakb',false);
+                socket.emit('ketquakb', false);
             } else {
-                socket.emit('ketquakb',true);
+                socket.emit('ketquakb', true);
             }
         })
 
@@ -840,6 +895,8 @@ io.on("connection", function (socket) {
                     create_date: doc.create_date,
                 });
                 room.save();
+                doc.isPlay = true;
+                doc.save();
             }
         });
 
@@ -1109,6 +1166,16 @@ io.on("connection", function (socket) {
             });
 
         }
+
+        Room.findById({id : socket.Phong},function(err,doc){
+            if(err){
+                console.log("that bai");
+            }else{
+                doc.isPlay = false;
+            doc.useringame = null;
+            doc.save();
+            }
+        });
 
 
     })

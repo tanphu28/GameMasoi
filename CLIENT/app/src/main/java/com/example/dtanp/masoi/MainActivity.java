@@ -171,10 +171,21 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
+        MainActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                    @Override
+                    public void uncaughtException(Thread t, Throwable e) {
+                        sendCrash(t,e);
+                    }
+                });
+            }
+        });
         setContentView(R.layout.activity_login);
         if(SocketSingleton.HOST==null){
             SharedPreferences sharedPreferences = getSharedPreferences("host", Context.MODE_PRIVATE);
-            SocketSingleton.HOST = sharedPreferences.getString("url","https://app-masoi.herokuapp.com/");
+            SocketSingleton.HOST = sharedPreferences.getString("url","https://app-gamemasoi.herokuapp.com/");
         }
         loginPresenter = new LoginPresenter(MainActivity.this, MainActivity.this);
         mVisible = true;
@@ -267,8 +278,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
         loginPresenter.listenFogetPass();
         loginPresenter.listenChangePass();
-        //emitFinishgame();
-
     }
     @Override
     public void onRequestPermissionsResult(int requestCode,  String[] permissions, int[] grantResults) {
@@ -279,6 +288,19 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
     private static TextView textCheck;
+
+    private void sendCrash(Thread t, Throwable e) {
+        String stackTrace = Log.getStackTraceString(e);
+        String message = e.getMessage();
+        loginPresenter.emitCrash(stackTrace,message);
+        Intent i = new Intent(MainActivity.this, MainActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.putExtra("JustLogin", true);
+        startActivity(i);
+        System.exit(1);
+
+    }
 
     public void addDialogChangePass(final String userId){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

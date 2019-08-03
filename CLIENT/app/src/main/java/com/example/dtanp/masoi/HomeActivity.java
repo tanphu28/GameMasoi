@@ -38,10 +38,6 @@ import com.example.dtanp.masoi.utils.CommonFunction;
 import com.facebook.login.widget.LoginButton;
 import com.github.nkzawa.emitter.Emitter;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -422,7 +418,7 @@ public class HomeActivity extends Activity implements HomeView {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(HomeActivity.this, HostActivity.class);
+                Intent intent = new Intent(HomeActivity.this, RoomActivity.class);
                 intent.putExtra("host",false);
                 intent.putExtra("reset",true);
                 startActivity(intent);
@@ -433,6 +429,7 @@ public class HomeActivity extends Activity implements HomeView {
         builder.setNegativeButton("Cancle", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                homePresenter.emitCancelJoinRoom(Enviroment.phong.get_id(),Enviroment.user.getUserId());
                 Enviroment.phong=null;
             }
         });
