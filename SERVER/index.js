@@ -75,7 +75,7 @@ io.on("connection", function (socket) {
                         }
                         else {
                             console.log("thanh cong!");
-                            if (doc.users.length == 1 || doc.useringame.length == 1 ) {
+                            if (doc.users.length == 1 || doc.useringame.length == 1) {
                                 Room.deleteOne({ _id: socket.Phong }, function (err) {
                                     if (err) {
                                         console.log("That bai! 2");
@@ -88,17 +88,17 @@ io.on("connection", function (socket) {
                                 });
                             }
                             else {
-                                
+
                                 Room.update(
                                     { _id: socket.Phong },
                                     {
                                         $pull: { useringame: { userId: socket.userId } }
-                                    }, { multi: true }, function (err,doc3) {
+                                    }, { multi: true }, function (err, doc3) {
                                         if (err) {
                                             console.log("That Bai 3");
                                         }
                                         else {
-                                            if(doc3.isPlay==false){
+                                            if (doc3.isPlay == false) {
                                                 Room.update(
                                                     { _id: socket.Phong },
                                                     {
@@ -108,7 +108,7 @@ io.on("connection", function (socket) {
                                                 );
                                             }
 
-                                            if(doc3.useringame!=null){
+                                            if (doc3.useringame != null) {
                                                 id = doc3.useringame[0].userId;
                                             }
                                             console.log("Thanh Cong!");
@@ -120,12 +120,12 @@ io.on("connection", function (socket) {
                                             }
                                             socket.leave(socket.Phong);
                                             socket.Phong = "";
-                                            
+
+                                        }
                                     }
-                                }
                                 );
-                                
-                                
+
+
                             }
                         }
                     });
@@ -500,13 +500,13 @@ io.on("connection", function (socket) {
         })
     })
 
-    socket.on("updateuseringame",function(data){
+    socket.on("updateuseringame", function (data) {
         var json = JSON.parse(data);
-        Room.findOne({_id : socket.Phong},function(err,data){
-            if(err){
+        Room.findOne({ _id: socket.Phong }, function (err, data) {
+            if (err) {
                 console.log("That Bai");
             }
-            else{
+            else {
                 console.log("Thanh Cong");
                 data.useringame = json;
                 data.save();
@@ -515,10 +515,10 @@ io.on("connection", function (socket) {
 
     });
 
-    socket.on("crash",function(data){
+    socket.on("crash", function (data) {
         var json = JSON.parse(data);
         var mes = new MessageError({
-            message : json.track + json.message
+            message: json.track + json.message
         });
         mes.save();
     })
@@ -733,7 +733,7 @@ io.on("connection", function (socket) {
                 if (err) {
                     console.log("That Bai!");
                 }
-                else { 
+                else {
                     console.log("Thanh cong!");
                 }
             });
@@ -1167,13 +1167,13 @@ io.on("connection", function (socket) {
 
         }
 
-        Room.findById({id : socket.Phong},function(err,doc){
-            if(err){
+        Room.findById({ id: socket.Phong }, function (err, doc) {
+            if (err) {
                 console.log("that bai");
-            }else{
+            } else {
                 doc.isPlay = false;
-            doc.useringame = null;
-            doc.save();
+                doc.useringame = null;
+                doc.save();
             }
         });
 
