@@ -12,6 +12,7 @@
         android:hint="Username"
         android:background="@drawable/edittext"
         android:id="@+id/edtUserid"
+        android:textColor="#ffff"
         />
     <LinearLayout
         android:layout_marginTop="10dp"

@@ -17,6 +17,7 @@
         android:layout_height="50dp"
         android:hint="Pass new"
         android:id="@+id/edtPassNew"
+        android:textColor="#fff"
         android:inputType="textPassword"
         android:background="@drawable/edittext"
         />
@@ -24,6 +25,7 @@
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:hint="OTP"
+        android:textColor="#ffff"
         android:id="@+id/edtOTP"
         android:background="@drawable/edittext"
         />

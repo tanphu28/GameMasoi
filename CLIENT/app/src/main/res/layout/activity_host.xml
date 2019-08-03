@@ -5,6 +5,7 @@
     android:background="@drawable/bgban"
     android:orientation="horizontal"
     android:id="@+id/fullscreen_content"
+    android:textColor="#ffff"
     >
 
     <LinearLayout
@@ -287,7 +288,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
-                            android:text=""
+                            android:textColor="#ffff"
                             android:textSize="16dp" />
                     </LinearLayout>
 
@@ -312,7 +313,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:text=""
+                        android:textColor="#ffff"
                         android:textSize="16dp" />
                     </LinearLayout>
                     <LinearLayout
@@ -338,6 +339,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:text=""
+                        android:textColor="#ffff"
                         android:textSize="16dp" />
                     </LinearLayout>
                 </LinearLayout>
@@ -355,14 +357,14 @@
                         android:layout_weight="3"
                         >
 
-                    <ImageButton
-                        android:id="@+id/btnUser4"
-                        android:layout_width="75dp"
-                        android:layout_height="88dp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="3dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/userfriend" />
+                        <ImageButton
+                            android:id="@+id/btnUser4"
+                            android:layout_width="75dp"
+                            android:layout_height="88dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="3dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/userfriend" />
 
                         <TextView
                             android:id="@+id/txtuser4"
@@ -370,6 +372,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:text=""
+                            android:textColor="#ffff"
                             android:textSize="16dp" />
                     </LinearLayout>
                     <LinearLayout
@@ -395,6 +398,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:text=""
+                        android:textColor="#ffff"
                         android:textSize="16dp" />
                     </LinearLayout>
                     <LinearLayout
@@ -420,6 +424,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
                         android:text=""
+                        android:textColor="#ffff"
                         android:textSize="16dp" />
                     </LinearLayout>
                 </LinearLayout>
