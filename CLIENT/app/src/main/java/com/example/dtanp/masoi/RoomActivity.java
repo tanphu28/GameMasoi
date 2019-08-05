@@ -8,6 +8,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.DataSetObserver;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -120,6 +121,7 @@ public class RoomActivity extends Activity implements RoomView {
     private RoomPresenter roomPresenter;
     private boolean host, ready = false,registLeaveRoom=false;
     private Button btnSS;
+    private ImageView imgdie;
 
 
     @SuppressLint("ResourceType")
@@ -416,6 +418,7 @@ public class RoomActivity extends Activity implements RoomView {
     }
 
     public void AnhXa() {
+        imgdie = findViewById(R.id.imgDie);
         listUserDie = new ArrayList<>();
         listUserExit = new ArrayList<>();
         btnSkip = findViewById(R.id.btnSkip);
@@ -1256,6 +1259,7 @@ public class RoomActivity extends Activity implements RoomView {
         listUserInGame.clear();
         die = false;
         flagStart=false;
+        imgdie.setVisibility(View.INVISIBLE);
         ResetAnhUser();
         resetClickUser();
 
@@ -1498,6 +1502,7 @@ public class RoomActivity extends Activity implements RoomView {
         listUserDie.add(userId);
             if (userId.equals(Enviroment.user.getUserId())) {
                 die = true;
+                imgdie.setVisibility(View.VISIBLE);
             } else {
                 for (UserRoom text : userRoomList) {
                     if(text.getUseradd()!=null)
@@ -2019,6 +2024,7 @@ public class RoomActivity extends Activity implements RoomView {
     public void updateListAllChon(String name, String nameChoose) {
         lnrListAllChon.setVisibility(View.VISIBLE);
         TextView txt = new TextView(RoomActivity.this);
+        txt.setTextColor(Color.WHITE);
         txt.setText(name + " => " + nameChoose);
         txt.setTextSize(15f);
         lnrListAllChon.addView(txt);
@@ -2033,6 +2039,7 @@ public class RoomActivity extends Activity implements RoomView {
     public void updateListBoPhieu(String name, String bp) {
         lnrListAllChon.setVisibility(View.VISIBLE);
         TextView txt = new TextView(RoomActivity.this);
+        txt.setTextColor(Color.WHITE);
         txt.setText(name + " => " + bp);
         txt.setTextSize(15f);
         lnrListAllChon.addView(txt);
