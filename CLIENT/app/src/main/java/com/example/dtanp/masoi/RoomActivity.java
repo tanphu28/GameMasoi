@@ -1613,12 +1613,12 @@ public class RoomActivity extends Activity implements RoomView {
         if (countNo + countYes == (listUserInGame.size() - 1)) {
             if (countYes > countNo) {
                 giet = true;
-                countNo = 0;
-                countYes = 0;
             }
             manv = 9;
             roomPresenter.emitSync(flagchat,flagxuli,manv);
             handlerMaSoi.sendEmptyMessage(0);
+            countNo = 0;
+            countYes = 0;
         }
 
     }
