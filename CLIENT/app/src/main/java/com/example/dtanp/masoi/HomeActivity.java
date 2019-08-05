@@ -16,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
@@ -121,6 +122,7 @@ public class HomeActivity extends Activity implements HomeView {
     private TextView txtPing;
     private AlertDialog dialogDisconnect;
     int textlength=0;
+    private AsyncTask asyncTask;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -135,7 +137,7 @@ public class HomeActivity extends Activity implements HomeView {
         homePresenter.listenAllChat();
         txtUser.setText(Enviroment.user.getName());
         homePresenter.litenPingtoServer();
-         //inSomeWhere();
+         inSomeWhere();
         homePresenter.listenDisconect();
         homePresenter.listenConnect();
         //pingToServer();
@@ -450,7 +452,7 @@ public class HomeActivity extends Activity implements HomeView {
             @Override
             protected String doInBackground(Void... voids) {
                 while (1==1) {
-                    String ip = "www.google.com";
+                    String ip = "www.hongkong1.tk";
                     String pingResult = "  ";
                     String pingCmd = "ping" + ip;
 
@@ -480,15 +482,20 @@ public class HomeActivity extends Activity implements HomeView {
             @Override
             protected void onProgressUpdate(String... values) {
                 super.onProgressUpdate(values);
-                System.out.println(values[0]);
-                String[] s = values[0].split("/");
-                int ping  = (int) Double.parseDouble(s[4]);;
-                txtPing.setText(ping + "ms");
-                if (ping>35){
-                    txtPing.setTextColor(Color.RED);
-                }else {
-                    txtPing.setTextColor(Color.GREEN);
+                try{
+                    System.out.println(values[0]);
+                    String[] s = values[0].split("/");
+                    int ping  = (int) Double.parseDouble(s[4]);;
+                    txtPing.setText(ping + "ms");
+                    if (ping>35){
+                        txtPing.setTextColor(Color.RED);
+                    }else {
+                        txtPing.setTextColor(Color.GREEN);
+                    }
+                }catch (Exception e){
+                    Log.d("error",e.getMessage().toString());
                 }
+
             }
         }.execute();
     }

@@ -40,7 +40,7 @@
 
     <string name="txtWin">Win :</string>
     <string name="txttLoss">Loss :</string>
-    <string name="btnClick">Click</string>
+    <string name="btnClick">Kick</string>
 
     <string name="btnEdit">Edit</string>
     <string name="hintFullname">Full Name</string>

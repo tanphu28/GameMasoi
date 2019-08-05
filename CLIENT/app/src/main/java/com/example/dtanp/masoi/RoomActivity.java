@@ -1290,7 +1290,6 @@ public class RoomActivity extends Activity implements RoomView {
         roomPresenter.emitResetNgayMoi();
         listIdMaSoichon.clear();
         listAllChon.clear();
-        idBaoVeChon = "";
         idThoSanChon = "";
         idTienTriChon = "";
         flagchat=false;

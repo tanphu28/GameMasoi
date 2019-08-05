@@ -88,42 +88,95 @@ io.on("connection", function (socket) {
                                 });
                             }
                             else {
-
-                                Room.update(
-                                    { _id: socket.Phong },
-                                    {
-                                        $pull: { useringame: { userId: socket.userId } }
-                                    }, { multi: true }, function (err, doc3) {
-                                        if (err) {
-                                            console.log("That Bai 3");
-                                        }
-                                        else {
-                                            if (doc3.isPlay == false) {
-                                                Room.update(
-                                                    { _id: socket.Phong },
-                                                    {
-                                                        $pull: { users: { userId: socket.userId } }
-                                                    },
-                                                    { multi: true }
-                                                );
-                                            }
-
-                                            if (doc3.useringame != null) {
-                                                id = doc3.useringame[0].userId;
-                                            }
-                                            console.log("Thanh Cong!");
-                                            console.log("Thanh cong !");
-                                            io.sockets.in(socket.Phong).emit("userexit", socket.userId);
-                                            if (socket.host == 1) {
-                                                io.sockets.in(socket.Phong).emit("useruphost", id);
-                                                socket.host = 0;
-                                            }
-                                            socket.leave(socket.Phong);
-                                            socket.Phong = "";
-
-                                        }
+                                if (doc.isPlay == false) {
+                                    if (socket.host == 1) {
+                                                    id = doc.users[1].userId;
+                                                    console.log(id + 'id ne');
+                                                    io.sockets.in(socket.Phong).emit("useruphost", id);
+                                                    socket.host = 0;
                                     }
-                                );
+                                    io.sockets.in(socket.Phong).emit("userexit", socket.userId);
+                                    
+                                    Room.update(
+                                        { _id: socket.Phong },
+                                        {
+                                            $pull: { users: { userId: socket.userId } }
+                                        }, { multi: true }, function (err, doc4) {
+                                            if (err) {
+                                                console.log("That Bai!");
+                                            }
+                                            else {
+                                                console.log("Thanh cong!");
+                                            }
+                                        });
+
+                                    // Room.update(
+                                    //     { _id: socket.Phong },
+                                    //     {
+                                    //         $pull: { users: { userId: socket.userId } }
+                                    //     }, { multi: true }, function (err, doc4) {
+                                    //         if (err) {
+                                    //             console.log("That Bai!");
+                                    //         }
+                                    //         else {
+                                    //             console.log("Thanh cong!");
+                                    //             console.log(socket.host + 'id ne');
+                                    //             console.log(doc4);
+                                    //             if (socket.host == 1) {
+                                    //                 id = doc4.users[0].userId;
+                                    //                 console.log(id + 'id ne');
+                                    //                 io.sockets.in(socket.Phong).emit("useruphost", id);
+                                    //                 socket.host = 0;
+                                    //             }
+                                    //              io.sockets.in(socket.Phong).emit("userexit", socket.userId);
+                                    //         }
+                                    //     });
+                                } 
+                                else {
+                                    if (socket.host == 1) {
+                                        id = doc.useringame[1].userId;
+                                        console.log(id + 'id ne');
+                                        io.sockets.in(socket.Phong).emit("useruphost", id);
+                                        socket.host = 0;
+                                    }
+                                    io.sockets.in(socket.Phong).emit("userexit", socket.userId);
+                                    
+                                    Room.update(
+                                        { _id: socket.Phong },
+                                        {
+                                            $pull: { useringame: { userId: socket.userId } }
+                                        }, { multi: true }, function (err, doc4) {
+                                            if (err) {
+                                                console.log("That Bai!");
+                                            }
+                                            else {
+                                                console.log("Thanh cong!");
+                                            }
+                                        });
+                                    // Room.update(
+                                    //     { _id: socket.Phong },
+                                    //     {
+                                    //         $pull: { useringame: { userId: socket.userId } }
+                                    //     }, { multi: true }, function (err, doc3) {
+                                    //         if (err) {
+                                    //             console.log("That Bai 3");
+                                    //         }
+                                    //         else {
+
+
+                                    //             if (doc3.useringame != null && doc3.isPlay == true) {
+                                    //                 id = doc3.useringame[0].userId;
+                                    //                 io.sockets.in(socket.Phong).emit("useruphost", id);
+                                    //             }
+                                    //             console.log("Thanh Cong!");
+                                    //             console.log("Thanh cong !");
+                                    //             io.sockets.in(socket.Phong).emit("userexit", socket.userId);
+                                    //             socket.leave(socket.Phong);
+
+                                    //         }
+                                    //     }
+                                    // );
+                                }
 
 
                             }
@@ -794,13 +847,13 @@ io.on("connection", function (socket) {
 
     })
     //chat user
-    socket.on("chatuserfreind",function(data){
+    socket.on("chatuserfreind", function (data) {
         var json = JSON.parse(data);
-        io.sockets.in(json.userId).emit("chatuserfreind",json.message);
+        io.sockets.in(json.userId).emit("chatuserfreind", json.message);
     });
-      socket.on("ChatUser", function (data) {
-            io.sockets.in(socket.UserFriends).emit("ChatUser", data);
-      });
+    socket.on("ChatUser", function (data) {
+        io.sockets.in(socket.UserFriends).emit("ChatUser", data);
+    });
     //user ready
     socket.on("ready", function (data) {
         console.log(socket.Phong + " phong");
@@ -1172,12 +1225,12 @@ io.on("connection", function (socket) {
 
         }
 
-        Room.findById({ id: socket.Phong }, function (err, doc) {
+        Room.findById({ _id: socket.Phong }, function (err, doc) {
             if (err) {
                 console.log("that bai");
             } else {
                 doc.isPlay = false;
-                doc.useringame = null;
+                doc.useringame = new Array();
                 doc.save();
             }
         });
@@ -1259,10 +1312,12 @@ app.get("/image", function (req, res) {
     res.writeHead(200, { "Content-Type": "image/jpeg" });
     imgStream.pipe(res);
 });
-app.get("/apk", function (req, res) {
+app.get("/apk", async function (req, res) {
     var imgPath = path.join(__dirname, 'public', 'app-debug.apk');
     var imgStream = fs.createReadStream(imgPath);
-    res.writeHead(200, { "Content-Type": "application/vnd.android.package-archive" });
+    var stats = fs.statSync(imgPath)
+    var fileSizeInBytes = stats["size"]
+    await res.writeHead(200, { "Content-Type": "application/vnd.android.package-archive", 'Content-Length': fileSizeInBytes });
     imgStream.pipe(res);
 });
 
@@ -1273,7 +1328,7 @@ let options = {
     pass: 'admin'
 };
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/MasoiDB').then(
+mongoose.connect('mongodb://localhost:27017/MasoiDB', options).then(
     () => {
         console.log("connect Db Succes");
     },

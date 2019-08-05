@@ -373,7 +373,9 @@ public class ChooseRoomActivity extends Activity implements ChooseRoomView {
         imgback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("back");
+                Intent intent = new Intent(ChooseRoomActivity.this,HomeActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
     }

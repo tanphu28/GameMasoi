@@ -141,4 +141,12 @@
             android:layout_marginLeft="230dp"
             />
     </LinearLayout>
+    <TextView
+        android:id="@+id/txtError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send Error"
+        android:textColor="#eb5a16"
+        android:layout_marginTop="15dp"
+        />
 </LinearLayout>

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -108,7 +110,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public static final String TAG = "abc";
     private EditText edtuser, edtpassworld;
     private Button btnlogin, btnsignup;
-    private TextView txtFogotPass;
+    private TextView txtFogotPass,txtSendError;
     private ImageButton btngg;
     private FirebaseDatabase database;
     private FirebaseAuth auth;
@@ -166,6 +168,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     boolean isOK = false;
     AlertDialog dialog;
     String userId;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -260,6 +263,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         AddConTrols();
         AddEvents();
         AddDialog();
+        setupProgressBar();
         loginPresenter.listenLogin();
         loginPresenter.listenRegister();
         loginPresenter.emitCheckVersionName();
@@ -278,6 +282,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
         loginPresenter.listenFogetPass();
         loginPresenter.listenChangePass();
+
     }
     @Override
     public void onRequestPermissionsResult(int requestCode,  String[] permissions, int[] grantResults) {
@@ -299,6 +304,15 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         i.putExtra("JustLogin", true);
         startActivity(i);
         System.exit(1);
+
+    }
+
+    private void setupProgressBar(){
+        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setMessage("Download File ...");
+        progressDialog.setMax(100);
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 
     }
 
@@ -434,7 +448,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         builder.setNegativeButton("Accept", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                downloadfile();
+                progressDialog.show();
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        downloadfile();
+                    }
+                });
+
             }
         });
         builder.setCancelable(false);
@@ -454,14 +475,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    boolean writtenToDisk = writeResponseBodyToDisk(response.body());
-                    Toast.makeText(MainActivity.this, "Download Successfully", Toast.LENGTH_SHORT).show();
-                    if (writtenToDisk) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/app-debug.apk")), "application/vnd.android.package-archive");
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                    }
+                    boolean writtenToDisk = true;
+                    Toast.makeText(MainActivity.this, "Download", Toast.LENGTH_SHORT).show();
+                    writeResponseBodyToDisk(response.body());
                 } else {
                     Toast.makeText(MainActivity.this, "Fail!", Toast.LENGTH_SHORT).show();
                 }
@@ -474,56 +490,89 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         });
     }
 
-    public boolean writeResponseBodyToDisk(ResponseBody body) {
-        try {
-            // todo change the file location/name according to your needs
-            File futureStudioIconFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "/app-debug.apk");
+    public void writeResponseBodyToDisk(final ResponseBody body) {
+        new AsyncTask<Void, Integer, Boolean>() {
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                try {
+                    File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/app-debug.apk");
+                    if(file.exists()){
+                        file.delete();
+                    }
+                    // todo change the file location/name according to your needs
+                    File futureStudioIconFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "/app-debug.apk");
 
-            InputStream inputStream = null;
-            OutputStream outputStream = null;
+                    InputStream inputStream = null;
+                    OutputStream outputStream = null;
 
-            try {
-                byte[] fileReader = new byte[4096];
+                    try {
+                        byte[] fileReader = new byte[4096];
 
-                long fileSize = body.contentLength();
-                long fileSizeDownloaded = 0;
+                        long fileSize = body.contentLength();
+                        long fileSizeDownloaded = 0;
 
-                inputStream = body.byteStream();
-                outputStream = new FileOutputStream(futureStudioIconFile);
+                        inputStream = body.byteStream();
+                        outputStream = new FileOutputStream(futureStudioIconFile);
+                        while (true) {
+                            int read = inputStream.read(fileReader);
 
-                while (true) {
-                    int read = inputStream.read(fileReader);
+                            if (read == -1) {
+                                break;
+                            }
 
-                    if (read == -1) {
-                        break;
+                            outputStream.write(fileReader, 0, read);
+
+                            fileSizeDownloaded += read;
+
+                            Log.d("CHIM", "file download: " + fileSizeDownloaded + " of " + fileSize);
+                            int t = (int) (fileSizeDownloaded*100/fileSize);
+                            System.out.println(t);
+                            publishProgress(t);
+                        }
+
+                        outputStream.flush();
+
+                        return true;
+                    } catch (IOException e) {
+                        Log.d("CHIMERR", e.getMessage().toString());
+                        return false;
+                    } finally {
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+
+                        if (outputStream != null) {
+                            outputStream.close();
+                        }
+                        progressDialog.cancel();
                     }
 
-                    outputStream.write(fileReader, 0, read);
-
-                    fileSizeDownloaded += read;
-
-                    Log.d("CHIM", "file download: " + fileSizeDownloaded + " of " + fileSize);
-                }
-
-                outputStream.flush();
-
-                return true;
-            } catch (IOException e) {
-                Log.d("CHIMERR", e.getMessage().toString());
-                return false;
-            } finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-
-                if (outputStream != null) {
-                    outputStream.close();
+                } catch (IOException e) {
+                    Log.d("CHIMERR", e.getMessage().toString());
+                    return false;
                 }
             }
-        } catch (IOException e) {
-            Log.d("CHIMERR", e.getMessage().toString());
-            return false;
-        }
+
+            @Override
+            protected void onProgressUpdate(Integer... values) {
+                super.onProgressUpdate(values);
+                progressDialog.setProgress(values[0]);
+            }
+
+            @Override
+            protected void onPostExecute(Boolean aBoolean) {
+                super.onPostExecute(aBoolean);
+                progressDialog.cancel();
+                if (aBoolean) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/app-debug.apk")), "application/vnd.android.package-archive");
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }
+            }
+        }.execute();
+
+
     }
 
     public void addDialogFogotPass(){
@@ -581,6 +630,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 dialogFogot.show();
             }
         });
+        txtSendError.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int t = 1/0;
+                System.out.println(t);
+            }
+        });
     }
 
     private void AddConTrols() {
@@ -590,7 +646,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         btnlogin = findViewById(R.id.btnlogin);
         btnsignup = findViewById(R.id.btnsignup);
         txtFogotPass = findViewById(R.id.txtquenmk);
-
+        txtSendError =findViewById(R.id.txtError);
     }
 
     public void startmhsignup() {
